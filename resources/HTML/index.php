@@ -43,7 +43,7 @@ function login() {
 			
 			document.getElementById('user').blur();
 			document.getElementById('pass').blur();
-			alert('Die eingegebenen Daten sind falsch!');
+			alert('Username or password wrong!');
 		}
 	};
 	
