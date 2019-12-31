@@ -12,10 +12,10 @@
 <div class="container">
 <h1> Home-System » Login </h1>
 <form id="login"method="post" autocomplete="on" onsubmit="return login();">
-<p>Benutzer:</p>
+<p>Username:</p>
 <input type="text" placeholder="Username" id="user" autocomplete="on" required><br>
 
-<p>Passwort:</p>
+<p>Password:</p>
 <input type="password" placeholder="Password" id="pass" autocomplete="on" required><br>
 
 <input type="submit" value="Login" id="submit">
