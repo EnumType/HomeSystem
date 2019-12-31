@@ -1,0 +1,9 @@
+RoomNameHere:
+    Devices:
+        DeviceNameHere:
+            Type: TypeHere
+            Address: AddressHere
+            HmIP: false
+            AIData: false
+            AIControl: false
+    Permission: permission.here
