@@ -1,1 +1,1 @@
-screen -dmS HomeSystem java -Xms1G -Xmx1G -jar Server.jar
+screen -S HomeSystem java -Xms1G -Xmx1G -jar Server.jar
