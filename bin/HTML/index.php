@@ -10,15 +10,15 @@
 
 <body>
 <div class="container">
-<h1> Home-System Â» Login </h1>
+<h1> Home-System » Login </h1>
 <form id="login"method="post" autocomplete="on" onsubmit="return login();">
-<p>Benutzer:</p>
-<input type="text" placeholder="Benutzername" id="user" autocomplete="on" required><br>
+<p>Username:</p>
+<input type="text" placeholder="Username" id="user" autocomplete="on" required><br>
 
-<p>Passwort:</p>
-<input type="password" placeholder="Passwort" id="pass" autocomplete="on" required><br>
+<p>Password:</p>
+<input type="password" placeholder="Password" id="pass" autocomplete="on" required><br>
 
-<input type="submit" value="Einloggen" id="submit">
+<input type="submit" value="Login" id="submit">
 
 <script>
 function login() {	
@@ -43,7 +43,7 @@ function login() {
 			
 			document.getElementById('user').blur();
 			document.getElementById('pass').blur();
-			alert('Die eingegebenen Daten sind falsch!');
+			alert('Username or password wrong!');
 		}
 	};
 	
