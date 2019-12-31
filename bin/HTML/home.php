@@ -14,7 +14,7 @@ ws.onmessage = function(e) {
 	
 	if(data === 'notloggedin') {
 		loggedIn = false;
-		alert('Bitte zuerst einloggen!');
+		alert('Please login first!');
 		location.replace("/index.php");
 	}else if(data === 'loggedin') {
 		ws.send('getusername');
@@ -48,7 +48,7 @@ ws.onmessage = function(e) {
 		loadingDeviceState = [];
 		
 		setTimeout(function() {
-			alert('Keine Berechtigung für: ' + data.replace('noperm ', ''));
+			alert('No permission for: ' + data.replace('noperm ', ''));
 		}, 500);
 	}
 };
@@ -57,7 +57,7 @@ ws.onclose = function(e) {
 	ws.close();
 	if(loggedIn) {
 		loggedIn = false;
-		alert('Du wurdest automatisch ausgeloggt!');
+		alert('You have been logged out!');
 	}
 	location.replace("/index.php");
 };
@@ -65,7 +65,7 @@ ws.onclose = function(e) {
 ws.onerror = function(e) {
 	ws.close();
 	loggedIn = false;
-	alert('Es ist ein Fehler aufgetreten!');
+	alert('An error has occurred!');
 	location.replace("/index.php");
 };
 
