@@ -65,7 +65,11 @@ ws.onclose = function(e) {
 ws.onerror = function(e) {
 	ws.close();
 	loggedIn = false;
+<<<<<<< HEAD
 	alert('An error has occurred!');
+=======
+	alert('An error has occurred !');
+>>>>>>> branch 'master' of https://github.com/TheJavaException/HomeSystem.git
 	location.replace("/index.php");
 };
 
