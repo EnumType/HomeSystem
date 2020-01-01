@@ -82,3 +82,12 @@ The website files can be extracted with the command `extract website`. They will
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Version log
+- **Version 1.0**
+  - Integrated WebSocket server
+  - Integrated Java server
+  - Integrated Website that can be extracted (See [Website](#Website))
+  - Exceptions will be printed in Log **and** Console
+  - Added Rooms.yml, which allows different rooms to be configured with different devices. Each device can be configured individually (See [Rooms.yml](#Rooms.yml))
+  - Addred Permissions.yml where you can add each user permissions (See [Permissions.yml](#Permissions.yml))
