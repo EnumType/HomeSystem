@@ -1,25 +1,4 @@
 <!DOCTYPE html>
-<html>
-<meta content="width=device-width, initial-scale=1" name="viewport" />
-<head>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
-  <title>Home-System » Login</title>
-</head>
-
-<body>
-<div class="container">
-<h1> Home-System � Login </h1>
-<form id="login"method="post" autocomplete="on" onsubmit="return login();">
-<p>Username:</p>
-<input type="text" placeholder="Username" id="user" autocomplete="on" required><br>
-
-<p>Password:</p>
-<input type="password" placeholder="Password" id="pass" autocomplete="on" required><br>
-
-<input type="submit" value="Login" id="submit">
-
 <script>
 function login() {	
 	var user = document.getElementById('user').value;
@@ -54,6 +33,26 @@ function closeWS(ws) {
 	ws.close();
 }
 </script>
+<html>
+<meta content="width=device-width, initial-scale=1" name="viewport" />
+<head>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <title>Home-System Â» Login</title>
+</head>
+
+<body>
+<div class="container">
+<h1> Home-System » Login </h1>
+<form id="login"method="post" autocomplete="on" onsubmit="return login();">
+<p>Username:</p>
+<input type="text" placeholder="Username" id="user" autocomplete="on" required><br>
+
+<p>Password:</p>
+<input type="password" placeholder="Password" id="pass" autocomplete="on" required><br>
+
+<input type="submit" value="Login" id="submit">
 </form>
 </div>
 </body>
