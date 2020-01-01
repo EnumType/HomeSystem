@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -50,7 +49,7 @@ public class XmlRpcServer {
 							Data.xmlrpcPort = port;
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(53): " + e.getMessage(), false);
+							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(52): " + e.getMessage(), false);
 						}
 					}else if(line.startsWith("HmIP-Port")) {
 						line = line.replace("HmIP-Port: ", "");
@@ -59,7 +58,7 @@ public class XmlRpcServer {
 							Data.hmipPort = port;
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(62): " + e.getMessage(), false);
+							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(61): " + e.getMessage(), false);
 						}
 					}else if(line.startsWith("Server-Port")) {
 						line = line.replace("Server-Port: ", "");
@@ -68,7 +67,7 @@ public class XmlRpcServer {
 							Data.serverPort = port;
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(71): " + e.getMessage(), false);
+							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(70): " + e.getMessage(), false);
 						}
 					}else if(line.startsWith("Resources-Dir")) {
 						line = line.replace("Resources-Dir: ", "");
@@ -80,7 +79,7 @@ public class XmlRpcServer {
 							Data.wsport = port;
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(83): " + e.getMessage(), false);
+							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(82): " + e.getMessage(), false);
 						}
 					}else if(line.startsWith("WebSocket-Https")) {
 						line = line.replace("WebSocket-Https: ", "");
@@ -89,7 +88,7 @@ public class XmlRpcServer {
 							Data.wssport = port;
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(92): " + e.getMessage(), false);
+							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(91): " + e.getMessage(), false);
 						}
 					}else if(line.startsWith("WebSocket-Keystore") && !line.startsWith("WebSocket-KeystorePassword")) {
 						line = line.replace("WebSocket-Keystore: ", "");
@@ -97,6 +96,15 @@ public class XmlRpcServer {
 					}else if(line.startsWith("WebSocket-KeystorePassword")) {
 						line = line.replace("WebSocket-KeystorePassword: ", "");
 						Data.wsKeystorePassword = line;
+					}else if(line.startsWith("BrightnessSensor") && !line.startsWith("BrightnessSensorHmIP")) {
+						line = line.replace("BrightnessSensor: ", "");
+						Data.aiBright = line;
+					}else if(line.startsWith("BrightnessSensorHmIP")) {
+						line = line.replace("BrightnessSensorHmIP: ", "");
+						Data.aiBrightHmIP = Boolean.parseBoolean(line);
+					}else if(line.startsWith("AI-Interval")) {
+						line = line.replace("AI-Interval: ", "");
+						Data.aiInterval = Integer.parseInt(line);
 					}
 				}
 				
@@ -118,7 +126,7 @@ public class XmlRpcServer {
 			}
 		}catch(IOException e) {
 			e.printStackTrace();
-			Log.write(Methods.createPrefix() + "Error in XmlRpcServer(121): " + e.getMessage(), false);
+			Log.write(Methods.createPrefix() + "Error in XmlRpcServer(129): " + e.getMessage(), false);
 		}
 	}
 	
@@ -144,37 +152,20 @@ public class XmlRpcServer {
 						client.execute("setValue", new Object[]{id, value_key, value});
 					}
 					
-					Server.sendCommand(address, "ok");
-				}catch(XmlRpcException e) {
+					if(address != null) {
+						Server.sendCommand(address, "ok");
+					}
+				}catch(XmlRpcException | IOException e) {
 					e.printStackTrace();
-					Log.write(Methods.createPrefix() + "Error in XmlRpcServer(146): " + e.getMessage(), false);
+					Log.write(Methods.createPrefix() + "Error in XmlRpcServer(160): " + e.getMessage(), false);
 					try {
-						Server.sendCommand(address, "faiure");
-					} catch (UnknownHostException e1) {
-						e1.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in XmlRpcServer(151): " + e.getMessage(), false);
+						if(address != null) {
+							Server.sendCommand(address, "failure");
+						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in XmlRpcServer(154): " + e.getMessage(), false);
+						Log.write(Methods.createPrefix() + "Error in XmlRpcServer(167): " + e.getMessage(), false);
 					}
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-					Log.write(Methods.createPrefix() + "Error in XmlRpcServer(158): " + e.getMessage(), false);
-					try {
-						Server.sendCommand(address, "faiure");
-					} catch (UnknownHostException e1) {
-						e1.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in XmlRpcServer(163): " + e.getMessage(), false);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in XmlRpcServer(166): " + e.getMessage(), false);
-					}
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-					Log.write(Methods.createPrefix() + "Error in XmlRpcServer(170): " + e.getMessage(), false);
-				} catch (IOException e) {
-					e.printStackTrace();
-					Log.write(Methods.createPrefix() + "Error in XmlRpcServer(173): " + e.getMessage(), false);
 				}
 				
 				removeCachedRoom(room);
@@ -202,10 +193,10 @@ public class XmlRpcServer {
 			return client.execute("getValue", new Object[]{id, value});
 		}catch(MalformedURLException e) {
 			e.printStackTrace();
-			Log.write(Methods.createPrefix() + "Error in XmlRpcServer(201): " + e.getMessage(), false);
+			Log.write(Methods.createPrefix() + "Error in XmlRpcServer(196): " + e.getMessage(), false);
 		}catch(XmlRpcException e) {
 			e.printStackTrace();
-			Log.write(Methods.createPrefix() + "Error in XmlRpcServer(204): " + e.getMessage(), false);
+			Log.write(Methods.createPrefix() + "Error in XmlRpcServer(199): " + e.getMessage(), false);
 		}
 		return "";
 	}

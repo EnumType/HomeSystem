@@ -25,6 +25,8 @@ public class Main {
 	
 	public static void main(String[] args) {
 		Data.isWorking = true;
+		Data.saveAIData = true;
+		Data.doAIPrediction = true;
 		Log.initLog();
 		Log.write("loading libaries, please wait...", true);
 		try {
@@ -36,11 +38,13 @@ public class Main {
 			XmlRpcServer.getConfigs();
 			Rooms.loadData();
 			AI.checkAIData();
+			AI.startSavingData(Data.aiInterval);
+			AI.startPredictions(Data.aiInterval);
 			WebSocket.startWebSocket(Data.wsport, Data.wssport, Data.resourcesDir, Data.resourcesDir + "//" + Data.wsKeystore, Data.wsKeystorePassword);
 			Server.start();
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.write(Methods.createPrefix() + "Error in Main(41): " + e.getMessage(), false);
+			Log.write(Methods.createPrefix() + "Error in Main(47): " + e.getMessage(), false);
 		}
 		
 	}
@@ -86,15 +90,21 @@ public class Main {
 							try {
 								scan = false;
 								reload = true;
+								Data.saveAIData = false;
+								Data.doAIPrediction = false;
 								Server.stop();
 								Client.clearCacheData();
+								Data.saveAIData = true;
+								Data.doAIPrediction = true;
 								UserData.loadUserData();
 								UserData.loadUserPerm();
 								XmlRpcServer.getConfigs();
 								Rooms.loadData();
+								AI.startSavingData(Data.aiInterval);
+								AI.startPredictions(Data.aiInterval);
 							}catch(IOException e) {
 								e.printStackTrace();
-								Log.write(Methods.createPrefix() + "Error in Main(95): " + e.getMessage(), false);
+								Log.write(Methods.createPrefix() + "Error in Main(107): " + e.getMessage(), false);
 							}
 						}else if(command.startsWith("extract website")) {
 							Methods.extractWebsite();
@@ -105,7 +115,7 @@ public class Main {
 							Server.start();
 						} catch (IOException e) {
 							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in Main(106): " + e.getMessage(), false);
+							Log.write(Methods.createPrefix() + "Error in Main(118): " + e.getMessage(), false);
 						}
 					}
 				}

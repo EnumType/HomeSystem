@@ -2,7 +2,6 @@ package net.javaexception.homesystem.server;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,15 +76,9 @@ public class Client {
   						Thread.sleep(200);
   						Server.sendCommand(address, "update " + Data.version);
   					}
-  				} catch (UnknownHostException e) {
+  				}catch (IOException | InterruptedException e) {
   					e.printStackTrace();
   					Log.write(Methods.createPrefix() + "Error in Client(81): " + e.getMessage(), false);
-  				} catch (IOException e) {
-  					e.printStackTrace();
-  					Log.write(Methods.createPrefix() + "Error in Client(84): " + e.getMessage(), false);
-  				}catch(InterruptedException e) {
-  					e.printStackTrace();
-  					Log.write(Methods.createPrefix() + "Error in Client(87): " + e.getMessage(), false);
   				}
 			}else {
 				Log.write(Methods.createPrefix() + "Client with InetAddress " + address + " tried to login:", true);
@@ -96,7 +89,7 @@ public class Client {
 					Server.sendCommand(address, "wrong data");
 				} catch (IOException e) {
 					e.printStackTrace();
-  					Log.write(Methods.createPrefix() + "Error in Client(98): " + e.getMessage(), false);
+  					Log.write(Methods.createPrefix() + "Error in Client(92): " + e.getMessage(), false);
 				}
 			}
 		}else {
@@ -108,7 +101,7 @@ public class Client {
 				Server.sendCommand(address, "wrong data");
 			} catch (IOException e) {
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in Client(110): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in Client(104): " + e.getMessage(), false);
 			}
 		}
 	}

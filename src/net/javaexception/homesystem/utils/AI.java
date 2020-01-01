@@ -7,23 +7,31 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 import net.javaexception.homesystem.main.Main;
+import net.javaexception.homesystem.xmlrpc.Rooms;
+import net.javaexception.homesystem.xmlrpc.XmlRpcServer;
 
 public class AI {
 	
+	private static File AIDir;
+	private static File dataDir;
+	private static File model;
+	private static File modelPath;
+	
 	public static void checkAIData() throws IOException {
-		File AIDir = new File("AI");
-		File DataDir = new File(AIDir + "//data");
-		File model = new File(AIDir + "//Home-System.py");
-		File modelPath = new File(AIDir + "//models");
+		AIDir = new File("AI");
+		dataDir = new File(AIDir + "//data");
+		model = new File(AIDir + "//Home-System.py");
+		modelPath = new File(AIDir + "//models");
 		
 		if(!AIDir.exists()) {
 			AIDir.mkdir();
 		}
 		
-		if(!DataDir.exists()) {
-			DataDir.mkdir();
+		if(!dataDir.exists()) {
+			dataDir.mkdir();
 		}
 		
 		if(!modelPath.exists()) {
@@ -43,6 +51,144 @@ public class AI {
 			in.close();
 			out.close();
 		}
+	}
+	
+	public static void startSavingData(int waitInMin) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(Data.saveAIData) {
+					for(String room : Rooms.getRooms()) {
+						for(String device : Rooms.getRoomDevices(room)) {
+							if(Rooms.getDeviceAIData(room, device)) {
+								File data = new File(dataDir + "//" + room + "-" + device + ".csv");
+								int brightness = 0;
+								int date = Methods.getDateAsInt();
+								int time = Methods.getTimeInSeconds();
+								int state = 0;
+								
+								if(Rooms.getDeviceType(room, device).equalsIgnoreCase("ROLL")) {
+									Object result = XmlRpcServer.getValue(Rooms.getDeviceAddress(room, device), "LEVEL", Rooms.getDeviceHmIP(room, device));
+									
+									float floatState = (Float.parseFloat(result.toString()) * 100);
+									state = Math.round(floatState);
+								}else if(Rooms.getDeviceType(room, device).equalsIgnoreCase("LAMP")) {
+									Object result = XmlRpcServer.getValue(Rooms.getDeviceAddress(room, device), "STATE", Rooms.getDeviceHmIP(room, device));
+									boolean devicestate = Boolean.parseBoolean(result.toString());
+									
+									state = devicestate ? 1 : 0;
+								}
+								
+								if(!Data.aiBright.equalsIgnoreCase("AddressOfSensor") && !Data.aiBright.equalsIgnoreCase("none")) {
+									Object result = XmlRpcServer.getValue(Data.aiBright, "STATE", Data.aiBrightHmIP);
+									brightness = Integer.parseInt(result.toString());
+								}
+								
+								try {
+									if(data.exists()) {
+										FileWriter writer = new FileWriter(data, true);
+										PrintWriter out = new PrintWriter(writer);
+										String line = brightness + "," + date + "," + time + "," + state;
+										out.println(line);
+										out.close();
+									}else {
+										FileWriter writer = new FileWriter(data, true);
+										PrintWriter out = new PrintWriter(writer);
+										String syntax = "Weather,Date,Time,State";
+										String line = brightness + "," + date + "," + time + "," + state;
+										out.println(syntax);
+										out.println(line);
+										out.close();
+									}
+								}catch(IOException e) {
+									e.printStackTrace();
+									Log.write(Methods.createPrefix() + "Error in AI(105): " + e.getMessage(), false);
+								}
+							}
+						}
+					}
+					
+					try {
+						Thread.sleep((waitInMin * 60000));
+					}catch (InterruptedException e) {
+						e.printStackTrace();
+						Log.write(Methods.createPrefix() + "Error in AI(115): " + e.getMessage(), false);
+					}
+				}
+			}
+		}).start();
+	}
+	
+	public static void startPredictions(int waitInMin) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(Data.doAIPrediction) {
+					for(String room : Rooms.getRooms()) {
+						for(String device : Rooms.getRoomDevices(room)) {
+							if(Rooms.getDeviceAIControll(room, device)) {
+								String id = Rooms.getDeviceAddress(room, device);
+								String type = Rooms.getDeviceType(room, device);
+								boolean hmip = Rooms.getDeviceHmIP(room, device);
+								
+								if(type.equalsIgnoreCase("ROLL")) {
+									int brightness = 0;
+									int date = Methods.getDateAsInt();
+									int time = Methods.getTimeInSeconds();
+									float floatState = (Float.parseFloat(XmlRpcServer.getValue(id, "LEVEL", hmip).toString()) * 100);
+									int state = Math.round(floatState);
+									
+									if(!Data.aiBright.equalsIgnoreCase("AddressOfSensor") && !Data.aiBright.equalsIgnoreCase("none")) {
+										Object result = XmlRpcServer.getValue(Data.aiBright, "STATE", Data.aiBrightHmIP);
+										brightness = Integer.parseInt(result.toString());
+									}
+									
+									try {
+										float prediction = (predict(device, brightness, date, time) / 100);
+										
+										if(prediction != state) {
+											XmlRpcServer.setValue(id, "LEVEL", prediction, null, hmip, room);
+										}
+									}catch (IOException e) {
+										e.printStackTrace();
+										Log.write(Methods.createPrefix() + "Error in AI(154): " + e.getMessage(), false);
+									}
+								}else if(type.equalsIgnoreCase("LAMP")) {
+									int brightness = 0;
+									int date = Methods.getDateAsInt();
+									int time = Methods.getTimeInSeconds();
+									int state = Integer.parseInt(XmlRpcServer.getValue(id, "STATE", hmip).toString());
+									
+									if(!Data.aiBright.equalsIgnoreCase("AddressOfSensor") && !Data.aiBright.equalsIgnoreCase("none")) {
+										Object result = XmlRpcServer.getValue(Data.aiBright, "STATE", Data.aiBrightHmIP);
+										brightness = Integer.parseInt(result.toString());
+									}
+									
+									try {
+										int prediction = predict(device, brightness, date, time);
+										
+										if(prediction != state) {
+											boolean targetState = (prediction > 0);
+											XmlRpcServer.setValue(id, "STATE", targetState, null, hmip, room);
+										}
+									}catch (IOException e) {
+										e.printStackTrace();
+										Log.write(Methods.createPrefix() + "Error in AI(176): " + e.getMessage(), false);
+									}
+								}
+							}
+						}
+					}
+					
+					try {
+						Thread.sleep(waitInMin * 60000);
+					}catch (InterruptedException e) {
+						e.printStackTrace();
+						Log.write(Methods.createPrefix() + "Error in AI(187): " + e.getMessage(), false);
+					}
+				}
+			}
+		}).start();
 	}
 	
 	public static int predict(String device, int brightness, int date, int time) throws IOException {
@@ -68,7 +214,7 @@ public class AI {
 			}catch(InterruptedException e) {
 				p.destroy();
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(86): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(217): " + e.getMessage(), false);
 			}
 		}
 		

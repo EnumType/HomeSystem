@@ -54,9 +54,9 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.lin1 = nn.Linear(3, 100)
-        self.lin2 = nn.Linear(100, 50)
+        self.lin2 = nn.Linear(100, 200)
         self.lin_dropout = nn.Dropout()
-        self.lin3 = nn.Linear(50, 2)
+        self.lin3 = nn.Linear(200, 101)
 
     def forward(self, x):
         x = F.relu(self.lin1(x))

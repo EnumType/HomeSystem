@@ -2,7 +2,6 @@ package net.javaexception.homesystem.server;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Base64;
 
 import net.javaexception.homesystem.main.Main;
@@ -50,12 +49,9 @@ public class Command {
 				}else if(command.startsWith("whoisonline")) {
 					try {
 						Server.sendCommand(address, "onlineusers " + Client.getOnlineUsers());
-					} catch (UnknownHostException e) {
+					}catch (IOException e) {
 						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in Command(55): " + e.getMessage(), false);
-					} catch (IOException e) {
-						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in Command(58): " + e.getMessage(), false);
+						Log.write(Methods.createPrefix() + "Error in Command(54): " + e.getMessage(), false);
 					}
 				}else if(command.startsWith("addperm")) {
 					command = command.replaceFirst("addperm ", "");
@@ -84,16 +80,16 @@ public class Command {
 							Server.sendCommand(address, "serverkey: " + pk);
 							Client.addUserKey(address, crypto.readPublicKey(clientkey));
 						}
-					} catch (IOException e) {
+					}catch (IOException e) {
 						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in Command(89): " + e.getMessage(), false);
+						Log.write(Methods.createPrefix() + "Error in Command(85): " + e.getMessage(), false);
 					}
 				}else if(command.startsWith("getusername")) {
 					try {
 						Server.sendCommand(address, "user:" + Client.getUsername(address));
-					} catch (IOException e) {
+					}catch (IOException e) {
 						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in Command(96): " + e.getMessage(), true);
+						Log.write(Methods.createPrefix() + "Error in Command(92): " + e.getMessage(), true);
 						Log.write("", false);
 					}
 				}
@@ -105,9 +101,9 @@ public class Command {
 			Log.write("", false);
 			try {
 				Server.sendCommand(address, "notloggedin");
-			} catch (IOException e) {
+			}catch (IOException e) {
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in Command(110): " + e.getMessage(), true);
+				Log.write(Methods.createPrefix() + "Error in Command(106): " + e.getMessage(), true);
 				Log.write("", false);
 			}
 		}

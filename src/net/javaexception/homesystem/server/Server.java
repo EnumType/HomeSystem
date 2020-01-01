@@ -1,9 +1,6 @@
 package net.javaexception.homesystem.server;
 
 import java.io.BufferedReader;
-//import java.io.DataInputStream;
-//import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -29,7 +26,7 @@ public class Server {
 	private static HashMap<InetAddress, Socket> sockets;
 	
 	public static void start() throws IOException {
-		Data.version = "1.0";
+		Data.version = "1.0.1";
 		
 		Log.write(Methods.createPrefix() + "Starting Server version: " + Data.version + " Port: " + Data.serverPort, true);
 		System.out.println("");
@@ -93,7 +90,7 @@ public class Server {
 				}
 			}catch(ConnectException e) {
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in Server(96): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in Server(93): " + e.getMessage(), false);
 			}
 		}
 	}
@@ -114,12 +111,9 @@ public class Server {
 				for(int i = 0; i < commands.size(); i++) {
 					out.println(Base64.getEncoder().encodeToString(crypto.encrypt(commands.get(i), Client.getUserKey(address))));
 				}
-			}catch(ConnectException e) {
+			}catch(IOException e) {
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in Server(117): " + e.getMessage(), false);
-			}catch(EOFException e) {
-				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in Server(120): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in Server(116): " + e.getMessage(), false);
 			}
 		}
 	}

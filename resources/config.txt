@@ -7,3 +7,6 @@ WebSocket-Http: 8000
 WebSocket-Https: 8001
 WebSocket-Keystore: keystore.jks
 WebSocket-KeystorePassword: password
+BrightnessSensor: AddressOfSensor
+BrightnessSensorHmIP: false
+AI-Interval: 5

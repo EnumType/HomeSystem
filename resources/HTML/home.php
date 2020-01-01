@@ -65,11 +65,7 @@ ws.onclose = function(e) {
 ws.onerror = function(e) {
 	ws.close();
 	loggedIn = false;
-<<<<<<< HEAD
 	alert('An error has occurred!');
-=======
-	alert('An error has occurred !');
->>>>>>> branch 'master' of https://github.com/TheJavaException/HomeSystem.git
 	location.replace("/index.php");
 };
 
@@ -218,7 +214,7 @@ function setState(device, stateString) {
 
 <meta content="width=device-width, initial-scale=1" name="viewport" />
 <head>
-	<title>Home-System Â» Home</title>
+	<title>Home-System » Home</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
 	<link rel="shortcut icon" href="/favicon.ico">
 	<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
