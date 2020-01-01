@@ -34,7 +34,7 @@ After the installing you should change a few parameters in the *config.txt* to k
 - `WebSocket-Https` The port on which the HTTPS WebSocket is running (default port is 8000. If you change it you schould change the port in the PHP files too!)
 - `WebSocket-Keystore` The name of your keystore which is located in the *resources* directory (Please generate a keystore.jks! Otherwise the WebSocket server will not be started!)
 - `WebSocket-KeystorePassword` The password of your keystore file
-- `BrightnessSensor` The address of the Brightness sensor used for AI. Change to none if you don't have a HomeMatic Brightness Sensor
+- `BrightnessSensor` The address of the Brightness sensor used for AI. Change to *none* if you don't have a HomeMatic Brightness Sensor
 - `BrightnessSensorHmIP` If the Brightness sensor is a HomeMaticIP sensor
 - `AI-Interval` Interval for AIData saving and AI prediction in minutes. (See [AI](#AI))
 
