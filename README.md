@@ -63,10 +63,10 @@ In the *Permissions.yml* you can add permissions to each user. This users can ac
 ## The System
 
 ### AI
-The *HomeSystem* contains an AI to predict the state of your devices based on time, date and brightness(weather). If you want that the AI controls your devices turn *AIData* on *true* and let the system save the data from your device. After one or two month you can turn the *AIControl* on *true* and the AI will predict which state the device should have. You can turn *AIData* back to *false* but it is recommended to leave it on *true* because then the system will continue saving data. The predictions will be more corectly with more device (training) data. (In thelatest version 1.0 the AI hasn't been implemented. The system **will not** be able to control your devices with the AI prediction!)
+The *HomeSystem* contains an AI to predict the state of your devices based on time, date and brightness(weather). If you want that the AI controls your devices turn *AIData* on *true* and let the system save the data from your device. After one or two month you can turn the *AIControl* on *true* and the AI will predict which state the device should have. You can turn *AIData* back to *false* but it is recommended to leave it on *true* because then the system will continue saving data. The predictions will be more corectly with more device (training) data. (In thelatest version 1.0.1 the AI has been implemented. The AI is in a BETA-Mode and can produce errors!)
 
 ### Website
-The website files can be extracted with the command `extract website`. They will be written into the directory *HTTP*. After that you can move them into your webserver (Apache2) directory and can run them in your browser. (In the lates version 1.0 the files are on HTTP WebSocket!)
+The website files can be extracted with the command `extract website`. They will be written into the directory *HTTP*. After that you can move them into your webserver (Apache2) directory and can run them in your browser. (In the lates version 1.0.1 the files are on HTTP WebSocket!)
 
 ## Built With
 - [Java](https://www.oracle.com/de/java/) - Language used for the main system

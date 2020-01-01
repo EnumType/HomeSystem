@@ -39,12 +39,21 @@ function closeWS(ws) {
   <link rel="stylesheet" type="text/css" href="style.css">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+<<<<<<< HEAD
   <title>Home-System » Login</title>
 </head>
 
 <body>
 <div class="container">
 <h1> Home-System » Login </h1>
+=======
+  <title>Home-System Ã‚Â» Login</title>
+</head>
+
+<body>
+<div class="container">
+<h1> Home-System Â» Login </h1>
+>>>>>>> branch 'master' of https://github.com/TheJavaException/HomeSystem.git
 <form id="login"method="post" autocomplete="on" onsubmit="return login();">
 <p>Username:</p>
 <input type="text" placeholder="Username" id="user" autocomplete="on" required><br>
