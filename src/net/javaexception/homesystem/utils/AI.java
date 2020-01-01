@@ -144,7 +144,7 @@ public class AI {
 									}
 									
 									try {
-										float prediction = (predict(device, brightness, date, time) / 100);
+										float prediction = (predict(room + "-" + device, brightness, date, time) / 100);
 										
 										if(prediction != state) {
 											XmlRpcServer.setValue(id, "LEVEL", prediction, null, hmip, room);
@@ -165,7 +165,7 @@ public class AI {
 									}
 									
 									try {
-										int prediction = predict(device, brightness, date, time);
+										int prediction = predict(room + "-" + device, brightness, date, time);
 										
 										if(prediction != state) {
 											boolean targetState = (prediction > 0);
