@@ -36,7 +36,7 @@ After the installing you should change a few parameters in the *config.txt* to k
 - `WebSocket-KeystorePassword` The password of your keystore file
 - `BrightnessSensor` The address of the Brightness sensor used for AI. Change to none if you don't have a HomeMatic Brightness Sensor
 - `BrightnessSensorHmIP` If the Brightness sensor is a HomeMaticIP sensor
-- `AI-Interval` Interval for AIData saving and AI prediction (See [AI](#AI))
+- `AI-Interval` Interval for AIData saving and AI prediction in minutes. (See [AI](#AI))
 
 ### Data.txt
 The login data for the users is located in the *User-Data* directory.
