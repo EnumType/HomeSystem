@@ -24,7 +24,7 @@ if __name__ == "__main__":
             elif doPrediction and len(sys.argv) < 5:
                 print('Lenght of PredictionData must be 3. Yours is ', len(args))
                 quit()
-        else:
+        elif doPrediction:
             print('USAGE: <DeviceName> <DoTraining> <DoPrediction> <PredictionData>')
             quit()
     else:
@@ -34,8 +34,8 @@ if __name__ == "__main__":
 train_list = []
 train_data = []
 target_list = []
-train_data_path = 'data/' + device + '.csv'
-modelPath = 'models/' + device + '.pt'
+train_data_path = 'AI/data/' + device + '.csv'
+modelPath = 'AI/models/' + device + '.pt'
 
 if doTraining:
     training_fields = ['Weather', 'Date', 'Time']
@@ -56,7 +56,7 @@ class Model(nn.Module):
         self.lin1 = nn.Linear(3, 100)
         self.lin2 = nn.Linear(100, 200)
         self.lin_dropout = nn.Dropout()
-        self.lin3 = nn.Linear(200, 101)
+        self.lin3 = nn.Linear(200, 2)
 
     def forward(self, x):
         x = F.relu(self.lin1(x))
@@ -71,7 +71,7 @@ if os.path.isfile(modelPath):
     checkpoint = torch.load(modelPath)
     model.load_state_dict(checkpoint['state_dict'])
 
-optimizer = optim.Adam(model.parameters(), lr=0.01)
+optimizer = optim.Adam(model.parameters(), lr=0.1)
 
 
 def train(epoch):
@@ -94,7 +94,7 @@ def train(epoch):
 
 
 if doTraining:
-    for epoch in range(1, 100):
+    for epoch in range(1, 500):
         train(epoch)
 
 if doPrediction:

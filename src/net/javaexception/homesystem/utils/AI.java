@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import net.javaexception.homesystem.main.Main;
 import net.javaexception.homesystem.xmlrpc.Rooms;
@@ -70,8 +74,7 @@ public class AI {
 								if(Rooms.getDeviceType(room, device).equalsIgnoreCase("ROLL")) {
 									Object result = XmlRpcServer.getValue(Rooms.getDeviceAddress(room, device), "LEVEL", Rooms.getDeviceHmIP(room, device));
 									
-									float floatState = (Float.parseFloat(result.toString()) * 100);
-									state = Math.round(floatState);
+									state = Math.round(Float.parseFloat(result.toString()));
 								}else if(Rooms.getDeviceType(room, device).equalsIgnoreCase("LAMP")) {
 									Object result = XmlRpcServer.getValue(Rooms.getDeviceAddress(room, device), "STATE", Rooms.getDeviceHmIP(room, device));
 									boolean devicestate = Boolean.parseBoolean(result.toString());
@@ -102,7 +105,7 @@ public class AI {
 									}
 								}catch(IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(105): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(108): " + e.getMessage(), false);
 								}
 							}
 						}
@@ -112,7 +115,7 @@ public class AI {
 						Thread.sleep((waitInMin * 60000));
 					}catch (InterruptedException e) {
 						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in AI(115): " + e.getMessage(), false);
+						Log.write(Methods.createPrefix() + "Error in AI(118): " + e.getMessage(), false);
 					}
 				}
 			}
@@ -135,7 +138,7 @@ public class AI {
 									int brightness = 0;
 									int date = Methods.getDateAsInt();
 									int time = Methods.getTimeInSeconds();
-									float floatState = (Float.parseFloat(XmlRpcServer.getValue(id, "LEVEL", hmip).toString()) * 100);
+									float floatState = Float.parseFloat(XmlRpcServer.getValue(id, "LEVEL", hmip).toString());
 									int state = Math.round(floatState);
 									
 									if(!Data.aiBright.equalsIgnoreCase("AddressOfSensor") && !Data.aiBright.equalsIgnoreCase("none")) {
@@ -151,7 +154,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(154): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(157): " + e.getMessage(), false);
 									}
 								}else if(type.equalsIgnoreCase("LAMP")) {
 									int brightness = 0;
@@ -173,7 +176,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(176): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(179): " + e.getMessage(), false);
 									}
 								}
 							}
@@ -184,18 +187,47 @@ public class AI {
 						Thread.sleep(waitInMin * 60000);
 					}catch (InterruptedException e) {
 						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in AI(187): " + e.getMessage(), false);
+						Log.write(Methods.createPrefix() + "Error in AI(190): " + e.getMessage(), false);
 					}
 				}
 			}
 		}).start();
 	}
 	
+	public static void startAutoTraining() {
+		new Thread(() -> {
+			Timer timer = new Timer();
+			
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
+			Date time = calendar.getTime();
+			
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					for(String room : Rooms.getRooms()) {
+						for(String device : Rooms.getRoomDevices(room)) {
+							if(Rooms.getDeviceAIData(room, device)) {
+								try {
+									train(room + "-" + device);
+								}catch (IOException e) {
+									e.printStackTrace();
+									Log.write(Methods.createPrefix() + "Error in AI(218): " + e.getMessage(), false);
+								}
+							}
+						}
+					}
+				}
+			}, time);
+		}).start();
+	}
+	
 	public static int predict(String device, int brightness, int date, int time) throws IOException {
 		int state = 0;
-		File model = new File("AI//Home-System.py");
 		if(model.exists()) {
-			String cmd = "python3.7 " + model.getAbsolutePath() + " " +
+			String cmd = "python3 " + model.getAbsolutePath() + " " +
 							device + " " +
 							"false " + "true " +
 							"[" + brightness + "," + date + "," + time + "]";
@@ -214,7 +246,7 @@ public class AI {
 			}catch(InterruptedException e) {
 				p.destroy();
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(217): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(250): " + e.getMessage(), false);
 			}
 		}
 		
@@ -222,13 +254,27 @@ public class AI {
 	}
 	
 	public static void train(String device) throws IOException {
-		File model = new File("AI//Home-System.py");
-		if(model.exists()) {
-			String[] cmd = {"python3.7",
-							model.getName(),
+		File data = new File("AI//data//" + device + ".csv");
+		if(data.exists()) {
+			String[] cmd = {"python3", "AI/Home-System.py",
+							data.getName().replace(".csv", ""),
 							"true",
 							"false"};
 			Runtime.getRuntime().exec(cmd);
+		}
+	}
+	
+	public static void trainNow() {
+		for(String room : Rooms.getRooms()) {
+			for(String device : Rooms.getRoomDevices(room)) {
+				if(Rooms.getDeviceAIData(room, device)) {
+					try {
+						train(room + "-" + device);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 	
