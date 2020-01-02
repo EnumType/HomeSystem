@@ -67,14 +67,14 @@ In the *Permissions.yml* you can add permissions to each user. This users can ac
 ## The System
 
 ### AI
-The *HomeSystem* contains an AI to predict the state of your devices based on time, date and brightness(weather). If you want that the AI controls your devices turn *AIData* on *true* and let the system save the data from your device. After one or two month you can turn the *AIControl* on *true* and the AI will predict which state the device should have. You can turn *AIData* back to *false* but it is recommended to leave it on *true* because then the system will continue saving data. The predictions will be more corectly with more device (training) data. (In thelatest version 1.0.2 the AI has been implemented. The AI is in a BETA-Mode and can produce errors!)
+The *HomeSystem* contains an AI to predict the state of your devices based on time, date and brightness(weather). If you want that the AI controls your devices turn *AIData* on *true* and let the system save the data from your device. After one or two month you can turn the *AIControl* on *true* and the AI will predict which state the device should have. You can turn *AIData* back to *false* but it is recommended to leave it on *true* because then the system will continue saving data. The predictions will be more corectly with more device (training) data. (In the latest version 1.0.4 the AI has been implemented. The AI is in a BETA-Mode and can produce errors!)
 
 Supported devices:
 - ROLL -> can only be predicted and controlled in state *up* or *down*
 - LAMP -> can be predicted and controlled in state *on* or *off*
 
 ### Website
-The website files can be extracted with the command `extract website`. They will be written into the directory *HTTP*. After that you can move them into your webserver (Apache2) directory and can run them in your browser. (In the lates version 1.0.2 the files are on HTTP WebSocket!)
+The website files can be extracted with the command `extract website`. They will be written into the directory *HTTP*. After that you can move them into your webserver (Apache2) directory and can run them in your browser. (In the lates version 1.0.4 the files are on HTTP WebSocket!). If you want to connect over HTTPS change `var ws = new WebSocket("ws://" + ip + ":8000/")` in *index.php* and *home.php* to `var ws = new WebSocket("ws://" + ip + ":8001/")` where the *8001* is the Https port of your WebSocket server in the System. (See [Config](#Config.txt))
 
 ## Built With
 - [Java](https://www.oracle.com/de/java/) - Language used for the main system
