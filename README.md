@@ -93,7 +93,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Version log
 - **Version 1.0.3**
-  - Addred automatic checking for new versions.
+  - Added automatic checking for new versions.
 - **Version 1.0.2**
   - A bug has been fixed that occures when the AI was trained.
   - The automatic AI training has been added. The AI will be trained everyday at 0:00 am.
