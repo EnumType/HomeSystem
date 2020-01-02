@@ -92,6 +92,8 @@ The website files can be extracted with the command `extract website`. They will
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Version log
+- **Version 1.0.4**
+  - AI train data will now be put into batches of 64
 - **Version 1.0.3**
   - Added automatic checking for new versions.
 - **Version 1.0.2**

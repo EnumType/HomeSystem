@@ -11,6 +11,7 @@ device = ''
 predict_data = []
 doTraining = True
 doPrediction = True
+batch = 64
 if __name__ == "__main__":
     if len(sys.argv) >= 4:
         device = str(sys.argv[1])
@@ -40,6 +41,8 @@ modelPath = 'AI/models/' + device + '.pt'
 if doTraining:
     training_fields = ['Weather', 'Date', 'Time']
     target_fields = ['State']
+    temp_data = []
+    temp_target = []
 
     for data in pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=training_fields):
         train_list.append(data.values)
@@ -47,7 +50,15 @@ if doTraining:
     for target in pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=target_fields):
         target_list.append(target.values + [0, 0])
 
-    train_data.append((train_list, target_list))
+    for data, target in zip(train_list, target_list):
+        temp_data.append(data)
+        temp_target.append(target)
+        if len(temp_data) >= batch:
+            train_data.append((temp_data, temp_target))
+            temp_data = []
+            temp_target = []
+            print('Loaded batch ', len(train_data), 'of ', int(len(train_list) / batch))
+            print('Percentage Done: ', len(train_data) / int(len(train_list) / batch) * 100, '%')
 
 
 class Model(nn.Module):
@@ -77,7 +88,6 @@ optimizer = optim.Adam(model.parameters(), lr=0.1)
 def train(epoch):
     model.train()
     batch_id = 0
-    data_list = train_data
     for data, target in train_data:
         data = Variable(torch.Tensor(data))
         target = Variable(torch.Tensor(target))
@@ -89,7 +99,7 @@ def train(epoch):
         optimizer.step()
         batch_id = batch_id + 1
         print('Train Epoch: {} [{}/{}] {:.0f}%\tLoss: {:.6f}'.format(
-            epoch, batch_id * len(data), len(data), 100. * batch_id / len(train_data), loss.data))
+            epoch, batch_id * len(data), len(train_data) * batch, 100. * batch_id / len(train_data), loss.data))
         torch.save({'state_dict': model.state_dict()}, modelPath)
 
 
