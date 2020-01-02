@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="C:/Users/Anfinn/Desktop/Coding/API&apos;s/YAML/snakeyaml-1.9.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Anfinn/Desktop/Coding/API&apos;s/HTTP/jetty-all-9.4.22.v20191022-uber.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Anfinn/Desktop/Coding/API&apos;s/Image/image4j-0.7.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Anfinn/Desktop/Coding/API&apos;s/HTTP/json-simple-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

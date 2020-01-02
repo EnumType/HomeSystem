@@ -8,11 +8,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import net.javaexception.homesystem.main.Main;
 import net.sf.image4j.codec.ico.ICOEncoder;
@@ -124,9 +130,47 @@ public class Methods {
 			}
 		}catch(IOException e) {
 			e.printStackTrace();
-			Log.write(createPrefix() + "Error in Methods(127): " + e.getMessage(), true);
+			Log.write(createPrefix() + "Error in Methods(133): " + e.getMessage(), true);
 			Log.write("", false);
 		}
+	}
+	
+	public static void startVersionChecking() {
+		new Thread(() -> {
+			try {
+				while(true) {
+					String url = "https://api.github.com/repos/TheJavaException/HomeSystem/releases/latest";
+					JSONParser parser = new JSONParser();
+					URL github = new URL(url);
+					URLConnection con = github.openConnection();
+					BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+					
+					String line;
+					while((line = in.readLine()) != null) {
+						JSONObject object = (JSONObject) parser.parse(line);
+						String tag = object.get("tag_name").toString();
+
+						if(!Data.version.equalsIgnoreCase(tag) && !Data.newVersion) {
+							Data.newVersion = true;
+							Log.write(Methods.createPrefix() + "Version " + tag + " is now available. Downloading...", true);
+							
+							String[] cmd = {"git", "clone",
+											"https://github.com/TheJavaException/HomeSystem",
+											"HomeSystem-" + tag};
+							Process p = Runtime.getRuntime().exec(cmd);
+							p.waitFor();
+							Log.write("Finished downloading of Version " + tag, false);
+						}
+					}
+					in.close();
+					
+					Thread.sleep(5000);
+				}
+			}catch(IOException | ParseException | InterruptedException e) {
+				e.printStackTrace();
+				Log.write(createPrefix() + "Error in Methods(170): " + e.getMessage(), false);
+			}
+		}).start();
 	}
 	
 }

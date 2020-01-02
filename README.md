@@ -8,6 +8,7 @@ These instructions will get you a copy of the project up and running on your loc
 Before you download the HomeSystem you schould install the following sorftware to run this system:
 - Oracle-JDK `sudo apt install default-jdk`
 - Oracle-JRE `sudo apt install default-jre`
+- Git `sudo apt install git`
 - Python3 `sudo apt install python3`
 - Pip3 `sudo apt install python3-pip`
 - Pytorch (Details on https://pytorch.org)
@@ -91,6 +92,8 @@ The website files can be extracted with the command `extract website`. They will
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Version log
+- **Version 1.0.3**
+  - Addred automatic checking for new versions.
 - **Version 1.0.2**
   - A bug has been fixed that occures when the AI was trained.
   - The automatic AI training has been added. The AI will be trained everyday at 0:00 am.
