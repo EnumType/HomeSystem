@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
+import javax.net.ssl.HttpsURLConnection;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -130,7 +131,7 @@ public class Methods {
 			}
 		}catch(IOException e) {
 			e.printStackTrace();
-			Log.write(createPrefix() + "Error in Methods(133): " + e.getMessage(), true);
+			Log.write(createPrefix() + "Error in Methods(134): " + e.getMessage(), true);
 			Log.write("", false);
 		}
 	}
@@ -143,32 +144,36 @@ public class Methods {
 					JSONParser parser = new JSONParser();
 					URL github = new URL(url);
 					URLConnection con = github.openConnection();
-					BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+					HttpsURLConnection https = (HttpsURLConnection) con;
 					
-					String line;
-					while((line = in.readLine()) != null) {
-						JSONObject object = (JSONObject) parser.parse(line);
-						String tag = object.get("tag_name").toString();
+					if(https.getResponseCode() == 200) {
+						BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+						
+						String line;
+						while((line = in.readLine()) != null) {
+							JSONObject object = (JSONObject) parser.parse(line);
+							String tag = object.get("tag_name").toString();
 
-						if(!Data.version.equalsIgnoreCase(tag) && !Data.newVersion) {
-							Data.newVersion = true;
-							Log.write(Methods.createPrefix() + "Version " + tag + " is now available. Downloading...", true);
-							
-							String[] cmd = {"git", "clone",
-											"https://github.com/TheJavaException/HomeSystem",
-											"HomeSystem-" + tag};
-							Process p = Runtime.getRuntime().exec(cmd);
-							p.waitFor();
-							Log.write("Finished downloading of Version " + tag, false);
+							if(!Data.version.equalsIgnoreCase(tag) && !Data.newVersion) {
+								Data.newVersion = true;
+								Log.write(Methods.createPrefix() + "Version " + tag + " is now available. Downloading...", true);
+								
+								String[] cmd = {"git", "clone",
+												"https://github.com/TheJavaException/HomeSystem",
+												"HomeSystem-" + tag};
+								Process p = Runtime.getRuntime().exec(cmd);
+								p.waitFor();
+								Log.write("Finished downloading of Version " + tag, false);
+							}
 						}
+						in.close();
+						
+						Thread.sleep(5000);
 					}
-					in.close();
-					
-					Thread.sleep(5000);
 				}
 			}catch(IOException | ParseException | InterruptedException e) {
 				e.printStackTrace();
-				Log.write(createPrefix() + "Error in Methods(170): " + e.getMessage(), false);
+				Log.write(createPrefix() + "Error in Methods(176): " + e.getMessage(), false);
 			}
 		}).start();
 	}
