@@ -137,6 +137,7 @@ public class Methods {
 	}
 	
 	public static void startVersionChecking() {
+		int wait = 2;
 		new Thread(() -> {
 			try {
 				while(true) {
@@ -167,9 +168,8 @@ public class Methods {
 							}
 						}
 						in.close();
-						
-						Thread.sleep(5000);
 					}
+					Thread.sleep(wait * 60000);
 				}
 			}catch(IOException | ParseException | InterruptedException e) {
 				e.printStackTrace();
