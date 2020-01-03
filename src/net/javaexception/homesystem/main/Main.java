@@ -40,12 +40,13 @@ public class Main {
 			AI.checkAIData();
 			AI.startSavingData(Data.aiInterval);
 			AI.startPredictions(Data.aiInterval);
+			AI.startAutoTraining();
 			Methods.startVersionChecking();
 			WebSocket.startWebSocket(Data.wsport, Data.wssport, Data.resourcesDir, Data.resourcesDir + "//" + Data.wsKeystore, Data.wsKeystorePassword);
 			Server.start();
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.write(Methods.createPrefix() + "Error in Main(48): " + e.getMessage(), false);
+			Log.write(Methods.createPrefix() + "Error in Main(49): " + e.getMessage(), false);
 		}
 		
 	}
@@ -105,7 +106,7 @@ public class Main {
 								AI.startPredictions(Data.aiInterval);
 							}catch(IOException e) {
 								e.printStackTrace();
-								Log.write(Methods.createPrefix() + "Error in Main(108): " + e.getMessage(), false);
+								Log.write(Methods.createPrefix() + "Error in Main(109): " + e.getMessage(), false);
 							}
 						}else if(command.startsWith("extract website")) {
 							Methods.extractWebsite();
@@ -116,7 +117,7 @@ public class Main {
 							Server.start();
 						} catch (IOException e) {
 							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in Main(119): " + e.getMessage(), false);
+							Log.write(Methods.createPrefix() + "Error in Main(120): " + e.getMessage(), false);
 						}
 					}
 				}

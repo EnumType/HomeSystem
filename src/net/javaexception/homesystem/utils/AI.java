@@ -207,6 +207,7 @@ public class AI {
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
+					Log.write(Methods.createPrefix() + "Starting AI training", false);
 					for(String room : Rooms.getRooms()) {
 						for(String device : Rooms.getRoomDevices(room)) {
 							if(Rooms.getDeviceAIData(room, device)) {
@@ -261,20 +262,6 @@ public class AI {
 							"true",
 							"false"};
 			Runtime.getRuntime().exec(cmd);
-		}
-	}
-	
-	public static void trainNow() {
-		for(String room : Rooms.getRooms()) {
-			for(String device : Rooms.getRoomDevices(room)) {
-				if(Rooms.getDeviceAIData(room, device)) {
-					try {
-						train(room + "-" + device);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
 		}
 	}
 	
