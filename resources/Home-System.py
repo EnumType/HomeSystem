@@ -65,15 +65,23 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.lin1 = nn.Linear(3, 100)
+        self.leak1 = nn.LeakyReLU()
         self.lin2 = nn.Linear(100, 200)
+        self.leak2 = nn.LeakyReLU()
         self.lin_dropout = nn.Dropout()
-        self.lin3 = nn.Linear(200, 2)
+        self.lin3 = nn.Linear(200, 100)
+        self.leak3 = nn.LeakyReLU()
+        self.lin4 = nn.Linear(100, 2)
 
     def forward(self, x):
         x = F.relu(self.lin1(x))
+        x = self.leak1(x)
         x = self.lin2(x)
+        x = self.leak2(x)
         x = self.lin_dropout(x)
         x = self.lin3(x)
+        x = self.leak3(x)
+        x = self.lin4(x)
         return x
 
 
@@ -104,7 +112,7 @@ def train(epoch):
 
 
 if doTraining:
-    for epoch in range(1, 500):
+    for epoch in range(1, 100):
         train(epoch)
 
 if doPrediction:
