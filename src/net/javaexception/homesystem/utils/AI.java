@@ -282,4 +282,20 @@ public class AI {
 		}
 	}
 	
+	public static void trainNow() {
+		Log.write(Methods.createPrefix() + "Starting AI training", false);
+		for(String room : Rooms.getRooms()) {
+			for(String device : Rooms.getRoomDevices(room)) {
+				if(Rooms.getDeviceAIData(room, device)) {
+					try {
+						train(room + "-" + device);
+					}catch (IOException e) {
+						e.printStackTrace();
+						Log.write(Methods.createPrefix() + "Error in AI(294): " + e.getMessage(), false);
+					}
+				}
+			}
+		}
+	}
+	
 }

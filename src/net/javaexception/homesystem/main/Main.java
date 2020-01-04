@@ -110,6 +110,8 @@ public class Main {
 							}
 						}else if(command.startsWith("extract website")) {
 							Methods.extractWebsite();
+						}else if(command.startsWith("train now")) {
+							AI.trainNow();
 						}
 					}
 					if(reload) {
@@ -117,7 +119,7 @@ public class Main {
 							Server.start();
 						} catch (IOException e) {
 							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in Main(120): " + e.getMessage(), false);
+							Log.write(Methods.createPrefix() + "Error in Main(122): " + e.getMessage(), false);
 						}
 					}
 				}
