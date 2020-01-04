@@ -77,12 +77,16 @@ public class AI {
 								if(Rooms.getDeviceType(room, device).equalsIgnoreCase("ROLL")) {
 									Object result = XmlRpcServer.getValue(Rooms.getDeviceAddress(room, device), "LEVEL", Rooms.getDeviceHmIP(room, device));
 									
-									state = Math.round(Float.parseFloat(result.toString()));
+									if(!result.toString().isEmpty()) {
+										state = Math.round(Float.parseFloat(result.toString()));
+									}
 								}else if(Rooms.getDeviceType(room, device).equalsIgnoreCase("LAMP")) {
 									Object result = XmlRpcServer.getValue(Rooms.getDeviceAddress(room, device), "STATE", Rooms.getDeviceHmIP(room, device));
-									boolean devicestate = Boolean.parseBoolean(result.toString());
 									
-									state = devicestate ? 1 : 0;
+									if(!result.toString().isEmpty()) {
+										boolean devicestate = Boolean.parseBoolean(result.toString());
+										state = devicestate ? 1 : 0;
+									}
 								}
 								
 								if(!Data.aiBright.equalsIgnoreCase("AddressOfSensor") && !Data.aiBright.equalsIgnoreCase("none")) {
@@ -112,7 +116,7 @@ public class AI {
 									}
 								}catch(IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(115): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(119): " + e.getMessage(), false);
 								}
 							}
 						}
@@ -140,12 +144,21 @@ public class AI {
 									int brightness = 0;
 									int date = Methods.getDateAsInt();
 									int time = Methods.getTimeInSeconds();
-									float floatState = Float.parseFloat(XmlRpcServer.getValue(id, "LEVEL", hmip).toString());
+									float floatState = 1;
+									Object rollstate = XmlRpcServer.getValue(id, "LEVEL", hmip);
+									
+									if(!rollstate.toString().isEmpty()) {
+										floatState = Float.parseFloat(rollstate.toString());
+									}
+									
 									int state = Math.round(floatState);
 									
 									if(!Data.aiBright.equalsIgnoreCase("AddressOfSensor") && !Data.aiBright.equalsIgnoreCase("none")) {
 										Object result = XmlRpcServer.getValue(Data.aiBright, "STATE", Data.aiBrightHmIP);
-										brightness = Integer.parseInt(result.toString());
+										
+										if(!result.toString().isEmpty()) {
+											brightness = Integer.parseInt(result.toString());
+										}
 									}
 									
 									try {
@@ -156,17 +169,26 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(159): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(172): " + e.getMessage(), false);
 									}
 								}else if(type.equalsIgnoreCase("LAMP")) {
 									int brightness = 0;
 									int date = Methods.getDateAsInt();
 									int time = Methods.getTimeInSeconds();
-									int state = Integer.parseInt(XmlRpcServer.getValue(id, "STATE", hmip).toString());
+									int state = 0;
+									
+									Object lampstate = XmlRpcServer.getValue(id, "STATE", hmip);
+									
+									if(!lampstate.toString().isEmpty()) {
+										state = Integer.parseInt(lampstate.toString());
+									}
 									
 									if(!Data.aiBright.equalsIgnoreCase("AddressOfSensor") && !Data.aiBright.equalsIgnoreCase("none")) {
 										Object result = XmlRpcServer.getValue(Data.aiBright, "STATE", Data.aiBrightHmIP);
-										brightness = Integer.parseInt(result.toString());
+										
+										if(!result.toString().isEmpty()) {
+											brightness = Integer.parseInt(result.toString());
+										}
 									}
 									
 									try {
@@ -178,7 +200,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(181): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(203): " + e.getMessage(), false);
 									}
 								}
 							}
@@ -210,7 +232,7 @@ public class AI {
 									train(room + "-" + device);
 								}catch (IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(213): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(235): " + e.getMessage(), false);
 								}
 							}
 						}
@@ -242,7 +264,7 @@ public class AI {
 			}catch(InterruptedException e) {
 				p.destroy();
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(245): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(267): " + e.getMessage(), false);
 			}
 		}
 		
