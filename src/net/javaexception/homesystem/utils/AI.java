@@ -59,10 +59,12 @@ public class AI {
 	}
 	
 	public static void startSavingData(int waitInMin) {
-		new Thread(new Runnable() {
+		Timer timer = new Timer();
+		
+		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				while(Data.saveAIData) {
+				if(Data.saveAIData) {
 					for(String room : Rooms.getRooms()) {
 						for(String device : Rooms.getRoomDevices(room)) {
 							if(Rooms.getDeviceAIData(room, device)) {
@@ -110,28 +112,23 @@ public class AI {
 									}
 								}catch(IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(113): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(115): " + e.getMessage(), false);
 								}
 							}
 						}
 					}
-					
-					try {
-						Thread.sleep((waitInMin * 60000));
-					}catch (InterruptedException e) {
-						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in AI(123): " + e.getMessage(), false);
-					}
 				}
 			}
-		}).start();
+		}, 0, waitInMin * 60000);
 	}
 	
 	public static void startPredictions(int waitInMin) {
-		new Thread(new Runnable() {
+		Timer timer = new Timer();
+		
+		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				while(Data.doAIPrediction) {
+				if(Data.doAIPrediction) {
 					for(String room : Rooms.getRooms()) {
 						for(String device : Rooms.getRoomDevices(room)) {
 							if(Rooms.getDeviceAIControll(room, device)) {
@@ -159,7 +156,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(162): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(159): " + e.getMessage(), false);
 									}
 								}else if(type.equalsIgnoreCase("LAMP")) {
 									int brightness = 0;
@@ -181,22 +178,15 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(184): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(181): " + e.getMessage(), false);
 									}
 								}
 							}
 						}
 					}
-					
-					try {
-						Thread.sleep(waitInMin * 60000);
-					}catch (InterruptedException e) {
-						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in AI(195): " + e.getMessage(), false);
-					}
 				}
 			}
-		}).start();
+		}, 0, waitInMin * 60000);
 	}
 	
 	public static void startAutoTraining() {
@@ -220,7 +210,7 @@ public class AI {
 									train(room + "-" + device);
 								}catch (IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(223): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(213): " + e.getMessage(), false);
 								}
 							}
 						}
@@ -252,7 +242,7 @@ public class AI {
 			}catch(InterruptedException e) {
 				p.destroy();
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(255): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(245): " + e.getMessage(), false);
 			}
 		}
 		
