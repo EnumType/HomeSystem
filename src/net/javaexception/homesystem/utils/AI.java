@@ -283,7 +283,7 @@ public class AI {
 	}
 	
 	public static void trainNow() {
-		Log.write(Methods.createPrefix() + "Starting AI training", false);
+		Log.write(Methods.createPrefix() + "Starting AI training", true);
 		for(String room : Rooms.getRooms()) {
 			for(String device : Rooms.getRoomDevices(room)) {
 				if(Rooms.getDeviceAIData(room, device)) {
