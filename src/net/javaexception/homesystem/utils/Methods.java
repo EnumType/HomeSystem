@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
@@ -40,25 +39,9 @@ public class Methods {
 		return date.format(new Date());
 	}
 	
-	public static int getTimeInSeconds() {
-		Date now = new Date();
-		Calendar calendar = Calendar.getInstance();
-		
-		calendar.setTime(now);
-		
-		int hourInSec = (calendar.get(Calendar.HOUR_OF_DAY) * 3600);
-		int minuteInSec = (calendar.get(Calendar.MINUTE) * 60);
-		int seconds = calendar.get(Calendar.SECOND);
-		
-		return (hourInSec + minuteInSec + seconds);
-	}
-	
-	public static int getDateAsInt() {
-		Date date = new Date();
-		
-		String stringDate= new SimpleDateFormat("yyyyMMdd").format(date);
-		
-		return Integer.parseInt(stringDate);
+	public static long getUnixTime() {
+		long unixTime = System.currentTimeMillis() / 1000;
+		return unixTime;
 	}
 	
 	public static void extractWebsite() {
@@ -131,7 +114,7 @@ public class Methods {
 			}
 		}catch(IOException e) {
 			e.printStackTrace();
-			Log.write(createPrefix() + "Error in Methods(134): " + e.getMessage(), true);
+			Log.write(createPrefix() + "Error in Methods(117): " + e.getMessage(), true);
 			Log.write("", false);
 		}
 	}
@@ -173,7 +156,7 @@ public class Methods {
 				}
 			}catch(IOException | ParseException | InterruptedException e) {
 				e.printStackTrace();
-				Log.write(createPrefix() + "Error in Methods(176): " + e.getMessage(), false);
+				Log.write(createPrefix() + "Error in Methods(159): " + e.getMessage(), false);
 			}
 		}).start();
 	}

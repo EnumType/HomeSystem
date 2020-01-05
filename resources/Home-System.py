@@ -20,15 +20,14 @@ if __name__ == "__main__":
 
         if doPrediction and len(sys.argv) >= 5:
             args = sys.argv[4].strip('[]').split(',')
-            if len(args) == 3:
+            if len(args) == 2:
                 weather = int(args[0])
-                date = int(args[1])
-                time = int(args[2])
+                time = int(args[1])
 
-                predict_array = array([(date + time + weather)], dtype='int64')
+                predict_array = array([(weather + time)], dtype='int64')
                 predict_data.append(predict_array)
             elif doPrediction and len(sys.argv) < 5:
-                print('Lenght of PredictionData must be 3. Yours is ', len(args))
+                print('Lenght of PredictionData must be 2. Yours is ', len(args))
                 quit()
         elif doPrediction:
             print('USAGE: <DeviceName> <DoTraining> <DoPrediction> <PredictionData>')
@@ -45,16 +44,14 @@ train_data_path = 'AI/data/' + device + '.csv'
 modelPath = 'AI/models/' + device + '.pt'
 
 if doTraining:
-    for weather, date, time in zip(
+    for weather, time in zip(
         pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['Weather']),
-        pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['Date']),
         pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['Time'])
     ):
         weather = weather.values
-        date = date.values
         time = time.values
 
-        train_list.append((date + time + weather))
+        train_list.append((time + weather))
     for target in pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['State']):
         target = target.values
         target_list.append(target)

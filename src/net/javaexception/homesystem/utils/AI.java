@@ -70,8 +70,7 @@ public class AI {
 							if(Rooms.getDeviceAIData(room, device)) {
 								File data = new File(dataDir + "//" + room + "-" + device + ".csv");
 								int brightness = 0;
-								int date = Methods.getDateAsInt();
-								int time = Methods.getTimeInSeconds();
+								long time = Methods.getUnixTime();
 								int state = 0;
 								
 								if(Rooms.getDeviceType(room, device).equalsIgnoreCase("ROLL")) {
@@ -98,7 +97,7 @@ public class AI {
 									if(data.exists()) {
 										FileWriter writer = new FileWriter(data, true);
 										PrintWriter out = new PrintWriter(writer);
-										String line = brightness + "," + date + "," + time + "," + state;
+										String line = brightness + "," + time + "," + state;
 										out.println(line);
 										writer.flush();
 										writer.close();
@@ -106,8 +105,8 @@ public class AI {
 									}else {
 										FileWriter writer = new FileWriter(data, true);
 										PrintWriter out = new PrintWriter(writer);
-										String syntax = "Weather,Date,Time,State";
-										String line = brightness + "," + date + "," + time + "," + state;
+										String syntax = "Weather,Time,State";
+										String line = brightness + "," + time + "," + state;
 										out.println(syntax);
 										out.println(line);
 										writer.flush();
@@ -116,7 +115,7 @@ public class AI {
 									}
 								}catch(IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(119): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(118): " + e.getMessage(), false);
 								}
 							}
 						}
@@ -142,8 +141,7 @@ public class AI {
 								
 								if(type.equalsIgnoreCase("ROLL")) {
 									int brightness = 0;
-									int date = Methods.getDateAsInt();
-									int time = Methods.getTimeInSeconds();
+									long time = Methods.getUnixTime();
 									float floatState = 1;
 									Object rollstate = XmlRpcServer.getValue(id, "LEVEL", hmip);
 									
@@ -162,19 +160,18 @@ public class AI {
 									}
 									
 									try {
-										float prediction = (predict(room + "-" + device, brightness, date, time) / 100);
+										float prediction = (predict(room + "-" + device, brightness, time) / 100);
 										
 										if(prediction != state) {
 											XmlRpcServer.setValue(id, "LEVEL", prediction, null, hmip, room);
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(172): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(170): " + e.getMessage(), false);
 									}
 								}else if(type.equalsIgnoreCase("LAMP")) {
 									int brightness = 0;
-									int date = Methods.getDateAsInt();
-									int time = Methods.getTimeInSeconds();
+									long time = Methods.getUnixTime();
 									int state = 0;
 									
 									Object lampstate = XmlRpcServer.getValue(id, "STATE", hmip);
@@ -192,7 +189,7 @@ public class AI {
 									}
 									
 									try {
-										int prediction = predict(room + "-" + device, brightness, date, time);
+										int prediction = predict(room + "-" + device, brightness, time);
 										
 										if(prediction != state) {
 											boolean targetState = (prediction > 0);
@@ -200,7 +197,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(203): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(200): " + e.getMessage(), false);
 									}
 								}
 							}
@@ -216,7 +213,7 @@ public class AI {
 			Timer timer = new Timer();
 			
 			Calendar calendar = Calendar.getInstance();
-			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.HOUR_OF_DAY, 2);
 			calendar.set(Calendar.MINUTE, 0);
 			calendar.set(Calendar.SECOND, 0);
 			Date time = calendar.getTime();
@@ -232,7 +229,7 @@ public class AI {
 									train(room + "-" + device);
 								}catch (IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(235): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(232): " + e.getMessage(), false);
 								}
 							}
 						}
@@ -242,13 +239,13 @@ public class AI {
 		}).start();
 	}
 	
-	public static int predict(String device, int brightness, int date, int time) throws IOException {
+	public static int predict(String device, int brightness, long time) throws IOException {
 		int state = 0;
 		if(model.exists()) {
 			String cmd = "python3 " + model.getAbsolutePath() + " " +
 							device + " " +
 							"false " + "true " +
-							"[" + brightness + "," + date + "," + time + "]";
+							"[" + brightness + "," + time + "]";
 			Process p = Runtime.getRuntime().exec(cmd);
 			try {
 				p.waitFor();
@@ -264,7 +261,7 @@ public class AI {
 			}catch(InterruptedException e) {
 				p.destroy();
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(267): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(264): " + e.getMessage(), false);
 			}
 		}
 		
@@ -291,7 +288,7 @@ public class AI {
 						train(room + "-" + device);
 					}catch (IOException e) {
 						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in AI(294): " + e.getMessage(), false);
+						Log.write(Methods.createPrefix() + "Error in AI(291): " + e.getMessage(), false);
 					}
 				}
 			}
