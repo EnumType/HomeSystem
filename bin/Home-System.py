@@ -36,10 +36,12 @@ if __name__ == "__main__":
         print('USAGE: <DeviceName> <DoTraining> <DoPrediction> [<PredictionData>]')
         quit()
 
-train_list = []
+x_list = []
+z_list = []
 target_list = []
 x_data = []
 y_data = []
+z_data = []
 train_data_path = 'AI/data/' + device + '.csv'
 modelPath = 'AI/models/' + device + '.pt'
 
@@ -51,14 +53,16 @@ if doTraining:
         weather = weather.values
         time = time.values
 
-        train_list.append((time + weather))
+        x_list.append(time)
+        z_list.append(weather)
     for target in pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['State']):
         target = target.values
         target_list.append(target)
 
-    for data, target in zip(train_list, target_list):
-        x_data.append(data)
+    for x, z, target in zip(x_list, z_list, target_list):
+        x_data.append(x)
         y_data.append(target)
+        z_data.append(z)
 
 
 class Model(nn.Module):
@@ -90,11 +94,12 @@ if os.path.isfile(modelPath):
 
 optimizer = optim.Adam(model.parameters(), lr=0.01)
 
+x, y, z = Variable(torch.Tensor(x_data)), Variable(torch.Tensor(y_data)), Variable(torch.Tensor(z_data))
 
 def train(epoch):
     model.train()
-    data = Variable(torch.Tensor(x_data))
-    target = Variable(torch.Tensor(y_data))
+    data = x + z
+    target = y
 
     data = (data - data.mean()) / data.std()
 
@@ -110,8 +115,8 @@ def train(epoch):
 
 
 if doTraining:
-    for epoch in range(1, 5000):
-        train(epoch)
+    for epoch in range(1000):
+        train(epoch + 1)
 
 if doPrediction:
     model.eval()
