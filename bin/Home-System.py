@@ -6,12 +6,12 @@ import pandas as pd
 import os
 import sys
 from torch.autograd import Variable
+from numpy import array
 
 device = ''
 predict_data = []
 doTraining = True
 doPrediction = True
-batch = 64
 if __name__ == "__main__":
     if len(sys.argv) >= 4:
         device = str(sys.argv[1])
@@ -21,7 +21,12 @@ if __name__ == "__main__":
         if doPrediction and len(sys.argv) >= 5:
             args = sys.argv[4].strip('[]').split(',')
             if len(args) == 3:
-                predict_data = [int(args[0]), int(args[1]), int(args[2])]
+                weather = int(args[0])
+                date = int(args[1])
+                time = int(args[2])
+
+                predict_array = array([(date + time + weather)], dtype='int64')
+                predict_data.append(predict_array)
             elif doPrediction and len(sys.argv) < 5:
                 print('Lenght of PredictionData must be 3. Yours is ', len(args))
                 quit()
@@ -33,55 +38,51 @@ if __name__ == "__main__":
         quit()
 
 train_list = []
-train_data = []
 target_list = []
+x_data = []
+y_data = []
 train_data_path = 'AI/data/' + device + '.csv'
 modelPath = 'AI/models/' + device + '.pt'
 
 if doTraining:
-    training_fields = ['Weather', 'Date', 'Time']
-    target_fields = ['State']
-    temp_data = []
-    temp_target = []
+    for weather, date, time in zip(
+        pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['Weather']),
+        pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['Date']),
+        pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['Time'])
+    ):
+        weather = weather.values
+        date = date.values
+        time = time.values
 
-    for data in pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=training_fields):
-        train_list.append(data.values)
-
-    for target in pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=target_fields):
-        target_list.append(target.values + [0, 0])
+        train_list.append((date + time + weather))
+    for target in pd.read_csv(train_data_path, sep=',', chunksize=1, usecols=['State']):
+        target = target.values
+        target_list.append(target)
 
     for data, target in zip(train_list, target_list):
-        temp_data.append(data)
-        temp_target.append(target)
-        if len(temp_data) >= batch:
-            train_data.append((temp_data, temp_target))
-            temp_data = []
-            temp_target = []
-            print('Loaded batch ', len(train_data), 'of ', int(len(train_list) / batch))
-            print('Percentage Done: ', len(train_data) / int(len(train_list) / batch) * 100, '%')
+        x_data.append(data)
+        y_data.append(target)
 
 
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
-        self.lin1 = nn.Linear(3, 100)
-        self.leak1 = nn.LeakyReLU()
-        self.lin2 = nn.Linear(100, 200)
-        self.leak2 = nn.LeakyReLU()
-        self.lin_dropout = nn.Dropout()
-        self.lin3 = nn.Linear(200, 100)
-        self.leak3 = nn.LeakyReLU()
-        self.lin4 = nn.Linear(100, 2)
+        self.hidden1 = torch.nn.Linear(1, 100)
+        self.leak1 = torch.nn.LeakyReLU()
+        self.hidden2 = torch.nn.Linear(100, 200)
+        self.leak2 = torch.nn.LeakyReLU()
+        self.hidden3 = torch.nn.Linear(200, 100)
+        self.leak3 = torch.nn.LeakyReLU()
+        self.prediction = torch.nn.Linear(100, 1)
 
     def forward(self, x):
-        x = F.relu(self.lin1(x))
+        x = F.relu(self.hidden1(x))
         x = self.leak1(x)
-        x = self.lin2(x)
+        x = self.hidden2(x)
         x = self.leak2(x)
-        x = self.lin_dropout(x)
-        x = self.lin3(x)
+        x = self.hidden3(x)
         x = self.leak3(x)
-        x = self.lin4(x)
+        x = self.prediction(x)
         return x
 
 
@@ -90,35 +91,40 @@ if os.path.isfile(modelPath):
     checkpoint = torch.load(modelPath)
     model.load_state_dict(checkpoint['state_dict'])
 
-optimizer = optim.Adam(model.parameters(), lr=0.1)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
 
 
 def train(epoch):
     model.train()
-    batch_id = 0
-    for data, target in train_data:
-        data = Variable(torch.Tensor(data))
-        target = Variable(torch.Tensor(target))
-        optimizer.zero_grad()
-        out = model(data)
-        criterion = nn.MSELoss()
-        loss = criterion(out, target)
-        loss.backward()
-        optimizer.step()
-        batch_id = batch_id + 1
-        print('Train Epoch: {} [{}/{}] {:.0f}%\tLoss: {:.6f}'.format(
-            epoch, batch_id * len(data), len(train_data) * batch, 100. * batch_id / len(train_data), loss.data))
-        torch.save({'state_dict': model.state_dict()}, modelPath)
+    data = Variable(torch.Tensor(x_data))
+    target = Variable(torch.Tensor(y_data))
+
+    data = (data - data.mean()) / data.std()
+
+    prediction = model(data)
+    criterion = torch.nn.MSELoss()
+    loss = criterion(prediction, target)
+
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    torch.save({'state_dict': model.state_dict()}, modelPath)
+    print('EPOCH: ', epoch, ' LOSS:', loss.data.numpy())
 
 
 if doTraining:
-    for epoch in range(1, 100):
+    for epoch in range(1, 5000):
         train(epoch)
 
 if doPrediction:
     model.eval()
-    tensor = torch.Tensor(predict_data)
-    tensor.unsqueeze_(0)
-    out = model(tensor)
-    print(out.data.max(1, keepdim=True)[1])
-    sys.exit(int(out.data.max(1, keepdim=True)[1]))
+    data = Variable(torch.Tensor(predict_data))
+    out = model(data)
+
+    result = int(torch.round(out.data).numpy())
+
+    if result < 0:
+        result = 0
+
+    print(result)
+    sys.exit(result)
