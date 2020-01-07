@@ -10,6 +10,8 @@ from numpy import array
 
 device = ''
 predict_data = []
+predict_x = []
+predict_z = []
 doTraining = True
 doPrediction = True
 if __name__ == "__main__":
@@ -24,8 +26,11 @@ if __name__ == "__main__":
                 weather = int(args[0])
                 time = int(args[1])
 
-                predict_array = array([(weather + time)], dtype='int64')
-                predict_data.append(predict_array)
+                predict_time = array([(time)], dtype='int64')
+                predict_weather = array([(weather)], dtype='int64')
+
+                predict_x.append(predict_time)
+                predict_z.append(predict_weather)
             elif doPrediction and len(sys.argv) < 5:
                 print('Lenght of PredictionData must be 2. Yours is ', len(args))
                 quit()
@@ -64,26 +69,22 @@ if doTraining:
         y_data.append(target)
         z_data.append(z)
 
+x, y, z = Variable(torch.Tensor(x_data)), Variable(torch.Tensor(y_data)), Variable(torch.Tensor(z_data))
+
 
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.hidden1 = torch.nn.Linear(1, 100)
-        self.leak1 = torch.nn.LeakyReLU()
         self.hidden2 = torch.nn.Linear(100, 200)
-        self.leak2 = torch.nn.LeakyReLU()
         self.hidden3 = torch.nn.Linear(200, 100)
-        self.leak3 = torch.nn.LeakyReLU()
         self.prediction = torch.nn.Linear(100, 1)
 
     def forward(self, x):
-        x = F.relu(self.hidden1(x))
-        x = self.leak1(x)
-        x = self.hidden2(x)
-        x = self.leak2(x)
-        x = self.hidden3(x)
-        x = self.leak3(x)
-        x = self.prediction(x)
+        x = torch.sigmoid(self.hidden1(x))
+        x = torch.sigmoid(self.hidden2(x))
+        x = torch.sigmoid(self.hidden3(x))
+        x = torch.sigmoid(self.prediction(x))
         return x
 
 
@@ -93,8 +94,8 @@ if os.path.isfile(modelPath):
     model.load_state_dict(checkpoint['state_dict'])
 
 optimizer = optim.Adam(model.parameters(), lr=0.01)
+criterion = torch.nn.BCELoss(reduction='mean')
 
-x, y, z = Variable(torch.Tensor(x_data)), Variable(torch.Tensor(y_data)), Variable(torch.Tensor(z_data))
 
 def train(epoch):
     model.train()
@@ -104,7 +105,7 @@ def train(epoch):
     data = (data - data.mean()) / data.std()
 
     prediction = model(data)
-    criterion = torch.nn.MSELoss()
+    criterion = torch.nn.BCELoss(reduction='mean')
     loss = criterion(prediction, target)
 
     optimizer.zero_grad()
@@ -120,10 +121,10 @@ if doTraining:
 
 if doPrediction:
     model.eval()
-    data = Variable(torch.Tensor(predict_data))
+    data = Variable(torch.Tensor(predict_x) + torch.Tensor(predict_z))
     out = model(data)
-
-    result = int(torch.round(out.data).numpy())
+    print(out.view(-1).data.numpy())
+    result = int(torch.round(out.view(-1).data).numpy())
 
     if result < 0:
         result = 0

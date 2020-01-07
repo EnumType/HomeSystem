@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import net.javaexception.homesystem.main.Main;
@@ -115,7 +117,7 @@ public class AI {
 									}
 								}catch(IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(118): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(120): " + e.getMessage(), false);
 								}
 							}
 						}
@@ -167,7 +169,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(170): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(172): " + e.getMessage(), false);
 									}
 								}else if(type.equalsIgnoreCase("LAMP")) {
 									int brightness = 0;
@@ -197,7 +199,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(200): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(202): " + e.getMessage(), false);
 									}
 								}
 							}
@@ -210,32 +212,32 @@ public class AI {
 	
 	public static void startAutoTraining() {
 		new Thread(() -> {
-			Timer timer = new Timer();
+			ZonedDateTime now = ZonedDateTime.now();
+			ZonedDateTime nextRun = now.withHour(0).withMinute(0).withSecond(0);
 			
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(Calendar.HOUR_OF_DAY, 2);
-			calendar.set(Calendar.MINUTE, 0);
-			calendar.set(Calendar.SECOND, 0);
-			Date time = calendar.getTime();
+			if(now.compareTo(nextRun) > 0) {
+				nextRun = nextRun.plusDays(1);
+			}
 			
-			timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					Log.write(Methods.createPrefix() + "Starting AI training", false);
-					for(String room : Rooms.getRooms()) {
-						for(String device : Rooms.getRoomDevices(room)) {
-							if(Rooms.getDeviceAIData(room, device)) {
-								try {
-									train(room + "-" + device);
-								}catch (IOException e) {
-									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(232): " + e.getMessage(), false);
-								}
+			Duration duration = Duration.between(now, nextRun);
+			long initialDelay = duration.getSeconds();
+			
+			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+			scheduler.scheduleAtFixedRate(() -> {
+				Log.write(Methods.createPrefix() + "Starting AI training", false);
+				for(String room : Rooms.getRooms()) {
+					for(String device : Rooms.getRoomDevices(room)) {
+						if(Rooms.getDeviceAIData(room, device)) {
+							try {
+								train(room + "-" + device);
+							}catch (IOException e) {
+								e.printStackTrace();
+								Log.write(Methods.createPrefix() + "Error in AI(235): " + e.getMessage(), false);
 							}
 						}
 					}
 				}
-			}, time.getTime(), TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
+			}, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
 		}).start();
 	}
 	
@@ -261,7 +263,7 @@ public class AI {
 			}catch(InterruptedException e) {
 				p.destroy();
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(264): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(266): " + e.getMessage(), false);
 			}
 		}
 		
@@ -288,7 +290,7 @@ public class AI {
 						train(room + "-" + device);
 					}catch (IOException e) {
 						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in AI(291): " + e.getMessage(), false);
+						Log.write(Methods.createPrefix() + "Error in AI(293): " + e.getMessage(), false);
 					}
 				}
 			}
