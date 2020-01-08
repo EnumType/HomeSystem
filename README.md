@@ -74,7 +74,7 @@ Supported devices:
 - LAMP -> can be predicted and controlled in state *on* or *off*
 
 ### Website
-The website files can be extracted with the command `extract website`. They will be written into the directory *HTTP*. After that you can move them into your webserver (Apache2) directory and can run them in your browser. (In the latest version 1.0.4 the files are on HTTP WebSocket!). If you want to connect over HTTPS change `var ws = new WebSocket("ws://" + ip + ":8000/")` in *index.php* and *home.php* to `var ws = new WebSocket("ws://" + ip + ":8001/")` where the *8001* is the Https port of your WebSocket server in the System. (See [Config](#Config.txt))
+The website files can be extracted with the command `extract website`. They will be written into the directory *HTTP*. After that you can move them into your webserver (Apache2) directory and can run them in your browser. (In the latest version 1.0.4 the files are on HTTP WebSocket!). If you want to connect over HTTPS change `var ws = new WebSocket("ws://" + ip + ":8000/")` in *index.php* and *home.php* to `var ws = new WebSocket("wss://" + ip + ":8001/")` where the *8001* is the Https port of your WebSocket server in the System. (See [Config](#Config.txt))
 
 ## Built With
 - [Java](https://www.oracle.com/de/java/) - Language used for the main system
@@ -109,4 +109,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - Integrated Website that can be extracted (See [Website](#Website))
   - Exceptions will be printed in Log **and** Console
   - Added Rooms.yml, which allows different rooms to be configured with different devices. Each device can be configured individually (See [Rooms.yml](#Rooms.yml))
-  - Addred Permissions.yml where you can add each user permissions (See [Permissions.yml](#Permissions.yml))
+  - Added Permissions.yml where you can add each user permissions (See [Permissions.yml](#Permissions.yml))
