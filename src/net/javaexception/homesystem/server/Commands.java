@@ -33,7 +33,7 @@ public class Commands {
 		Log.write("Version <version> -- Change the version", true);
 		Log.write("Addperm <User> <Permission> -- Add a permission", true);
 		Log.write("Extract Website -- Extracts the Webinterface", true);
-		Log.write("", false);
+		Log.write("", true);
 	}
 	
 }
