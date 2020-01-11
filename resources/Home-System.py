@@ -105,7 +105,6 @@ def train(epoch):
     data = (data - data.mean()) / data.std()
 
     prediction = model(data)
-    criterion = torch.nn.BCELoss(reduction='mean')
     loss = criterion(prediction, target)
 
     optimizer.zero_grad()
