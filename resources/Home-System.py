@@ -73,8 +73,8 @@ x, y, z = Variable(torch.Tensor(x_data)), Variable(torch.Tensor(y_data)), Variab
 
 
 class Model(nn.Module):
-        def __init__(self):
-        super(Net, self).__init__()
+    def __init__(self):
+        super(Model, self).__init__()
         self.hidden1 = torch.nn.Linear(1, 200)
         self.relu1 = torch.nn.ReLU()
         self.hidden2 = torch.nn.Linear(200, 400)
