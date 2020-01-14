@@ -73,19 +73,25 @@ x, y, z = Variable(torch.Tensor(x_data)), Variable(torch.Tensor(y_data)), Variab
 
 
 class Model(nn.Module):
-    def __init__(self):
-        super(Model, self).__init__()
-        self.hidden1 = torch.nn.Linear(1, 100)
-        self.hidden2 = torch.nn.Linear(100, 200)
-        self.hidden3 = torch.nn.Linear(200, 100)
-        self.prediction = torch.nn.Linear(100, 1)
+        def __init__(self):
+        super(Net, self).__init__()
+        self.hidden1 = torch.nn.Linear(1, 200)
+        self.relu1 = torch.nn.ReLU()
+        self.hidden2 = torch.nn.Linear(200, 400)
+        self.relu2 = torch.nn.ReLU()
+        self.hidden3 = torch.nn.Linear(400, 150)
+        self.relu3 = torch.nn.ReLU()
+        self.prediction = torch.nn.Linear(150, 1)
 
     def forward(self, x):
-        x = torch.sigmoid(self.hidden1(x))
-        x = torch.sigmoid(self.hidden2(x))
-        x = torch.sigmoid(self.hidden3(x))
-        x = torch.sigmoid(self.prediction(x))
-        return x
+        res = self.hidden1(x)
+        res = self.relu1(res)
+        res = self.hidden2(res)
+        res = self.relu2(res)
+        res = self.hidden3(res)
+        res = self.relu3(res)
+        res = torch.sigmoid(self.prediction(res))
+        return res
 
 
 model = Model()
