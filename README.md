@@ -92,6 +92,8 @@ The website files can be extracted with the command `extract website`. They will
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Version log
+- **Version 1.0.7**
+  - The AI was fixed. Training will be faster and predictions will be more correct.
 - **Version 1.0.6**
   - Some bugs has been fixed.
   - The AI will be working correctly now

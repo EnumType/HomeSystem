@@ -108,7 +108,7 @@ def train(epoch):
     data = x + z
     target = y
 
-    data = (data - data.mean()) / data.std()
+    data = (data - data.mean()) / (data.std(unbiased=False) + 1)
 
     prediction = model(data)
     loss = criterion(prediction, target)
@@ -127,6 +127,7 @@ if doTraining:
 if doPrediction:
     model.eval()
     data = Variable(torch.Tensor(predict_x) + torch.Tensor(predict_z))
+    data = (data - data.mean()) / (data.std(unbiased=False) + 1)
     out = model(data)
     print(out.view(-1).data.numpy())
     result = int(torch.round(out.view(-1).data).numpy())
