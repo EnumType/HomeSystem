@@ -228,12 +228,7 @@ public class AI {
 				for(String room : Rooms.getRooms()) {
 					for(String device : Rooms.getRoomDevices(room)) {
 						if(Rooms.getDeviceAIData(room, device)) {
-							try {
-								train(room + "-" + device);
-							}catch (IOException e) {
-								e.printStackTrace();
-								Log.write(Methods.createPrefix() + "Error in AI(235): " + e.getMessage(), false);
-							}
+							train(room + "-" + device);
 						}
 					}
 				}
@@ -270,15 +265,24 @@ public class AI {
 		return state;
 	}
 	
-	public static void train(String device) throws IOException {
-		File data = new File("AI//data//" + device + ".csv");
-		if(data.exists()) {
-			String[] cmd = {"python3", "AI/Home-System.py",
-							data.getName().replace(".csv", ""),
-							"true",
-							"false"};
-			Runtime.getRuntime().exec(cmd);
-		}
+	public static void train(String device) {
+		new Thread(() -> {
+			try {
+				File data = new File("AI//data//" + device + ".csv");
+				if(data.exists()) {
+					String[] cmd = {"python3", "AI/Home-System.py",
+									data.getName().replace(".csv", ""),
+									"true",
+									"false"};
+					Process p = Runtime.getRuntime().exec(cmd);
+					p.waitFor();
+					p.destroy();
+				}
+			}catch(IOException | InterruptedException e) {
+				e.printStackTrace();
+				Log.write(Methods.createPrefix() + "Error in AI(283): " + e.getMessage(), false);
+			}
+		}).start();
 	}
 	
 	public static void trainNow() {
@@ -286,12 +290,7 @@ public class AI {
 		for(String room : Rooms.getRooms()) {
 			for(String device : Rooms.getRoomDevices(room)) {
 				if(Rooms.getDeviceAIData(room, device)) {
-					try {
-						train(room + "-" + device);
-					}catch (IOException e) {
-						e.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in AI(293): " + e.getMessage(), false);
-					}
+					train(room + "-" + device);
 				}
 			}
 		}
