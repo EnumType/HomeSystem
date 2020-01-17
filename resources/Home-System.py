@@ -137,3 +137,5 @@ if doPrediction:
 
     print(result)
     sys.exit(result)
+
+quit()

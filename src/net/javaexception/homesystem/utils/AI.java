@@ -57,6 +57,9 @@ public class AI {
 			
 			in.close();
 			out.close();
+		}else {
+			model.delete();
+			checkAIData();
 		}
 	}
 	
@@ -117,7 +120,7 @@ public class AI {
 									}
 								}catch(IOException e) {
 									e.printStackTrace();
-									Log.write(Methods.createPrefix() + "Error in AI(120): " + e.getMessage(), false);
+									Log.write(Methods.createPrefix() + "Error in AI(123): " + e.getMessage(), false);
 								}
 							}
 						}
@@ -169,7 +172,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(172): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(175): " + e.getMessage(), false);
 									}
 								}else if(type.equalsIgnoreCase("LAMP")) {
 									int brightness = 0;
@@ -199,7 +202,7 @@ public class AI {
 										}
 									}catch (IOException e) {
 										e.printStackTrace();
-										Log.write(Methods.createPrefix() + "Error in AI(202): " + e.getMessage(), false);
+										Log.write(Methods.createPrefix() + "Error in AI(205): " + e.getMessage(), false);
 									}
 								}
 							}
@@ -258,7 +261,7 @@ public class AI {
 			}catch(InterruptedException e) {
 				p.destroy();
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(266): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(264): " + e.getMessage(), false);
 			}
 		}
 		
@@ -280,7 +283,7 @@ public class AI {
 				}
 			}catch(IOException | InterruptedException e) {
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(283): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(286): " + e.getMessage(), false);
 			}
 		}).start();
 	}
