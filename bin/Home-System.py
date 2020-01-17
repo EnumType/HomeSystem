@@ -126,8 +126,9 @@ if doTraining:
 
 if doPrediction:
     model.eval()
+    traindata = x + z
     data = Variable(torch.Tensor(predict_x) + torch.Tensor(predict_z))
-    data = (data - data.mean()) / (data.std(unbiased=False) + 1)
+    data = (data - traindata.mean()) / (traindata.std(unbiased=False) + 1)
     out = model(data)
     print(out.view(-1).data.numpy())
     result = int(torch.round(out.view(-1).data).numpy())
