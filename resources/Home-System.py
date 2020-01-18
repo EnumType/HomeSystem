@@ -120,7 +120,7 @@ def train(epoch):
     print('EPOCH: ', epoch, ' LOSS:', loss.data.numpy())
 
 if doTraining:
-    for epoch in range(1000):
+    for epoch in range(10000):
         train(epoch + 1)
 
 if doPrediction:
