@@ -99,7 +99,7 @@ if os.path.isfile(modelPath):
     checkpoint = torch.load(modelPath)
     model.load_state_dict(checkpoint['state_dict'])
 
-optimizer = optim.Adam(model.parameters(), lr=0.01)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = torch.nn.BCELoss(reduction='mean')
 
 
@@ -118,7 +118,6 @@ def train(epoch):
     optimizer.step()
     torch.save({'state_dict': model.state_dict()}, modelPath)
     print('EPOCH: ', epoch, ' LOSS:', loss.data.numpy())
-
 
 if doTraining:
     for epoch in range(1000):
