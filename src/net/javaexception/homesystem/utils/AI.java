@@ -277,13 +277,11 @@ public class AI {
 									data.getName().replace(".csv", ""),
 									"true",
 									"false"};
-					Process p = Runtime.getRuntime().exec(cmd);
-					p.waitFor();
-					p.destroy();
+					Runtime.getRuntime().exec(cmd);
 				}
-			}catch(IOException | InterruptedException e) {
+			}catch(IOException e) {
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(286): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(284): " + e.getMessage(), false);
 			}
 		}).start();
 	}
