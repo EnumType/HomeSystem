@@ -273,7 +273,7 @@ public class AI {
 			try {
 				File data = new File("AI//data//" + device + ".csv");
 				if(data.exists()) {
-					String[] cmd = {"python3", "AI/Home-System.py",
+					String[] cmd = {"python3", "-u" , "AI/Home-System.py",
 									data.getName().replace(".csv", ""),
 									"true",
 									"false"};
