@@ -242,10 +242,10 @@ public class AI {
 	public static int predict(String device, int brightness, long time) throws IOException {
 		int state = 0;
 		if(model.exists()) {
-			String cmd = "python3 " + model.getAbsolutePath() + " " +
-							device + " " +
-							"false " + "true " +
-							"[" + brightness + "," + time + "]";
+			String[] cmd = {"python3", model.getAbsolutePath(),
+							device,
+							"false", "true",
+							"[" + brightness + "," + time + "]"};
 			Process p = Runtime.getRuntime().exec(cmd);
 			try {
 				p.waitFor();
@@ -273,7 +273,8 @@ public class AI {
 			try {
 				File data = new File("AI//data//" + device + ".csv");
 				if(data.exists()) {
-					String[] cmd = {"python3", "-u" , "AI/Home-System.py",
+					String[] cmd = {"screen", "-dmS", "AI-" + device,
+									"python3", "AI/Home-System.py",
 									data.getName().replace(".csv", ""),
 									"true",
 									"false"};
@@ -281,7 +282,7 @@ public class AI {
 				}
 			}catch(IOException e) {
 				e.printStackTrace();
-				Log.write(Methods.createPrefix() + "Error in AI(284): " + e.getMessage(), false);
+				Log.write(Methods.createPrefix() + "Error in AI(285): " + e.getMessage(), false);
 			}
 		}).start();
 	}
