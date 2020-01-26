@@ -93,7 +93,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Version log
 - **Version 1.0.8**
-  - An AI bug was fixed. See more in [Releases](/releases)
+  - An AI bug was fixed. See more in [Releases](https://github.com/TheJavaException/HomeSystem/releases)
 - **Version 1.0.7**
   - The AI was fixed. Training will be faster and predictions will be more correct.
 - **Version 1.0.6**
