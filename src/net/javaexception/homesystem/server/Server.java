@@ -26,7 +26,7 @@ public class Server {
 	private static HashMap<InetAddress, Socket> sockets;
 	
 	public static void start() throws IOException {
-		Data.version = "v1.0.7";
+		Data.version = "v1.0.8";
 		
 		Log.write(Methods.createPrefix() + "Starting Server version: " + Data.version + " Port: " + Data.serverPort, true);
 		System.out.println("");
