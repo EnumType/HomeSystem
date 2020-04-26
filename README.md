@@ -84,6 +84,12 @@ The website files can be extracted with the command `extract website`. They will
 - [JavaScript](https://en.wikipedia.org/wiki/JavaScript) - Language used for the WebSocket WebBrowser communication
 - [HTML](https://en.wikipedia.org/wiki/HTML) - Language used for the Website files
 - [CSS](https://en.wikipedia.org/wiki/Cascading_Style_Sheets) - Style Language used for the Style of the Website
+- [Apache XML-RPC](https://ws.apache.org/xmlrpc/) - Apache XML-RPC API to communicate with the HomeMatic XML-RPC Server
+- [Image4j](http://image4j.sourceforge.net/)
+- [Jetty-All](http://image4j.sourceforge.net/)
+- [JSON-Simple](https://code.google.com/archive/p/json-simple/)
+- [Snake YAML](https://bitbucket.org/asomov/snakeyaml/src/master/)
+- [WS-Commons-Util](https://mvnrepository.com/artifact/org.apache.ws.commons.util/ws-commons-util/1.0.2)
 
 ## Authors
 - **TheJavaException** - *Idea and Coding*
