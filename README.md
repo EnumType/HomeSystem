@@ -5,7 +5,7 @@ The HomeSystem is a Java based system which allows you to controll your HomeMati
 These instructions will get you a copy of the project up and running on your local machine to deploy the HomeSystem server.
 
 ### Prerequisites
-Before you download the HomeSystem you schould install the following sorftware to run this system:
+Before you download the HomeSystem you should install the following sorftware to run this system:
 - Oracle-JDK `sudo apt install default-jdk`
 - Oracle-JRE `sudo apt install default-jre`
 - Git `sudo apt install git`
@@ -31,8 +31,8 @@ After the installing you should change a few parameters in the *config.txt* to k
 - `HmIP` The port of the HomeMaticIP XmlRpc server (default port is 2010)
 - `Server-Port` Port on which the Java ServerSocket is running
 - `Resources-Dir` The directory where all ressources are located (e.g. the WebSocket keystore.jks)
-- `WebSocket-Http` The port on which the HTTP WebSocket is running (default port is 8000. If you change it you schould change the port in the PHP files too!)
-- `WebSocket-Https` The port on which the HTTPS WebSocket is running (default port is 8000. If you change it you schould change the port in the PHP files too!)
+- `WebSocket-Http` The port on which the HTTP WebSocket is running (default port is 8000. If you change it you should change the port in the PHP files too!)
+- `WebSocket-Https` The port on which the HTTPS WebSocket is running (default port is 8000. If you change it you should change the port in the PHP files too!)
 - `WebSocket-Keystore` The name of your keystore which is located in the *resources* directory (Please generate a keystore.jks! Otherwise the WebSocket server will not be started!)
 - `WebSocket-KeystorePassword` The password of your keystore file
 - `BrightnessSensor` The address of the Brightness sensor used for AI. Change to *none* if you don't have a HomeMatic Brightness Sensor
