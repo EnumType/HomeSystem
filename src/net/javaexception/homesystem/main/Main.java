@@ -26,7 +26,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
-			Data.version = "v1.0.8";
+			Data.version = "v1.0.9-Beta-2";
 			Data.saveAIData = true;
 			Data.doAIPrediction = false; //TODO: Renew AI and test it. After this back to "true"!!
 			Log.initLog();
