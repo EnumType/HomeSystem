@@ -11,10 +11,7 @@ Before you download the HomeSystem you should install the following sorftware to
 - Git `sudo apt install git`
 - Python3 `sudo apt install python3`
 - Pip3 `sudo apt install python3-pip`
-- Pytorch (Details on https://pytorch.org)
-  - Without Cuda `sudo pip3 install torch==1.3.1+cpu torchvision==0.4.2+cpu -f https://download.pytorch.org/whl/torch_stable.html`
-  - With Cuda 9.2 `sudo pip3 install torch==1.3.1+cu92 torchvision==0.4.2+cu92 -f https://download.pytorch.org/whl/torch_stable.html`
-  - With Cuda 10.1 `sudo pip3 install torch torchvision`
+- Pytorch `sudo pip3 install torch==1.3.1+cpu torchvision==0.4.2+cpu -f https://download.pytorch.org/whl/torch_stable.html` (Details on https://pytorch.org)
 - Pandas `sudo pip3 install pandas`
 - Apache2 `sudo apt install apache2`
 - Screen `sudo apt install screen`
@@ -42,7 +39,7 @@ After the installing you should change a few parameters in the *config.txt* to k
 ### Data.txt
 The login data for the users is located in the *User-Data* directory.
 `Name` The username for this account
-`Password` The Password for the user (Please don't user your regular password! In the lates version 1.0.8 the passwords aren't daved encrypted! Use a random password e.g. from [Passwordgenerator](https://passwordsgenerator.net/))
+`Password` The Password for the user (Please don't user your regular password! In the lates version 1.0.8 the passwords aren't saved encrypted! Use a random password e.g. from [Passwordgenerator](https://passwordsgenerator.net/))
 
 You can write many lines in this file but be careful with the correct syntax! E.g.:
 ```

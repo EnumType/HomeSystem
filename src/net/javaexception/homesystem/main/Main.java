@@ -3,15 +3,13 @@ package net.javaexception.homesystem.main;
 import java.io.IOException;
 import java.util.Scanner;
 
-import net.javaexception.homesystem.server.Client;
+import net.javaexception.homesystem.monitoring.Monitoring;
+import net.javaexception.homesystem.server.ClientManager;
 import net.javaexception.homesystem.server.Commands;
-import net.javaexception.homesystem.server.Server;
 import net.javaexception.homesystem.utils.AI;
-import net.javaexception.homesystem.utils.Crypto;
 import net.javaexception.homesystem.utils.Data;
 import net.javaexception.homesystem.utils.Log;
 import net.javaexception.homesystem.utils.Methods;
-import net.javaexception.homesystem.utils.UserData;
 import net.javaexception.homesystem.websocket.WebSocket;
 import net.javaexception.homesystem.xmlrpc.Rooms;
 import net.javaexception.homesystem.xmlrpc.XmlRpcServer;
@@ -19,24 +17,24 @@ import net.javaexception.homesystem.xmlrpc.XmlRpcServer;
 // Created by JavaException
 
 public class Main {
-	
-	public static Crypto crypto;
+
 	public static boolean scan;
 	public static boolean reload;
 	public static Scanner scanner;
+	private static ClientManager clientManager;
+	private static Monitoring monitoring;
 	
 	public static void main(String[] args) {
-		Data.isWorking = true;
-		Data.saveAIData = true;
-		Data.doAIPrediction = true;
-		Log.initLog();
-		Log.write("loading libaries, please wait...", true);
 		try {
-			crypto = new Crypto("RSA", 2048);
-			crypto.generate();
-			
-			UserData.loadUserData();
-			UserData.loadUserPerm();
+			Data.version = "v1.0.8";
+			Data.saveAIData = true;
+			Data.doAIPrediction = false; //TODO: Renew AI and test it. After this back to "true"!!
+			Log.initLog();
+			Log.write("loading libraries, please wait...", true);
+			clientManager = new ClientManager();
+			monitoring = new Monitoring();
+			clientManager.loadUserData();
+			clientManager.loadUserPerm();
 			XmlRpcServer.getConfigs();
 			Rooms.loadData();
 			AI.checkAIData();
@@ -45,7 +43,7 @@ public class Main {
 			AI.startAutoTraining();
 			Methods.startVersionChecking();
 			WebSocket.startWebSocket(Data.wsport, Data.wssport, Data.resourcesDir, Data.resourcesDir + "//" + Data.wsKeystore, Data.wsKeystorePassword);
-			Server.start();
+			startScanning();
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.write(Methods.createPrefix() + "Error in Main(51): " + e.getMessage(), false);
@@ -53,29 +51,21 @@ public class Main {
 		
 	}
 	
-	public static void startScanning() {		
+	public static void startScanning() {
 		if(!scan) {
 			scan = true;
 			
-			Thread thread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					reload = false;
-					while(scan) {
-						System.out.print(">");
-						Data.isWorking = false;
-						scanner = new Scanner(System.in);
-						String command = scanner.nextLine().replaceAll(">", "");
-						
+			Thread thread = new Thread(() -> {
+				reload = false;
+				while(scan) {
+					System.out.print(">");
+					scanner = new Scanner(System.in);
+					String command = scanner.nextLine().replaceAll(">", "");
+
+					try {
 						checkConsoleCommand(command);
-					}
-					if(reload) {
-						try {
-							Server.start();
-						} catch (IOException e) {
-							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in Main(77): " + e.getMessage(), false);
-						}
+					}catch(Exception ex) {
+						ex.printStackTrace();
 					}
 				}
 			});
@@ -84,7 +74,7 @@ public class Main {
 		}
 	}
 	
-	public static void checkConsoleCommand(String command) {
+	public static void checkConsoleCommand(String command) throws Exception {
 		if(command.equalsIgnoreCase("help")) {
 			Commands.executeHelpCommand();
 		}else if(command.equalsIgnoreCase("stop")) {
@@ -102,24 +92,28 @@ public class Main {
 			String[] args = command.split(" ");
 			
 			if(args.length == 2) {
-				Client.addPermission(args[0], args[1]);
-				Log.write(Methods.createPrefix() + "Added " + args[1] + " to user " + args[0], true);
-				Log.write("", false);
-			}else {
-				System.out.println("Usage: /addperm <Username> <Permission>");
-			}
+				clientManager.addPermission(args[0], args[1]);
+				Log.write(Methods.createPrefix() + "Added " + args[1] + " to user " + args[0], false);
+			}else System.out.println("Usage: /addperm <Username> <Permission>");
+		}else if(command.startsWith("removeperm")) {
+			command = command.replaceFirst("removeperm ", "");
+			final String[] args = command.split(" ");
+
+			if(args.length == 2) {
+				if(clientManager.removePermission(args[0], args[1])) {
+					Log.write(Methods.createPrefix() + "Removed '" + args[1] + "' from user '" + args[0] + "'.", false);
+				}else Log.write(Methods.createPrefix() + "Cannot remove '" + args[1] + "' from user '" + args[0] + "'.", false);
+			}else System.out.println("Usage: /removeperm <Username> <Permission>");
 		}else if(command.startsWith("reload")) {
 			try {
 				scan = false;
 				reload = true;
 				Data.saveAIData = false;
 				Data.doAIPrediction = false;
-				Server.stop();
-				Client.clearCacheData();
 				Data.saveAIData = true;
-				Data.doAIPrediction = true;
-				UserData.loadUserData();
-				UserData.loadUserPerm();
+				//Data.doAIPrediction = false; TODO: Renew AI and test it. After this back to "true"!!
+				clientManager.loadUserData();
+				clientManager.loadUserPerm();
 				XmlRpcServer.getConfigs();
 				Rooms.loadData();
 				AI.startSavingData(Data.aiInterval);
@@ -134,5 +128,8 @@ public class Main {
 			AI.trainNow();
 		}
 	}
+
+	public static ClientManager getClientManager() {return clientManager;}
+	public static Monitoring getMonitoring() {return monitoring;}
 	
 }

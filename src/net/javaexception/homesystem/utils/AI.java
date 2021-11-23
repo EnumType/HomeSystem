@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Timer;
@@ -21,7 +22,7 @@ import net.javaexception.homesystem.xmlrpc.Rooms;
 import net.javaexception.homesystem.xmlrpc.XmlRpcServer;
 
 public class AI {
-	
+
 	private static File AIDir;
 	private static File dataDir;
 	private static File model;
@@ -32,22 +33,14 @@ public class AI {
 		dataDir = new File(AIDir + "//data");
 		model = new File(AIDir + "//Home-System.py");
 		modelPath = new File(AIDir + "//models");
-		
-		if(!AIDir.exists()) {
-			AIDir.mkdir();
-		}
-		
-		if(!dataDir.exists()) {
-			dataDir.mkdir();
-		}
-		
-		if(!modelPath.exists()) {
-			modelPath.mkdir();
-		}
+
+		if(!AIDir.exists()) if(!AIDir.mkdir()) throw new IOException("Cannot create directory!");
+		if(!dataDir.exists()) if(!dataDir.mkdir()) throw new IOException("Cannot create directory!");
+		if(!modelPath.exists()) if(!modelPath.mkdir()) throw new IOException("Cannot create directory!");
 		
 		if(!model.exists()) {
 			InputStream stream = Main.class.getResourceAsStream("/Home-System.py");
-			BufferedReader in = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+			BufferedReader in = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
 			BufferedWriter out = new BufferedWriter(new FileWriter(model));
 			
 			String line;
@@ -58,46 +51,46 @@ public class AI {
 			in.close();
 			out.close();
 		}else {
-			model.delete();
+			if(!model.delete()) throw new IOException("Cannot delete file!");
 			checkAIData();
 		}
 	}
 	
 	public static void startSavingData(int waitInMin) {
 		Timer timer = new Timer();
-		
+
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				if(Data.saveAIData) {
-					for(String room : Rooms.getRooms()) {
+					for(String room : Rooms.getAll()) {
 						for(String device : Rooms.getRoomDevices(room)) {
 							if(Rooms.getDeviceAIData(room, device)) {
 								File data = new File(dataDir + "//" + room + "-" + device + ".csv");
 								int brightness = 0;
 								long time = Methods.getUnixTime();
 								int state = 0;
-								
+
 								if(Rooms.getDeviceType(room, device).equalsIgnoreCase("ROLL")) {
 									Object result = XmlRpcServer.getValue(Rooms.getDeviceAddress(room, device), "LEVEL", Rooms.getDeviceHmIP(room, device));
-									
+
 									if(!result.toString().isEmpty()) {
 										state = Math.round(Float.parseFloat(result.toString()));
 									}
 								}else if(Rooms.getDeviceType(room, device).equalsIgnoreCase("LAMP")) {
 									Object result = XmlRpcServer.getValue(Rooms.getDeviceAddress(room, device), "STATE", Rooms.getDeviceHmIP(room, device));
-									
+
 									if(!result.toString().isEmpty()) {
 										boolean devicestate = Boolean.parseBoolean(result.toString());
 										state = devicestate ? 1 : 0;
 									}
 								}
-								
+
 								if(!Data.aiBright.equalsIgnoreCase("AddressOfSensor") && !Data.aiBright.equalsIgnoreCase("none")) {
 									Object result = XmlRpcServer.getValue(Data.aiBright, "STATE", Data.aiBrightHmIP);
 									brightness = Integer.parseInt(result.toString());
 								}
-								
+
 								try {
 									if(data.exists()) {
 										FileWriter writer = new FileWriter(data, true);
@@ -127,7 +120,7 @@ public class AI {
 					}
 				}
 			}
-		}, 0, waitInMin * 60000);
+		}, 0, waitInMin * 60000L);
 	}
 	
 	public static void startPredictions(int waitInMin) {
@@ -137,7 +130,7 @@ public class AI {
 			@Override
 			public void run() {
 				if(Data.doAIPrediction) {
-					for(String room : Rooms.getRooms()) {
+					for(String room : Rooms.getAll()) {
 						for(String device : Rooms.getRoomDevices(room)) {
 							if(Rooms.getDeviceAIControll(room, device)) {
 								String id = Rooms.getDeviceAddress(room, device);
@@ -165,7 +158,7 @@ public class AI {
 									}
 									
 									try {
-										float prediction = (predict(room + "-" + device, brightness, time) / 100);
+										float prediction = (predict(room + "-" + device, brightness, time) / 100F);
 										
 										if(prediction != state) {
 											XmlRpcServer.setValue(id, "LEVEL", prediction, null, hmip, room);
@@ -210,7 +203,7 @@ public class AI {
 					}
 				}
 			}
-		}, 0, waitInMin * 60000);
+		}, 0, waitInMin * 60000L);
 	}
 	
 	public static void startAutoTraining() {
@@ -228,7 +221,7 @@ public class AI {
 			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 			scheduler.scheduleAtFixedRate(() -> {
 				Log.write(Methods.createPrefix() + "Starting AI training", false);
-				for(String room : Rooms.getRooms()) {
+				for(String room : Rooms.getAll()) {
 					for(String device : Rooms.getRoomDevices(room)) {
 						if(Rooms.getDeviceAIData(room, device)) {
 							train(room + "-" + device);
@@ -253,8 +246,8 @@ public class AI {
 				int len;
 				if ((len = p.getErrorStream().available()) > 0) {
 				  byte[] buf = new byte[len];
-				  p.getErrorStream().read(buf);
-				  Log.write("Command error:\t\""+new String(buf)+"\"", false);
+				  final int i = p.getErrorStream().read(buf);
+				  Log.write("Command error:\t\""+new String(buf)+"\"; i=" + i, false);
 				}
 				
 				state = p.exitValue();
@@ -289,7 +282,7 @@ public class AI {
 	
 	public static void trainNow() {
 		Log.write(Methods.createPrefix() + "Starting AI training", true);
-		for(String room : Rooms.getRooms()) {
+		for(String room : Rooms.getAll()) {
 			for(String device : Rooms.getRoomDevices(room)) {
 				if(Rooms.getDeviceAIData(room, device)) {
 					train(room + "-" + device);

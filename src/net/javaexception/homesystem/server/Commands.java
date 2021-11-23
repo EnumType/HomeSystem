@@ -2,18 +2,17 @@ package net.javaexception.homesystem.server;
 
 import java.io.IOException;
 
+import net.javaexception.homesystem.main.Main;
 import net.javaexception.homesystem.utils.Data;
 import net.javaexception.homesystem.utils.Log;
 import net.javaexception.homesystem.utils.Methods;
-import net.javaexception.homesystem.utils.UserData;
 
 public class Commands {
 	
 	public static void executeStopCommand() {
 		try {
 			Log.write("Stopping server...", true);
-			Server.stop();
-			UserData.writeUserPerm();
+			Main.getClientManager().writeUserPerm();
 			System.exit(0);
 		}catch(IOException e) {
 			e.printStackTrace();
@@ -22,7 +21,6 @@ public class Commands {
 	
 	public static void updateVersion(String version) {
 		Data.version = version;
-		Data.newVersion = true;
 		Log.write(Methods.createPrefix() + "Version changed to " + Data.version, false);
 	}
 	

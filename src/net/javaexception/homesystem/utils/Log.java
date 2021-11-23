@@ -11,18 +11,13 @@ public class Log {
 	private static File log;
 	private static File datafolder;
 	
-	public static void initLog() {
+	public static void initLog() throws IOException{
 		datafolder = new File("logs");
-		
-		if(!datafolder.exists()) {
-			datafolder.mkdir();
-		}
+		if(!datafolder.exists()) if(!datafolder.mkdir()) throw new IOException("Cannot create directory!");
 		
 		latest = new File(datafolder + "//latest.log");
-		
-		if(latest.exists()) {
-			latest.delete();
-		}
+
+		if(latest.exists()) if(!latest.delete()) throw new IOException("Cannot delete file!");
 		
 		log = new File(datafolder + "//" + Methods.getDate() + ".log");
 		if(log.exists()) {
@@ -41,9 +36,7 @@ public class Log {
 				logout.write(output + "\r\n");
 				System.out.println(output);
 				
-				if(!isNextLine && !Data.isWorking) {
-					System.out.print(">");
-				}
+				if(!isNextLine) System.out.print(">");
 				
 				latestout.close();
 				logout.close();

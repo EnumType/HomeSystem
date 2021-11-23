@@ -8,25 +8,24 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.javaexception.homesystem.server.Client;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.server.Server;
 import net.javaexception.homesystem.utils.Data;
 import net.javaexception.homesystem.utils.Log;
 import net.javaexception.homesystem.utils.Methods;
 
 public class XmlRpcServer {
 	
-	private static HashMap<String, Object> cachedStates = new HashMap<String, Object>();
+	private static final HashMap<String, Object> cachedStates = new HashMap<>();
 	
 	public static void getConfigs() {
 		try {
@@ -45,8 +44,7 @@ public class XmlRpcServer {
 					}else if(line.startsWith("XmlRpc-Port")) {
 						line = line.replace("XmlRpc-Port: ", "");
 						try {
-							int port = Integer.parseInt(line);
-							Data.xmlrpcPort = port;
+							Data.xmlrpcPort = Integer.parseInt(line);
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
 							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(52): " + e.getMessage(), false);
@@ -54,20 +52,10 @@ public class XmlRpcServer {
 					}else if(line.startsWith("HmIP-Port")) {
 						line = line.replace("HmIP-Port: ", "");
 						try {
-							int port = Integer.parseInt(line);
-							Data.hmipPort = port;
+							Data.hmipPort = Integer.parseInt(line);
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
 							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(61): " + e.getMessage(), false);
-						}
-					}else if(line.startsWith("Server-Port")) {
-						line = line.replace("Server-Port: ", "");
-						try {
-							int port = Integer.parseInt(line);
-							Data.serverPort = port;
-						}catch(NumberFormatException e) {
-							e.printStackTrace();
-							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(70): " + e.getMessage(), false);
 						}
 					}else if(line.startsWith("Resources-Dir")) {
 						line = line.replace("Resources-Dir: ", "");
@@ -75,8 +63,7 @@ public class XmlRpcServer {
 					}else if(line.startsWith("WebSocket-Http") && !line.startsWith("WebSocket-Https")) {
 						line = line.replace("WebSocket-Http: ", "");
 						try {
-							int port = Integer.parseInt(line);
-							Data.wsport = port;
+							Data.wsport = Integer.parseInt(line);
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
 							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(82): " + e.getMessage(), false);
@@ -84,8 +71,7 @@ public class XmlRpcServer {
 					}else if(line.startsWith("WebSocket-Https")) {
 						line = line.replace("WebSocket-Https: ", "");
 						try {
-							int port = Integer.parseInt(line);
-							Data.wssport = port;
+							Data.wssport = Integer.parseInt(line);
 						}catch(NumberFormatException e) {
 							e.printStackTrace();
 							Log.write(Methods.createPrefix() + "Error in XmlRpcServer(91): " + e.getMessage(), false);
@@ -130,46 +116,34 @@ public class XmlRpcServer {
 		}
 	}
 	
-	public static void setValue(String id, String value_key, Object value, InetAddress address, boolean hmip, String room) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-					XmlRpcClient client = new XmlRpcClient();
-					
-					if(hmip) {
-						config.setServerURL(new URL("http://" + Data.xmlrpcAddress + ":" + Data.hmipPort));
-					}else {
-						config.setServerURL(new URL("http://" + Data.xmlrpcAddress + ":" + Data.xmlrpcPort));
-					}
-					
-					cacheRoomStates(room);
-					
-					client.setConfig(config);
-					
-					if(getValue(id, value_key, hmip) != value) {
-						client.execute("setValue", new Object[]{id, value_key, value});
-					}
-					
-					if(address != null) {
-						Server.sendCommand(address, "ok");
-					}
-				}catch(XmlRpcException | IOException e) {
-					e.printStackTrace();
-					Log.write(Methods.createPrefix() + "Error in XmlRpcServer(160): " + e.getMessage(), false);
-					try {
-						if(address != null) {
-							Server.sendCommand(address, "failure");
-						}
-					} catch (IOException e1) {
-						e1.printStackTrace();
-						Log.write(Methods.createPrefix() + "Error in XmlRpcServer(167): " + e.getMessage(), false);
-					}
+	public static void setValue(String id, String value_key, Object value, Client userClient, boolean hmip, String room) {
+		new Thread(() -> {
+			try {
+				XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+				XmlRpcClient client = new XmlRpcClient();
+
+				if(hmip) {
+					config.setServerURL(new URL("http://" + Data.xmlrpcAddress + ":" + Data.hmipPort));
+				}else {
+					config.setServerURL(new URL("http://" + Data.xmlrpcAddress + ":" + Data.xmlrpcPort));
 				}
-				
-				removeCachedRoom(room);
+
+				cacheRoomStates(room);
+
+				client.setConfig(config);
+
+				if(getValue(id, value_key, hmip) != value) {
+					client.execute("setValue", new Object[]{id, value_key, value});
+				}
+
+				userClient.sendMessage("ok");
+			}catch(XmlRpcException | IOException e) {
+				e.printStackTrace();
+				Log.write(Methods.createPrefix() + "Error in XmlRpcServer(160): " + e.getMessage(), false);
+				userClient.sendMessage("failure");
 			}
+
+			removeCachedRoom(room);
 		}).start();
 	}
 	
@@ -202,7 +176,7 @@ public class XmlRpcServer {
 	}
 	
 	public static ArrayList<String> states(String room, String device, boolean hmip) {
-		ArrayList<String> states = new ArrayList<String>();
+		ArrayList<String> states = new ArrayList<>();
 		String address = Rooms.getDeviceAddress(room, device);
 		
 		if(Rooms.getDeviceType(room, device).equalsIgnoreCase("ROLL")) {
@@ -213,18 +187,6 @@ public class XmlRpcServer {
 		}
 		
 		return states;
-	}
-	
-	public static String formatStateResult(String result) {
-		String firstChar = Character.toString(result.charAt(0));
-		String state = result.replace(".", "");
-		
-		if(firstChar.startsWith("0")) {
-			state = state.replaceFirst("0", "");
-		}else if(firstChar.startsWith("1")) {
-			state = state + "0";
-		}
-		return state;
 	}
 	
 	public static void cacheRoomStates(String room) {		
@@ -245,16 +207,7 @@ public class XmlRpcServer {
 	public static void removeCachedRoom(String room) {
 		for(String device : Rooms.getRoomDevices(room)) {
 			String id = Rooms.getDeviceAddress(room, device);
-			
-			if(cachedStates.containsKey(id)) {
-				cachedStates.remove(id);
-			}
-		}
-	}
-	
-	public static void clearCache() {
-		if(!cachedStates.isEmpty()) {
-			cachedStates.clear();
+			cachedStates.remove(id);
 		}
 	}
 	

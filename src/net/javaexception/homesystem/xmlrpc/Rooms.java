@@ -87,8 +87,8 @@ public class Rooms {
 		return Boolean.parseBoolean(rooms.get(room).get("Devices").get(device).get("HmIP").toString());
 	}
 	
-	public static ArrayList<String> getRooms() {
-		ArrayList<String> list = new ArrayList<String>();
+	public static ArrayList<String> getAll() {
+		ArrayList<String> list = new ArrayList<>();
 		for(Object o : rooms.keySet()) {
 			list.add(o.toString());
 		}
@@ -97,10 +97,8 @@ public class Rooms {
 	}
 	
 	public static ArrayList<String> getRoomDevices(String room) {
-		ArrayList<String> list = new ArrayList<String>();
-		rooms.get(room).get("Devices").keySet().forEach(o ->{
-			list.add(o.toString());
-		});
+		ArrayList<String> list = new ArrayList<>();
+		rooms.get(room).get("Devices").keySet().forEach(o -> list.add(o.toString()));
 		
 		return list;
 	}
