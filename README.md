@@ -98,29 +98,4 @@ The website files can be extracted with the command `extract website`. They will
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Version log
-- **Version 1.0.8**
-  - An AI bug was fixed. See more in [Releases](https://github.com/TheJavaException/HomeSystem/releases)
-- **Version 1.0.7**
-  - The AI was fixed. Training will be faster and predictions will be more correct.
-- **Version 1.0.6**
-  - Some bugs has been fixed.
-  - The AI will be working correctly now
-  - Started to implement monitoring
-- **Version 1.0.5**
-  - A bug has been fixed that doesn't call the AI training at 0:00 am.
-- **Version 1.0.4**
-  - AI train data will now be put into batches of 64
-- **Version 1.0.3**
-  - Added automatic checking for new versions.
-- **Version 1.0.2**
-  - A bug has been fixed that occures when the AI was trained.
-  - The automatic AI training has been added. The AI will be trained everyday at 0:00 am.
-- **Version 1.0.1**
-  - Beta implementation of AIData saving and AIprediction. Can produce errors!
-- **Version 1.0**
-  - Integrated WebSocket server
-  - Integrated Java server
-  - Integrated Website that can be extracted (See [Website](#Website))
-  - Exceptions will be printed in Log **and** Console
-  - Added Rooms.yml, which allows different rooms to be configured with different devices. Each device can be configured individually (See [Rooms.yml](#Rooms.yml))
-  - Added Permissions.yml where you can add each user permissions (See [Permissions.yml](#Permissions.yml))
+- See [Releases](https://github.com/TheJavaException/HomeSystem/releases)
