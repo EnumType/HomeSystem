@@ -4,6 +4,7 @@ import net.javaexception.homesystem.main.Main;
 import net.javaexception.homesystem.utils.Log;
 import net.javaexception.homesystem.utils.Methods;
 import net.javaexception.homesystem.websocket.WebSocket;
+import org.eclipse.jetty.websocket.api.Session;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -134,9 +135,9 @@ public class ClientManager {
         }
     }
 
-    public void loginClient(InetAddress address, String username, String password) {
-        final Client client = new Client(address, username, userPermissions.containsKey(username) ? userPermissions.get(username) : new ArrayList<>());
-        if(verifyLoginData(address, username, password)) {
+    public void loginClient(Session session, String username, String password) {
+        final Client client = new Client(session, username, userPermissions.containsKey(username) ? userPermissions.get(username) : new ArrayList<>());
+        if(verifyLoginData(session.getRemoteAddress().getAddress(), username, password)) {
             clients.add(client);
             client.sendMessage("verifylogin");
         }else client.sendMessage("wrongdata");
@@ -144,7 +145,7 @@ public class ClientManager {
 
     public void logoutClient(Client client) {
         clients.remove(client);
-        WebSocket.closeConnection(client.getAddress());
+        WebSocket.closeConnection(client.getSession());
         Log.write(Methods.createPrefix() + "User '" + client.getName() + "' logged out", false);
     }
 
@@ -167,6 +168,10 @@ public class ClientManager {
         return true;
     }
 
+    public boolean isLoggedIn(Session session) {
+        return isLoggedIn(session.getRemoteAddress().getAddress());
+    }
+
     public boolean isLoggedIn(InetAddress address) {
         for(Client client : clients) if(client.getAddress().equals(address)) return true;
         return false;
@@ -177,13 +182,8 @@ public class ClientManager {
         return false;
     }
 
-    public String getOnlineUsers() {
-        final StringBuilder onlineUsersString = new StringBuilder();
-        for(Client client : clients) {
-            onlineUsersString.append(client.getName());
-        }
-
-        return onlineUsersString.toString();
+    public Client getClient(Session session) {
+        return getClient(session.getRemoteAddress().getAddress());
     }
 
     public Client getClient(InetAddress address) {

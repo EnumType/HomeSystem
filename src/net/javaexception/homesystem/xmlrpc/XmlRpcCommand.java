@@ -4,7 +4,7 @@ import net.javaexception.homesystem.server.Client;
 
 public class XmlRpcCommand {
 	
-	public static void checkCommand(Client client, String command) {
+	public static void check(Client client, String command) {
 		if(command.equalsIgnoreCase("getrooms")) {
 			client.sendMessage("rooms", Rooms.getAll());
 		}else if(command.startsWith("getdevices") && !command.startsWith("getdevicestate")
@@ -22,6 +22,8 @@ public class XmlRpcCommand {
 				}else {
 					client.sendMessage("noroom " + room);
 				}
+
+
 			}else {
 				client.sendMessage("failure");
 			}
@@ -88,8 +90,8 @@ public class XmlRpcCommand {
 					if(client.hasPermission(Rooms.getRoomPerm(room))) {
 						if(Rooms.deviceExists(room, device)) {
 							if(value_key.equals("STOP")) {
-								XmlRpcServer.setValue(Rooms.getDeviceAddress(room, device), value_key, true, client, Rooms.getDeviceHmIP(room, device), room);
-							}else XmlRpcServer.setValue(Rooms.getDeviceAddress(room, device), value_key, value, client, Rooms.getDeviceHmIP(room, device), room);
+								XmlRpcServer.setValue(Rooms.getDeviceAddress(room, device), value_key, true, client, Rooms.getDeviceHmIP(room, device));
+							}else XmlRpcServer.setValue(Rooms.getDeviceAddress(room, device), value_key, value, client, Rooms.getDeviceHmIP(room, device));
 						}else client.sendMessage("nodevice " + device);
 					}else client.sendMessage("noperm " + room);
 				}else client.sendMessage("noroom " + room);

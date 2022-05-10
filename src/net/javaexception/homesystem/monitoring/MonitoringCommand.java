@@ -5,7 +5,7 @@ import net.javaexception.homesystem.server.Client;
 
 public class MonitoringCommand {
 	
-	public static void checkCommand(String command, Client client) {
+	public static void check(String command, Client client) {
 		if(client.hasPermission("system.monitoring")) {
 			final Monitoring monitoring = Main.getMonitoring();
 

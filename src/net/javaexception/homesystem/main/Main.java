@@ -6,11 +6,12 @@ import java.util.Scanner;
 import net.javaexception.homesystem.monitoring.Monitoring;
 import net.javaexception.homesystem.server.ClientManager;
 import net.javaexception.homesystem.server.Commands;
-import net.javaexception.homesystem.utils.AI;
+import net.javaexception.homesystem.utils.StaticAI;
 import net.javaexception.homesystem.utils.Data;
 import net.javaexception.homesystem.utils.Log;
 import net.javaexception.homesystem.utils.Methods;
 import net.javaexception.homesystem.websocket.WebSocket;
+import net.javaexception.homesystem.xmlrpc.RoomManager;
 import net.javaexception.homesystem.xmlrpc.Rooms;
 import net.javaexception.homesystem.xmlrpc.XmlRpcServer;
 
@@ -22,25 +23,31 @@ public class Main {
 	public static boolean reload;
 	public static Scanner scanner;
 	private static ClientManager clientManager;
+	private static RoomManager roomManager;
 	private static Monitoring monitoring;
 	
 	public static void main(String[] args) {
 		try {
-			Data.version = "v1.0.9-Beta-2";
+			Data.version = "v1.0.9-Beta-3";
 			Data.saveAIData = true;
 			Data.doAIPrediction = false; //TODO: Renew AI and test it. After this back to "true"!!
 			Log.initLog();
 			Log.write("loading libraries, please wait...", true);
+
 			clientManager = new ClientManager();
+			roomManager = new RoomManager();
 			monitoring = new Monitoring();
 			clientManager.loadUserData();
 			clientManager.loadUserPerm();
+
+			roomManager.load();
+
 			XmlRpcServer.getConfigs();
 			Rooms.loadData();
-			AI.checkAIData();
-			AI.startSavingData(Data.aiInterval);
-			AI.startPredictions(Data.aiInterval);
-			AI.startAutoTraining();
+			StaticAI.checkAIData();
+			StaticAI.startSavingData(Data.aiInterval);
+			StaticAI.startPredictions(Data.aiInterval);
+			StaticAI.startAutoTraining();
 			Methods.startVersionChecking();
 			WebSocket.startWebSocket(Data.wsport, Data.wssport, Data.resourcesDir, Data.resourcesDir + "//" + Data.wsKeystore, Data.wsKeystorePassword);
 			startScanning();
@@ -111,13 +118,13 @@ public class Main {
 				Data.saveAIData = false;
 				Data.doAIPrediction = false;
 				Data.saveAIData = true;
-				//Data.doAIPrediction = false; TODO: Renew AI and test it. After this back to "true"!!
+				Data.doAIPrediction = false; //TODO: Renew AI and test it. After this back to "true"!!
 				clientManager.loadUserData();
 				clientManager.loadUserPerm();
 				XmlRpcServer.getConfigs();
 				Rooms.loadData();
-				AI.startSavingData(Data.aiInterval);
-				AI.startPredictions(Data.aiInterval);
+				StaticAI.startSavingData(Data.aiInterval);
+				StaticAI.startPredictions(Data.aiInterval);
 			}catch(IOException e) {
 				e.printStackTrace();
 				Log.write(Methods.createPrefix() + "Error in Main(129): " + e.getMessage(), false);
@@ -125,7 +132,7 @@ public class Main {
 		}else if(command.startsWith("extract website")) {
 			Methods.extractWebsite();
 		}else if(command.startsWith("train now")) {
-			AI.trainNow();
+			StaticAI.trainNow();
 		}
 	}
 

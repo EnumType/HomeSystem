@@ -8,64 +8,69 @@ import net.javaexception.homesystem.utils.Log;
 import net.javaexception.homesystem.utils.Methods;
 import net.javaexception.homesystem.websocket.WebSocket;
 import net.javaexception.homesystem.xmlrpc.XmlRpcCommand;
+import org.eclipse.jetty.websocket.api.Session;
 
 public class Command {
 	
-	public static void checkCommand(String command, InetAddress address) {
+	public static void check(String command, Session session) {
+		final InetAddress address = session.getRemoteAddress().getAddress();
+		command = command != null ? command.toLowerCase() : "";
 		if(Main.getClientManager().isLoggedIn(address)
 				|| command.startsWith("login") || command.startsWith("isonline")
 				|| command.startsWith("connect")) {
-			if(command != null) {
-				final ClientManager clientManager = Main.getClientManager();
-				final Client client = !(command.startsWith("login") || command.startsWith("connect")) ?
-						clientManager.getClient(address) : new Client(address, "", null);
+			final ClientManager clientManager = Main.getClientManager();
+			final Client client = !(command.startsWith("login") || command.startsWith("connect")) ?
+					clientManager.getClient(address) : new Client(session, "", null);
+			String[] args;
 
-				if(command.equalsIgnoreCase("stop")) {
-					Commands.executeStopCommand();
-				}else if(command.equalsIgnoreCase("help")) {
-					Commands.executeHelpCommand();
-				}else if(command.startsWith("login")) {
+			switch (command) {
+				case "login":
 					command = command.replace("login ", "");
-					String[] args = command.split(" ");
-					
+					args = command.split(" ");
+
 					if(args.length == 2) {
 						String user = args[0];
 						String pass = args[1];
 
-						clientManager.loginClient(address, user, pass);
+						clientManager.loginClient(session, user, pass);
 					}
-				}else if(command.startsWith("logout")) {
+					break;
+				case "logout":
 					command = command.replace("logout ", "");
-					
-					String[] args = command.split(" ");
-					
+
+					args = command.split(" ");
+
 					if(args.length == 1) {
 						clientManager.logoutClient(client);
 					}
-				}else if(command.startsWith("xmlrpc")) {
+					break;
+				case "xmlrpc":
 					command = command.replaceFirst("xmlrpc ", "");
-					XmlRpcCommand.checkCommand(client, command);
-				}else if(command.startsWith("whoisonline")) {
-					client.sendMessage("onlineusers " + clientManager.getOnlineUsers());
-				}else if(command.startsWith("addperm")) { //TODO: Security check
+					XmlRpcCommand.check(client, command);
+					break;
+				case "addperm":
 					command = command.replaceFirst("addperm ", "");
-					String[] args = command.split(" ");
-					
+					args = command.split(" ");
+
 					if(args.length == 2) {
 						String user = args[0];
 						String perm = args[1];
 						clientManager.addPermission(user, perm);
 					}
-				}else if(command.startsWith("getusername")) {
+					break;
+				case "getusername":
 					client.sendMessage("user:" + client.getName());
-				}else if(command.startsWith("monitoring")) {
-					MonitoringCommand.checkCommand(command.replaceFirst("monitoring ", ""), client);
-				}
+					break;
+				case "monitoring":
+					MonitoringCommand.check(command.replaceFirst("monitoring ", ""), client);
+					break;
+				default:
+					Log.write("Error in Command switch", false);
 			}
-			
+
 		}else {
 			Log.write(Methods.createPrefix() + "Client with InetAddress: " + address + " tried to execute command: " + command, false);
-			WebSocket.sendCommand("notloggedin", address);
+			WebSocket.sendCommand("notloggedin", session);
 		}
 	}
 	

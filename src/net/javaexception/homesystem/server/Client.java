@@ -1,6 +1,7 @@
 package net.javaexception.homesystem.server;
 
 import net.javaexception.homesystem.websocket.WebSocket;
+import org.eclipse.jetty.websocket.api.Session;
 
 import java.net.InetAddress;
 import java.util.List;
@@ -8,23 +9,27 @@ import java.util.List;
 public class Client {
 
     private final String name;
-    private final InetAddress address;
     private List<String> permissions;
+    private Session session;
 
-    public Client(InetAddress address, String name, List<String> permissions) {
-        this.address = address;
+    public Client(Session session, String name, List<String> permissions) {
+        this.session = session;
         this.name = name;
         this.permissions = permissions;
     }
 
     public void sendMessage(String message) {
-        WebSocket.sendCommand(message, address);
+        WebSocket.sendCommand(message, session);
     }
 
     public void sendMessage(String type, List<String> message) {
-        for(int i = 0; i < message.size(); i++) {
-            WebSocket.sendCommand("type:" + type + " " + message.get(i), address);
+        for (String s : message) {
+            WebSocket.sendCommand("type:" + type + " " + s, session);
         }
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     public void updatePermissions(List<String> permissions) {
@@ -36,7 +41,11 @@ public class Client {
     }
 
     public InetAddress getAddress() {
-        return address;
+        return session.getRemoteAddress().getAddress();
+    }
+
+    public Session getSession() {
+        return session;
     }
 
     public boolean hasPermission(String permission) {

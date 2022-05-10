@@ -2,7 +2,6 @@ package net.javaexception.homesystem.websocket;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -83,22 +82,16 @@ public class WebSocket {
 		}
 	}
 	
-	public static void sendCommand(String command, InetAddress address) {
-		if(Handler.sessions.containsKey(address)) {
-			Session session = Handler.sessions.get(address);
-			try {
-				session.getRemote().sendString(command);
-			}catch(IOException e) {
-				e.printStackTrace();
-			}
+	public static void sendCommand(String command, Session session) {
+		try {
+			session.getRemote().sendString(command);
+		}catch(IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
-	public static void closeConnection(InetAddress address) {
-		if(Handler.sessions.containsKey(address)) {
-			Session session = Handler.sessions.get(address);
-			session.close();
-		}
+	public static void closeConnection(Session session) {
+		session.close();
 	}
 	
 }

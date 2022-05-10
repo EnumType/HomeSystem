@@ -24,7 +24,7 @@ import net.javaexception.homesystem.utils.Log;
 import net.javaexception.homesystem.utils.Methods;
 
 public class XmlRpcServer {
-	
+
 	private static final HashMap<String, Object> cachedStates = new HashMap<>();
 	
 	public static void getConfigs() {
@@ -116,7 +116,7 @@ public class XmlRpcServer {
 		}
 	}
 	
-	public static void setValue(String id, String value_key, Object value, Client userClient, boolean hmip, String room) {
+	public static void setValue(String id, String value_key, Object value, Client userClient, boolean hmip) {
 		new Thread(() -> {
 			try {
 				XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
@@ -127,8 +127,6 @@ public class XmlRpcServer {
 				}else {
 					config.setServerURL(new URL("http://" + Data.xmlrpcAddress + ":" + Data.xmlrpcPort));
 				}
-
-				cacheRoomStates(room);
 
 				client.setConfig(config);
 
@@ -142,8 +140,6 @@ public class XmlRpcServer {
 				Log.write(Methods.createPrefix() + "Error in XmlRpcServer(160): " + e.getMessage(), false);
 				userClient.sendMessage("failure");
 			}
-
-			removeCachedRoom(room);
 		}).start();
 	}
 	
@@ -173,42 +169,6 @@ public class XmlRpcServer {
 			Log.write(Methods.createPrefix() + "Error in XmlRpcServer(199): " + e.getMessage(), false);
 		}
 		return "";
-	}
-	
-	public static ArrayList<String> states(String room, String device, boolean hmip) {
-		ArrayList<String> states = new ArrayList<>();
-		String address = Rooms.getDeviceAddress(room, device);
-		
-		if(Rooms.getDeviceType(room, device).equalsIgnoreCase("ROLL")) {
-			states.add("LEVEL:" + getValue(address, "LEVEL", hmip).toString());
-			states.add("WORKING:" + getValue(address, "WORKING", hmip).toString());
-		}else if(Rooms.getDeviceType(room, device).equalsIgnoreCase("LAMP")) {
-			states.add("STATE:" + getValue(address, "STATE", hmip).toString());
-		}
-		
-		return states;
-	}
-	
-	public static void cacheRoomStates(String room) {		
-		for(String device : Rooms.getRoomDevices(room)) {
-			String id = Rooms.getDeviceAddress(room, device);
-			
-			if(!cachedStates.containsKey(id)) {
-				if(Rooms.getDeviceType(room, device).equalsIgnoreCase("ROLL")) {
-					cachedStates.put(id, getValue(Rooms.getDeviceAddress(room, device), "LEVEL", Rooms.getDeviceHmIP(room, device)));
-					cachedStates.put(id, getValue(Rooms.getDeviceAddress(room, device), "WORKING", Rooms.getDeviceHmIP(room, device)));
-				}else if(Rooms.getDeviceType(room, device).equalsIgnoreCase("LAMP")) {
-					cachedStates.put(id, getValue(Rooms.getDeviceAddress(room, device), "STATE", Rooms.getDeviceHmIP(room, device)));
-				}
-			}
-		}
-	}
-	
-	public static void removeCachedRoom(String room) {
-		for(String device : Rooms.getRoomDevices(room)) {
-			String id = Rooms.getDeviceAddress(room, device);
-			cachedStates.remove(id);
-		}
 	}
 	
 }
