@@ -1,9 +1,9 @@
-package net.javaexception.homesystem.websocket;
+package net.enumtype.homesystem.websocket;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -11,13 +11,12 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
 
 public class WebSocket {
 	
@@ -33,39 +32,33 @@ public class WebSocket {
 					Log.write(Methods.createPrefix() + "Starting Websocket: Http:" + httpPort + " Https:" + httpsPort, true);
 
 					Server server = new Server();
-
-					WebAppContext webapp = new WebAppContext();
-					webapp.setResourceBase("src/main/webapp");
-					server.setHandler(webapp);
+					server.setHandler(new WebSocketHandler() {
+						@Override
+						public void configure(WebSocketServletFactory factory) {
+							factory.register(Handler.class);
+						}
+					});
 
 					HttpConfiguration http = new HttpConfiguration();
-					http.addCustomizer(new SecureRequestCustomizer());
-					http.setSecurePort(httpsPort);
 					http.setSecureScheme("https");
+					http.setSecurePort(httpsPort);
 
-					ServerConnector connector = new ServerConnector(server);
-					connector.addConnectionFactory(new HttpConnectionFactory(http));
-					connector.setPort(httpPort);
-
-					HttpConfiguration https = new HttpConfiguration();
+					HttpConfiguration https = new HttpConfiguration(http);
 					https.addCustomizer(new SecureRequestCustomizer());
 
 					SslContextFactory ssl = new SslContextFactory.Server();
 					ssl.setKeyStorePath(keystore);
 					ssl.setKeyStorePassword(keystorePassword);
 
-					ServerConnector sslConnector = new ServerConnector(server, new SslConnectionFactory(ssl, "http/1.1"), new HttpConnectionFactory(https));
-					sslConnector.setPort(httpsPort);
+					ServerConnector wsConnector = new ServerConnector(server);
+					wsConnector.setPort(httpPort);
+					server.addConnector(wsConnector);
 
-					WebSocketHandler wsHandler = new WebSocketHandler() {
-						@Override
-						public void configure(WebSocketServletFactory factory) {
-							factory.register(Handler.class);
-						}
-					};
-
-					server.setConnectors(new Connector[]{connector, sslConnector});
-					server.setHandler(wsHandler);
+					ServerConnector wssConnector = new ServerConnector(server,
+							new SslConnectionFactory(ssl, HttpVersion.HTTP_1_1.asString()),
+							new HttpConnectionFactory(https));
+					wssConnector.setPort(httpsPort);
+					server.addConnector(wssConnector);
 
 					server.start();
 					server.join();

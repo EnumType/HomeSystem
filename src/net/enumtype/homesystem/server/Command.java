@@ -1,13 +1,13 @@
-package net.javaexception.homesystem.server;
+package net.enumtype.homesystem.server;
 
 import java.net.InetAddress;
 
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.monitoring.MonitoringCommand;
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
-import net.javaexception.homesystem.websocket.WebSocket;
-import net.javaexception.homesystem.xmlrpc.XmlRpcCommand;
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.monitoring.MonitoringCommand;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
+import net.enumtype.homesystem.websocket.WebSocket;
+import net.enumtype.homesystem.xmlrpc.XmlRpcCommand;
 import org.eclipse.jetty.websocket.api.Session;
 
 public class Command {

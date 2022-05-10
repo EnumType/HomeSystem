@@ -1,4 +1,4 @@
-package net.javaexception.homesystem.xmlrpc;
+package net.enumtype.homesystem.xmlrpc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,13 +8,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.DumperOptions.FlowStyle;
-
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
 
 public class Rooms {
 	
@@ -27,7 +26,8 @@ public class Rooms {
 				rooms.clear();
 			}
 			
-			File file = new File("Rooms.yml");
+			//File file = new File("Rooms.yml");
+			File file = new File("C:\\Users\\Anfinn\\Desktop\\Coding\\Java\\HomeSystem\\resources\\Rooms.yml");
 			if(file.exists()) {
 				Log.write(Methods.createPrefix() + "Loading Rooms.yml...", true);
 				FileInputStream in = new FileInputStream(file);

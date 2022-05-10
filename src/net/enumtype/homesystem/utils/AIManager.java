@@ -1,4 +1,4 @@
-package net.javaexception.homesystem.utils;
+package net.enumtype.homesystem.utils;
 
 import java.util.ArrayList;
 import java.util.List;

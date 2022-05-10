@@ -1,6 +1,6 @@
-package net.javaexception.homesystem.server;
+package net.enumtype.homesystem.server;
 
-import net.javaexception.homesystem.websocket.WebSocket;
+import net.enumtype.homesystem.websocket.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.net.InetAddress;

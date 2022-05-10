@@ -24,7 +24,7 @@ ws.onmessage = function(e) {
 	}else if(data.startsWith('type:rooms')) {
 		createRoomElement(data.replace('type:rooms ', ''));
 	}else if(data.startsWith('type:roomdevices')) {
-		var array = data.replace('type:roomdevices:', '').split(' ');
+		var array = data.replace('type:roomdevices ', '').split(' ');
 		var room = array[0];
 		var device = array[1];
 		
@@ -145,7 +145,7 @@ function createRoomDevice(room, device, type) {
 		
 		input.onchange = function() {
 			var state = (parseFloat(input.value) / 100);
-			ws.send('xmlrpc setdevice ' + room + ' ' + device + ' LEVEL ' + state);
+			ws.send('xmlrpc setdevice ' + room + ' ' + device + state);
 		}
 		
 		document.getElementById('room').appendChild(container);
@@ -172,7 +172,7 @@ function createRoomDevice(room, device, type) {
 		container.appendChild(p);
 		container.appendChild(label);
 		input.onchange = function() {
-			ws.send('xmlrpc setdevice ' + room + ' ' + device + ' STATE ' + input.checked);
+			ws.send('xmlrpc setdevice ' + room + ' ' + device + input.checked);
 		}
 		
 		document.getElementById('room').appendChild(container);
@@ -214,7 +214,7 @@ function setState(device, stateString) {
 
 <meta content="width=device-width, initial-scale=1" name="viewport" />
 <head>
-	<title>Home-System » Home</title>
+	<title>Home-System ï¿½ Home</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
 	<link rel="shortcut icon" href="/favicon.ico">
 	<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">

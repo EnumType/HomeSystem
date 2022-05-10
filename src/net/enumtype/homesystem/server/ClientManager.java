@@ -1,9 +1,9 @@
-package net.javaexception.homesystem.server;
+package net.enumtype.homesystem.server;
 
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
-import net.javaexception.homesystem.websocket.WebSocket;
+import net.enumtype.homesystem.websocket.WebSocket;
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
 import org.eclipse.jetty.websocket.api.Session;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -20,6 +20,11 @@ public class ClientManager {
     private final Map<String, String> userData = new HashMap<>();
     private final Map<String, List<String>> userPermissions = new HashMap<>();
     private final List<Client> clients = new ArrayList<>();
+
+    public void load() throws IOException {
+        loadUserData();
+        loadUserPerm();
+    }
 
     public void loadUserData() throws IOException {
         if(!userData.isEmpty()) userData.clear();
@@ -84,17 +89,9 @@ public class ClientManager {
 
     public void loadUserPerm() throws IOException {
         File file = new File("Permissions.yml");
-        if(file.exists()) {
-            if(!userPermissions.isEmpty()) userPermissions.clear();
 
-            Log.write(Methods.createPrefix() + "Loading Permissions.yml...", true);
-            Yaml yaml = new Yaml();
-            FileInputStream io = new FileInputStream(new File("Permissions.yml"));
-
-            Map<Object, List<String>> list = (Map<Object, List<String>>) yaml.load(io);
-
-            list.keySet().forEach(user -> userPermissions.put(user.toString(), list.get(user)));
-        }else {
+        if(!userPermissions.isEmpty()) userPermissions.clear();
+        if(!file.exists()) {
             Log.write(Methods.createPrefix() + "Creating Permissions.yml...", true);
             InputStream resource = Main.class.getResourceAsStream("/Permissions.yml");
             Yaml in = new Yaml();
@@ -107,12 +104,19 @@ public class ClientManager {
             Yaml out = new Yaml(options);
             FileWriter writer = new FileWriter(file);
             out.dump(map, writer);
-            loadUserPerm();
         }
+
+        Log.write(Methods.createPrefix() + "Loading Permissions.yml...", true);
+        Yaml yaml = new Yaml();
+        FileInputStream io = new FileInputStream(new File("Permissions.yml"));
+
+        Map<Object, List<String>> list = (Map<Object, List<String>>) yaml.load(io);
+
+        list.keySet().forEach(user -> userPermissions.put(user.toString(), list.get(user)));
     }
 
     public void writeUserPerm() throws IOException {
-        Log.write(Methods.createPrefix() + "Saving permissions...", true);
+        Log.write(Methods.createPrefix() + "Saving Permissions.yml...", true);
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);

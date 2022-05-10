@@ -1,8 +1,8 @@
-package net.javaexception.homesystem.xmlrpc;
+package net.enumtype.homesystem.xmlrpc;
 
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -64,6 +64,16 @@ public class RoomManager {
         }
 
         return null;
+    }
+
+    public List<String> getRooms() {
+        final List<String> list = new ArrayList<>();
+
+        for(Room room : rooms) {
+            list.add(room.getName());
+        }
+
+        return list;
     }
 
 }

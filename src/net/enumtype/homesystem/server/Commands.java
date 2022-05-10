@@ -1,11 +1,11 @@
-package net.javaexception.homesystem.server;
+package net.enumtype.homesystem.server;
 
 import java.io.IOException;
 
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.utils.Data;
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
+import net.enumtype.homesystem.utils.Data;
 
 public class Commands {
 	

@@ -1,9 +1,9 @@
-package net.javaexception.homesystem.websocket;
+package net.enumtype.homesystem.websocket;
 
 import java.io.IOException;
 
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.server.ClientManager;
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.server.ClientManager;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -11,9 +11,9 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
-import net.javaexception.homesystem.server.Command;
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
+import net.enumtype.homesystem.server.Command;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
 
 @WebSocket(maxIdleTime=120000)
 public class Handler {

@@ -1,4 +1,4 @@
-package net.javaexception.homesystem.xmlrpc;
+package net.enumtype.homesystem.xmlrpc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class Room {
         }
     }
 
-    public boolean existsDevice(String name) {
+    public boolean hasDevice(String name) {
         return getDevice(name) != null;
     }
 
@@ -33,6 +33,16 @@ public class Room {
 
     public List<Device> getDevices() {
         return devices;
+    }
+
+    public List<String> getDeviceNames() {
+        final List<String> names = new ArrayList<>();
+
+        for(Device device : devices) {
+            names.add(device.getName());
+        }
+
+        return names;
     }
 
     public Device getDevice(String name) {

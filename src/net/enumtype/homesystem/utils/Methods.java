@@ -1,4 +1,4 @@
-package net.javaexception.homesystem.utils;
+package net.enumtype.homesystem.utils;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -17,11 +17,11 @@ import java.util.Date;
 import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
 
+import net.enumtype.homesystem.main.Main;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import net.javaexception.homesystem.main.Main;
 import net.sf.image4j.codec.ico.ICOEncoder;
 
 public class Methods {

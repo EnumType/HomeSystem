@@ -1,7 +1,7 @@
-package net.javaexception.homesystem.monitoring;
+package net.enumtype.homesystem.monitoring;
 
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.server.Client;
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.server.Client;
 
 public class MonitoringCommand {
 	

@@ -1,7 +1,7 @@
-package net.javaexception.homesystem.xmlrpc;
+package net.enumtype.homesystem.xmlrpc;
 
-import net.javaexception.homesystem.server.Client;
-import net.javaexception.homesystem.utils.AI;
+import net.enumtype.homesystem.utils.AI;
+import net.enumtype.homesystem.server.Client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class Device {
         this.ai = new AI();
     }
 
-    public void setValue(String value, Client client) {
+    public void setValue(Object value, Client client) {
         XmlRpcServer.setValue(address, type.getValueKey(), value, client, hmip);
     }
 
@@ -49,6 +49,8 @@ public class Device {
         }else if(type.equals(DeviceType.LAMP)) {
             states.add("STATE:" + getValue("STATE"));
         }
+
+        return states;
     }
 
     public String getName() {
@@ -61,6 +63,10 @@ public class Device {
 
     public AI getAI() {
         return ai;
+    }
+
+    public DeviceType getType() {
+        return type;
     }
 
 }

@@ -1,4 +1,4 @@
-package net.javaexception.homesystem.utils;
+package net.enumtype.homesystem.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,9 +17,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.xmlrpc.Rooms;
-import net.javaexception.homesystem.xmlrpc.XmlRpcServer;
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.xmlrpc.Rooms;
+import net.enumtype.homesystem.xmlrpc.XmlRpcServer;
 
 public class StaticAI {
 

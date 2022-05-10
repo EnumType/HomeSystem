@@ -1,4 +1,4 @@
-package net.javaexception.homesystem.xmlrpc;
+package net.enumtype.homesystem.xmlrpc;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,18 +10,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import net.javaexception.homesystem.server.Client;
+import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.server.Client;
+import net.enumtype.homesystem.utils.Data;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-
-import net.javaexception.homesystem.main.Main;
-import net.javaexception.homesystem.utils.Data;
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
 
 public class XmlRpcServer {
 

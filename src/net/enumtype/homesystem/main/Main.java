@@ -1,19 +1,19 @@
-package net.javaexception.homesystem.main;
+package net.enumtype.homesystem.main;
 
 import java.io.IOException;
 import java.util.Scanner;
 
-import net.javaexception.homesystem.monitoring.Monitoring;
-import net.javaexception.homesystem.server.ClientManager;
-import net.javaexception.homesystem.server.Commands;
-import net.javaexception.homesystem.utils.StaticAI;
-import net.javaexception.homesystem.utils.Data;
-import net.javaexception.homesystem.utils.Log;
-import net.javaexception.homesystem.utils.Methods;
-import net.javaexception.homesystem.websocket.WebSocket;
-import net.javaexception.homesystem.xmlrpc.RoomManager;
-import net.javaexception.homesystem.xmlrpc.Rooms;
-import net.javaexception.homesystem.xmlrpc.XmlRpcServer;
+import net.enumtype.homesystem.monitoring.Monitoring;
+import net.enumtype.homesystem.server.ClientManager;
+import net.enumtype.homesystem.websocket.WebSocket;
+import net.enumtype.homesystem.xmlrpc.RoomManager;
+import net.enumtype.homesystem.server.Commands;
+import net.enumtype.homesystem.utils.StaticAI;
+import net.enumtype.homesystem.utils.Data;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
+import net.enumtype.homesystem.xmlrpc.Rooms;
+import net.enumtype.homesystem.xmlrpc.XmlRpcServer;
 
 // Created by JavaException
 
@@ -28,7 +28,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
-			Data.version = "v1.0.9-Beta-3";
+			Data.version = "v1.0.9-Beta-4";
 			Data.saveAIData = true;
 			Data.doAIPrediction = false; //TODO: Renew AI and test it. After this back to "true"!!
 			Log.initLog();
@@ -37,13 +37,11 @@ public class Main {
 			clientManager = new ClientManager();
 			roomManager = new RoomManager();
 			monitoring = new Monitoring();
-			clientManager.loadUserData();
-			clientManager.loadUserPerm();
 
+			clientManager.load();
 			roomManager.load();
 
 			XmlRpcServer.getConfigs();
-			Rooms.loadData();
 			StaticAI.checkAIData();
 			StaticAI.startSavingData(Data.aiInterval);
 			StaticAI.startPredictions(Data.aiInterval);
@@ -137,6 +135,7 @@ public class Main {
 	}
 
 	public static ClientManager getClientManager() {return clientManager;}
+	public static RoomManager getRoomManager() {return roomManager;}
 	public static Monitoring getMonitoring() {return monitoring;}
 	
 }
