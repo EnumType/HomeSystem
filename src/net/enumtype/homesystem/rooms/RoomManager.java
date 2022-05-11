@@ -48,7 +48,6 @@ public class RoomManager {
             data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) yaml.load(in);
             loadRooms(data);
         }catch(IOException e) {
-            if(Main.getData().printStackTraces()) e.printStackTrace();
             log.writeError(e);
         }
     }

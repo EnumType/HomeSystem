@@ -24,7 +24,6 @@ public class Client {
         try {
             session.getRemote().sendString(message);
         }catch(IOException e) {
-            if(Main.getData().printStackTraces()) e.printStackTrace();
             Main.getLog().writeError(e);
         }
     }

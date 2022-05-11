@@ -6,16 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.enumtype.homesystem.main.Main;
-import net.enumtype.homesystem.utils.Monitoring;
-import net.enumtype.homesystem.utils.UnknownCommandException;
+import net.enumtype.homesystem.rooms.AIManager;
+import net.enumtype.homesystem.utils.*;
 import net.enumtype.homesystem.rooms.Device;
 import net.enumtype.homesystem.rooms.Room;
 import net.enumtype.homesystem.rooms.RoomManager;
 import org.eclipse.jetty.websocket.api.Session;
 
 public class Command {
-	
 	public static void check(String command, Session session) throws UnknownCommandException {
+		if(command.startsWith("console") && session == null) ConsoleCommand.check(command.replace("console", ""));
+		if(session == null) return;
+
 		final InetAddress address = session.getRemoteAddress().getAddress();
 		final ClientManager clientManager = Main.getClientManager();
 		command = command.toLowerCase();
@@ -80,12 +82,10 @@ public class Command {
 			try {
 				session.getRemote().sendString("notloggedin");
 			}catch(IOException e) {
-				if(Main.getData().printStackTraces()) e.printStackTrace();
 				Main.getLog().writeError(e);
 			}
 		}
 	}
-	
 }
 
 class XmlRpcCommand {
@@ -183,7 +183,6 @@ class XmlRpcCommand {
 }
 
 class MonitoringCommand {
-
 	public static void check(String command, Client client) {
 		if(client.hasPermission("system.monitoring")) {
 			final Monitoring monitoring = Main.getMonitoring();
@@ -198,5 +197,111 @@ class MonitoringCommand {
 			}
 		}else client.sendMessage("noperm");
 	}
+}
 
+class ConsoleCommand {
+	public static void check(String command) {
+		final String[] args = command.split(" ");
+		final ClientManager clientManager = Main.getClientManager();
+		final Log log = Main.getLog();
+
+		try {
+			switch (args[0]) {
+				case "help":
+					printHelp();
+					break;
+				case "stop":
+					stopSystem();
+					break;
+				case "version":
+					log.write("Current version of Home-System: " + Main.getData().getVersion(), false, true);
+					break;
+				case "addperm":
+					if(args.length != 3) {
+						System.out.println("Usage: >addperm <Username> <Permission>");
+						break;
+					}
+					clientManager.addPermission(args[1], args[2]);
+					log.write("Added permission '" + args[1] + "' to user '" + args[2] + "'.", false, true);
+					break;
+				case "removeperm":
+					if(args.length == 3) {
+						if(clientManager.removePermission(args[1], args[2])) {
+							log.write("Removed '" + args[2] + "' from user '" + args[1] + "'.", false, true);
+						}else log.write("Cannot remove '" + args[2] + "' from user '" + args[1] + "'.", false, true);
+					}else System.out.println("Usage: >removeperm <Username> <Permission>");
+					break;
+				case "adduser":
+					if(args.length == 3) {
+						clientManager.registerUser(args[1], Methods.sha512(args[2]));
+						log.write("Registered user '" + args[1] + "'.", false, true);
+					}else System.out.println("Usage: >adduser <Username> <Password>");
+				case "reload":
+					executeReload();
+					break;
+				case "extract website":
+					Methods.extractWebsite();
+					break;
+				case "train now":
+					Main.getAiManager().trainAll();
+					break;
+			}
+		}catch(Exception e) {
+			log.writeError(e);
+		}
+	}
+
+	public static void stopSystem() {
+		try {
+			Main.getLog().write("Stopping server...", true, true);
+			Main.getClientManager().writeUserPerm(true);
+			Main.getScanningThread().interrupt();
+			Main.getWsServer().stop();
+			System.exit(0);
+		}catch(Exception e) {
+			Main.getLog().writeError(e);
+		}
+	}
+
+	public static void printHelp() {
+		final Log log = Main.getLog();
+
+		log.write("Commands:", true, false);
+		log.write("Stop -- Stops the Server", true, false);
+		log.write("Help -- Shows this page", true, false);
+		log.write("Version <version> -- Change the version", true, false);
+		log.write("Addperm <User> <Permission> -- Add a permission", true, false);
+		log.write("Extract Website -- Extracts the Webinterface", true, false);
+		log.write("", true, false);
+	}
+
+	public static void executeReload() {
+		final ClientManager clientManager = Main.getClientManager();
+		final AIManager aiManager = Main.getAiManager();
+		final RoomManager roomManager = Main.getRoomManager();
+		final Data data = Main.getData();
+		final Log log = Main.getLog();
+
+		try {
+			log.write("Reloading system...", true, true);
+			Main.getScanningThread().interrupt();
+			aiManager.stopDataSaving();
+			aiManager.stopPredictions();
+			aiManager.stopAutoTraining();
+			clientManager.writeUserPerm(true);
+
+			clientManager.loadUserData();
+			clientManager.loadUserPerm();
+			data.load();
+			roomManager.load();
+			aiManager.startDataSaving(data.getAiInterval());
+			aiManager.startPredictions(data.getAiInterval());
+			aiManager.startAutoTraining();
+
+			log.write("Reload complete!", false, true);
+			Main.startScanning();
+		}catch(Exception e) {
+			log.writeError(e);
+		}
+	}
 }

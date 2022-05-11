@@ -67,7 +67,6 @@ public class Device {
                 if(getValue(type.getValueKey()) != value)
                     xmlRpcClient.execute("setValue", new Object[]{address, value_key, value});
             }catch(MalformedURLException | XmlRpcException e) {
-                if(Main.getData().printStackTraces()) e.printStackTrace();
                 Main.getLog().writeError(e);
             }
         }).start();
@@ -89,7 +88,6 @@ public class Device {
 
             return client.execute("getValue", new Object[]{address, value_key}).toString();
         }catch(MalformedURLException | XmlRpcException e) {
-            if(Main.getData().printStackTraces()) e.printStackTrace();
             Main.getLog().writeError(e);
         }
 

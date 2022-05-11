@@ -14,6 +14,7 @@ public class Data {
 	private String wsKeystorePassword;
 	private String resourcesDir;
 	private String version;
+	private String hashSalt;
 	private int xmlRpcPort;
 	private int hmIpPort;
 	private int wsPort;
@@ -77,6 +78,9 @@ public class Data {
 						case "AI-Interval":
 							aiInterval = Integer.parseInt(args[1]);
 							break;
+						case "HashSalt":
+							hashSalt = args[1];
+							break;
 						default:
 							log.write("Unknown config parameter '" + line + "'!", false, false);
 					}
@@ -99,7 +103,6 @@ public class Data {
 				loadXmlRpcData();
 			}
 		}catch(IOException | NumberFormatException e) {
-			if(printStackTraces()) e.printStackTrace();
 			log.writeError(e);
 		}
 	}
@@ -113,6 +116,7 @@ public class Data {
 	public String getWsKeystorePassword() {return wsKeystorePassword;}
 	public String getResourcesDir() {return resourcesDir;}
 	public String getXmlRpcAddress() {return xmlRpcAddress;}
+	public String getHashSalt() {return hashSalt;}
 	public Device getAiBrightSensor() {return aiBrightSensor;}
 	public int getWsPort() {return wsPort;}
 	public int getWssPort() {return wssPort;}

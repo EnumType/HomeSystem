@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import net.enumtype.homesystem.rooms.AIManager;
+import net.enumtype.homesystem.server.Command;
 import net.enumtype.homesystem.utils.*;
 import net.enumtype.homesystem.server.ClientManager;
 import net.enumtype.homesystem.rooms.RoomManager;
-import net.enumtype.homesystem.server.Commands;
 
 // Created by EnumType
 
 public class Main {
 
-	private static Scanner scanner;
+	private static Thread scanningThread;
 	private static ClientManager clientManager;
 	private static RoomManager roomManager;
 	private static AIManager aiManager;
@@ -21,13 +21,12 @@ public class Main {
 	private static WebSocketServer wsServer;
 	private static Log log;
 	private static Data data;
-	private static boolean scan = true;
 	
 	public static void main(String[] args) {
 		try {
 			log = new Log();
 			data = new Data();
-			data.setVersion("v1.0.9-Beta-6");
+			data.setVersion("v1.0.9-Beta-7");
 			log.write("loading libraries, please wait...", true, false);
 
 			clientManager = new ClientManager();
@@ -44,88 +43,37 @@ public class Main {
 			Methods.startVersionChecking();
 			wsServer.start();
 			startScanning();
+
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				try {
+					clientManager.writeUserPerm(true);
+					scanningThread.interrupt();
+					wsServer.stop();
+				}catch(Exception e) {
+					log.writeError(e);
+				}
+			}));
 		}catch (IOException e) {
-			if(data.printStackTraces()) e.printStackTrace();
 			log.writeError(e);
 		}
 		
 	}
 	
 	public static void startScanning() {
-		Thread thread = new Thread(() -> {
-			while(scan) {
+		scanningThread = new Thread(() -> {
+			while(true) {
 				System.out.print(">");
-				scanner = new Scanner(System.in);
-				if(!scan) break;
-
-				String command = scanner.nextLine().replaceAll(">", "");
-
+				final Scanner scanner = new Scanner(System.in);
+				final String command = scanner.nextLine().replaceAll(">", "");
 				try {
-					checkConsoleCommand(command);
+					Command.check(command.toLowerCase(), null);
 				}catch(Exception e) {
-					if(data.printStackTraces()) e.printStackTrace();
 					log.writeError(e);
 				}
 			}
 		});
 
-		thread.start();
-	}
-	
-	public static void checkConsoleCommand(String command) throws Exception {
-		if(command.equalsIgnoreCase("help")) {
-			Commands.executeHelpCommand();
-		}else if(command.equalsIgnoreCase("stop")) {
-			scanner.close();
-			wsServer.stop();
-			Commands.executeStopCommand();
-		}else if(command.startsWith("version")) {
-			String[] args = command.split(" ");
-			if(args.length == 2) {
-				Commands.updateVersion(args[1]);
-			}else {
-				System.out.println("Usage: /version <version>");
-			}
-		}else if(command.startsWith("addperm")) {
-			command = command.replaceFirst("addperm ", "");
-			String[] args = command.split(" ");
-			
-			if(args.length == 2) {
-				clientManager.addPermission(args[0], args[1]);
-				log.write("Added " + args[1] + " to user " + args[0], false, true);
-			}else System.out.println("Usage: /addperm <Username> <Permission>");
-		}else if(command.startsWith("removeperm")) {
-			command = command.replaceFirst("removeperm ", "");
-			final String[] args = command.split(" ");
-
-			if(args.length == 2) {
-				if(clientManager.removePermission(args[0], args[1])) {
-					log.write("Removed '" + args[1] + "' from user '" + args[0] + "'.", false, true);
-				}else log.write("Cannot remove '" + args[1] + "' from user '" + args[0] + "'.", false, true);
-			}else System.out.println("Usage: /removeperm <Username> <Permission>");
-		}else if(command.startsWith("reload")) {
-			try {
-				scan = false;
-				aiManager.stopDataSaving();
-				aiManager.stopPredictions();
-				aiManager.stopAutoTraining();
-				clientManager.loadUserData();
-				clientManager.loadUserPerm();
-				data.load();
-				roomManager.load();
-				aiManager.startDataSaving(data.getAiInterval());
-				aiManager.startPredictions(data.getAiInterval());
-				aiManager.startAutoTraining();
-				startScanning();
-			}catch(IOException e) {
-				if(data.printStackTraces()) e.printStackTrace();
-				log.writeError(e);
-			}
-		}else if(command.startsWith("extract website")) {
-			Methods.extractWebsite();
-		}else if(command.startsWith("train now")) {
-			aiManager.trainAll();
-		}
+		scanningThread.start();
 	}
 
 	public static ClientManager getClientManager() {return clientManager;}
@@ -134,5 +82,7 @@ public class Main {
 	public static Monitoring getMonitoring() {return monitoring;}
 	public static Log getLog() {return log;}
 	public static Data getData() {return data;}
+	public static WebSocketServer getWsServer() {return wsServer;}
+	public static Thread getScanningThread() {return scanningThread;}
 	
 }

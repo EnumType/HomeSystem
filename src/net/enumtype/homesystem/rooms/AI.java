@@ -32,7 +32,6 @@ public class AI {
                         "false"};
                 Runtime.getRuntime().exec(cmd);
             }catch(IOException e) {
-                if(Main.getData().printStackTraces()) e.printStackTrace();
                 log.writeError(e);
             }
         }).start();
@@ -59,7 +58,6 @@ public class AI {
             return modelProcess.exitValue() / 100F;
         }catch(InterruptedException | IOException e) {
             modelProcess.destroy();
-            if(Main.getData().printStackTraces()) e.printStackTrace();
             log.writeError(e);
         }
 

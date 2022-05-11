@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <script>
-	var salt = "hsnRr4UKMuTsfXHuXQ96NBqJpuJNp49h"
+	var salt = "hsnRr4UKMuTsfXHuXQ96NBqJpuJNp49h";
 
 	function sha512(str) {
 		return crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(salt + str)).then(buf => {

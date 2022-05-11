@@ -37,7 +37,6 @@ public class Monitoring {
 
 			reader.close();
 		}catch(IOException e) {
-			if(Main.getData().printStackTraces()) e.printStackTrace();
 			log.writeError(e);
 		}
 		
@@ -48,7 +47,6 @@ public class Monitoring {
 		try {
 			return InetAddress.getByName(Main.getData().getXmlRpcAddress()).isReachable(timeout);
 		}catch(IOException e) {
-			if(Main.getData().printStackTraces()) e.printStackTrace();
 			log.writeError(e);
 		}
 		return false;

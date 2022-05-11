@@ -20,6 +20,7 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
+@WebSocket(maxIdleTime=120000)
 public class WebSocketServer {
 
 	private final int httpPort;
@@ -48,13 +49,13 @@ public class WebSocketServer {
 				try {
 					System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
 					System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
-					log.write("Starting Websocket: Http:" + httpPort + " Https:" + httpsPort, true, true);
+					log.write("Starting WebSocket: Http:" + httpPort + " Https:" + httpsPort, true, true);
 
 					server = new Server();
 					server.setHandler(new WebSocketHandler() {
 						@Override
 						public void configure(WebSocketServletFactory factory) {
-							factory.register(Handler.class);
+							factory.register(WebSocketServer.class);
 						}
 					});
 
@@ -82,7 +83,6 @@ public class WebSocketServer {
 					server.start();
 					server.join();
 				}catch(Exception e) {
-					if(Main.getData().printStackTraces()) e.printStackTrace();
 					log.writeError(e);
 				}
 			});
@@ -90,19 +90,15 @@ public class WebSocketServer {
 			thread.start();
 		}else {
 			if(!file.exists()) if(!file.mkdir()) throw new IOException("Cannot create directory!");
-			log.write("No Keystore Found! Don't start Weboscket!", false, true);
+			log.write("No Keystore Found! Don't start WebSocket!", false, true);
 		}
 	}
 
 	public void stop() throws Exception {
 		server.stop();
 	}
-	
-}
 
-@WebSocket(maxIdleTime=120000)
-class Handler {
-
+	//WebSocketHandler
 	@OnWebSocketClose
 	public void onClose(Session session, int statusCode, String reason) {
 		final ClientManager clientManager = Main.getClientManager();
@@ -131,7 +127,6 @@ class Handler {
 				client.sendMessage("user:" + client.getName());
 			}
 		}catch(IOException e) {
-			if(Main.getData().printStackTraces()) e.printStackTrace();
 			Main.getLog().writeError(e);
 		}
 	}
@@ -141,9 +136,8 @@ class Handler {
 		try {
 			Command.check(message, session);
 		}catch(UnknownCommandException e) {
-			if(Main.getData().printStackTraces()) e.printStackTrace();
 			Main.getLog().writeError(e);
 		}
 	}
-
+	
 }

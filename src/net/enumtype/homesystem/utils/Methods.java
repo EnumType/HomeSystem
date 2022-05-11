@@ -8,9 +8,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -85,7 +87,6 @@ public class Methods {
 				out.close();
 			}
 		}catch(IOException e) {
-			if(Main.getData().printStackTraces()) e.printStackTrace();
 			Main.getLog().writeError(e);
 		}
 	}
@@ -108,6 +109,8 @@ public class Methods {
 						String tag = object.get("tag_name").toString();
 
 						if (!Main.getData().getVersion().equalsIgnoreCase(tag) && !tag.equalsIgnoreCase("beta")) {
+							if(new File("HomeSystem-" + tag).exists()) continue;
+
 							Main.getLog().write("Version " + tag + " is now available. Downloading...",
 									true, true);
 
@@ -120,10 +123,25 @@ public class Methods {
 					in.close();
 				}
 			}catch(IOException | ParseException | InterruptedException e) {
-				if(Main.getData().printStackTraces()) e.printStackTrace();
 				Main.getLog().writeError(e);
 			}
 		}, 0, 2, TimeUnit.MINUTES);
+	}
+
+	public static String sha512(String input, String salt) {
+		input = salt + input;
+		try {
+			final MessageDigest md = MessageDigest.getInstance("SHA-512");
+			final byte[] messageDigest = md.digest(input.getBytes());
+			return new BigInteger(1, messageDigest).toString(16);
+		}catch(Exception e) {
+			Main.getLog().writeError(e);
+		}
+		return "";
+	}
+
+	public static String sha512(String input) {
+		return sha512(input, Main.getData().getHashSalt());
 	}
 	
 }

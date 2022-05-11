@@ -26,7 +26,7 @@ public class ClientManager {
         try {
             load();
         }catch(IOException e) {
-            e.printStackTrace();
+            log.writeError(e);
         }
     }
 
@@ -43,7 +43,7 @@ public class ClientManager {
         if(!file.exists()) if(!file.mkdirs()) throw new IOException("Cannot create directories");
         if(!dataFile.exists()) {
             registerUser("a", "a");
-            removeUser("a", "a");
+            removeUser("a");
         }
 
         BufferedReader reader = new BufferedReader(new FileReader(file + "//data.txt"));
@@ -63,37 +63,41 @@ public class ClientManager {
     }
 
     public void registerUser(String username, String password) throws IOException {
-        PrintWriter out = new PrintWriter(new FileWriter("User-Data//data.txt", true), true);
+        final PrintWriter out = new PrintWriter(new FileWriter("User-Data//data.txt", true), true);
         out.write("Name: " + username + "\r\n");
         out.write("Password: " + password + "\r\n");
         out.close();
+
+        userData.put(username, password);
+        userPermissions.put(username, new ArrayList<>());
+        writeUserPerm(false);
     }
 
-    public void removeUser(String username, String password) throws IOException {
+    public boolean removeUser(String username) throws IOException {
+        if(!userData.containsKey(username)) return false;
+
         File data = new File("User-Data//data.txt");
         File newData = new File("User-Data//data2.txt");
         BufferedReader reader = new BufferedReader(new FileReader(data));
         BufferedWriter writer = new BufferedWriter(new FileWriter(newData));
-        boolean found = false;
         String line;
 
         while((line = reader.readLine()) != null) {
-            if(!found) {
-                if(!line.equals("Name: " + username) && !line.equals("Password: " + password) && !line.equals("\r\n")) {
-                    writer.write(line + "\r\n");
-                }else {
-                    found = true;
-                    reader.readLine();
-                }
-            }else {
+            if(!line.equals("Name: " + username) && !line.equals("Password: " + userData.get(username)) && !line.equals("\r\n"))
                 writer.write(line + "\r\n");
-            }
         }
 
         reader.close();
         writer.close();
         if(!data.delete()) throw new IOException("Cannot delete file!");
         if(!newData.renameTo(data)) throw new IOException("Cannot rename file!");
+
+        userData.remove(username);
+        userPermissions.remove(username);
+        if(isLoggedIn(username)) logoutClient(getClient(username));
+        writeUserPerm(false);
+
+        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -125,8 +129,8 @@ public class ClientManager {
         list.keySet().forEach(user -> userPermissions.put(user.toString(), list.get(user)));
     }
 
-    public void writeUserPerm() throws IOException {
-        log.write("Saving Permissions.yml...", true, true);
+    public void writeUserPerm(boolean logging) throws IOException {
+        if(logging) log.write("Saving Permissions.yml...", true, true);
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);

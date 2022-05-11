@@ -10,3 +10,4 @@ WebSocket-KeystorePassword: password
 BrightnessSensor: AddressOfSensor
 BrightnessSensorHmIP: false
 AI-Interval: 5
+HashSalt: hsnRr4UKMuTsfXHuXQ96NBqJpuJNp49h

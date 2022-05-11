@@ -19,7 +19,6 @@ public class Log {
 		try {
 			init();
 		}catch (IOException e) {
-			if(Main.getData().printStackTraces()) e.printStackTrace();
 			writeError(e);
 		}
 	}
@@ -56,7 +55,6 @@ public class Log {
 				latestOut.close();
 				logout.close();
 			}catch (IOException e) {
-				if(Main.getData().printStackTraces()) e.printStackTrace();
 				writeError(e);
 			}
 		}else {
@@ -70,6 +68,15 @@ public class Log {
 		int line = e.getStackTrace()[0].getLineNumber();
 
 		write("Error in " + className + "(" + line + "): " + e.getMessage(), false, true);
+		if(Main.getData().printStackTraces()) e.printStackTrace();
+	}
+
+	public static void writeTestError(Exception e) {
+		final int index = e.getStackTrace().length - 1;
+		final String className = e.getStackTrace()[index].getClassName();
+		final int line = e.getStackTrace()[index].getLineNumber();
+
+		System.out.println("Error in " + className + "(" + line + "): " + e.getMessage());
 	}
 
 	public String createPrefix() {

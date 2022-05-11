@@ -119,7 +119,6 @@ public class AIManager {
                         if(Math.round(prediction) != Math.round(device.getState())) device.setValue(prediction);
                         //TODO: after testing remove Math.round()
                     }catch(AIException e) {
-                        if(data.printStackTraces()) e.printStackTrace();
                         log.writeError(e);
                     }
                 }
@@ -169,7 +168,6 @@ public class AIManager {
                 }
             }
         }catch(IOException e) {
-            if(data.printStackTraces()) e.printStackTrace();
             log.writeError(e);
         }
     }
