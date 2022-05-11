@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.server.Client;
 import net.enumtype.homesystem.server.ClientManager;
 import net.enumtype.homesystem.server.Command;
-import net.enumtype.homesystem.server.UnknownCommandException;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -48,7 +48,7 @@ public class WebSocketServer {
 				try {
 					System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
 					System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
-					log.write(Methods.createPrefix() + "Starting Websocket: Http:" + httpPort + " Https:" + httpsPort, true);
+					log.write("Starting Websocket: Http:" + httpPort + " Https:" + httpsPort, true, true);
 
 					server = new Server();
 					server.setHandler(new WebSocketHandler() {
@@ -82,15 +82,15 @@ public class WebSocketServer {
 					server.start();
 					server.join();
 				}catch(Exception e) {
-					e.printStackTrace();
-					log.write(Methods.createPrefix() + "Error in WebSocket(65): " + e.getMessage(), false);
+					if(Main.getData().printStackTraces()) e.printStackTrace();
+					log.writeError(e);
 				}
 			});
 			
 			thread.start();
 		}else {
 			if(!file.exists()) if(!file.mkdir()) throw new IOException("Cannot create directory!");
-			log.write(Methods.createPrefix() + "No Keystore Found! Don't start Weboscket!", false);
+			log.write("No Keystore Found! Don't start Weboscket!", false, true);
 		}
 	}
 
@@ -121,14 +121,18 @@ class Handler {
 	@OnWebSocketConnect
 	public void onConnect(Session session) {
 		try {
-			if(!Main.getClientManager().isLoggedIn(session)) {
+			final ClientManager clientManager = Main.getClientManager();
+			if(!clientManager.isLoggedIn(session)) {
 				session.getRemote().sendString("notloggedin");
 			}else {
-				session.getRemote().sendString("loggedin");
-				Main.getClientManager().getClient(session).changeConnection(false);
+				final Client client = clientManager.getClient(session.getRemoteAddress().getAddress());
+				client.setSession(session);
+				client.sendMessage("loggedin");
+				client.sendMessage("user:" + client.getName());
 			}
 		}catch(IOException e) {
-			e.printStackTrace();
+			if(Main.getData().printStackTraces()) e.printStackTrace();
+			Main.getLog().writeError(e);
 		}
 	}
 
@@ -137,7 +141,8 @@ class Handler {
 		try {
 			Command.check(message, session);
 		}catch(UnknownCommandException e) {
-			e.printStackTrace();
+			if(Main.getData().printStackTraces()) e.printStackTrace();
+			Main.getLog().writeError(e);
 		}
 	}
 

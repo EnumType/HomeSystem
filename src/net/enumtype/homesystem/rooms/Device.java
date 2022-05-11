@@ -1,15 +1,11 @@
-package net.enumtype.homesystem.xmlrpc;
+package net.enumtype.homesystem.rooms;
 
 import net.enumtype.homesystem.main.Main;
-import net.enumtype.homesystem.utils.AI;
-import net.enumtype.homesystem.server.Client;
 import net.enumtype.homesystem.utils.Data;
-import net.enumtype.homesystem.utils.Methods;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -42,7 +38,7 @@ public class Device {
         this.aiControl = Boolean.parseBoolean(optionData.get("AIControl").toString());
         this.type = DeviceType.valueOf(optionData.get("Type"));
 
-        this.ai = new AI();
+        this.ai = new AI(Main.getRoomManager().getRoomByDevice(this).getName(), name);
     }
 
     public void setAddress(String address) {
@@ -71,7 +67,8 @@ public class Device {
                 if(getValue(type.getValueKey()) != value)
                     xmlRpcClient.execute("setValue", new Object[]{address, value_key, value});
             }catch(MalformedURLException | XmlRpcException e) {
-                e.printStackTrace();
+                if(Main.getData().printStackTraces()) e.printStackTrace();
+                Main.getLog().writeError(e);
             }
         }).start();
     }
@@ -92,8 +89,8 @@ public class Device {
 
             return client.execute("getValue", new Object[]{address, value_key}).toString();
         }catch(MalformedURLException | XmlRpcException e) {
-            e.printStackTrace();
-            Main.getLog().write(Methods.createPrefix() + "Error in XmlRpcServer(196): " + e.getMessage(), false);
+            if(Main.getData().printStackTraces()) e.printStackTrace();
+            Main.getLog().writeError(e);
         }
 
         return "";

@@ -1,4 +1,4 @@
-package net.enumtype.homesystem.xmlrpc;
+package net.enumtype.homesystem.rooms;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,10 +1,9 @@
-package net.enumtype.homesystem.utils;
+package net.enumtype.homesystem.rooms;
 
 import net.enumtype.homesystem.main.Main;
-import net.enumtype.homesystem.xmlrpc.Device;
-import net.enumtype.homesystem.xmlrpc.Room;
-import net.enumtype.homesystem.xmlrpc.RoomManager;
-import net.enumtype.homesystem.xmlrpc.Rooms;
+import net.enumtype.homesystem.utils.Data;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +23,7 @@ public class AIManager {
     private final Data data;
     private final File aiDir;
     private final File dataDir;
-    private final File model;
+    private final File modelTemplate;
     private final File modelPath;
     private final Map<Device, List<String>> deviceData; //Syntax -> Time,Light,Temperature,Special,State
 
@@ -33,7 +32,7 @@ public class AIManager {
         this.data = Main.getData();
         this.aiDir = new File("AI");
         this.dataDir = new File(aiDir + "//data");
-        this.model = new File(aiDir + "//Home-System.py");
+        this.modelTemplate = new File(aiDir + "//Home-System.py");
         this.modelPath = new File(aiDir + "//models");
         this.deviceData = new HashMap<>();
         init();
@@ -45,11 +44,11 @@ public class AIManager {
             if(!dataDir.exists()) if(!dataDir.mkdir()) throw new IOException("Cannot create directory!");
             if(!modelPath.exists()) if(!modelPath.mkdir()) throw new IOException("Cannot create directory!");
 
-            if(model.exists() && !model.delete()) throw new IOException("Cannot renew file!");
+            if(modelTemplate.exists() && !modelTemplate.delete()) throw new IOException("Cannot renew file!");
 
             InputStream stream = Main.class.getResourceAsStream("/Home-System.py");
             BufferedReader in = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
-            BufferedWriter out = new BufferedWriter(new FileWriter(model));
+            BufferedWriter out = new BufferedWriter(new FileWriter(modelTemplate));
 
             String line;
             while((line = in.readLine()) != null) out.write(line + "\r\n");
@@ -57,7 +56,8 @@ public class AIManager {
             in.close();
             out.close();
         }catch(IOException e) {
-            e.printStackTrace();
+            if(data.printStackTraces()) e.printStackTrace();
+            log.writeError(e);
         }
     }
 
@@ -108,16 +108,21 @@ public class AIManager {
             @Override
             public void run() {
                 for(Device device : deviceData.keySet()) {
-                    if(!device.aiControlled()) continue;
+                    try {
+                        if(!device.aiControlled()) continue;
 
-                    long time = Methods.getUnixTime();
-                    double light = 0;
-                    double temperature = 0;
-                    double special = 0;
-                    float prediction = device.getAI().predict(time, light, temperature, special);
+                        long time = Methods.getUnixTime();
+                        double light = 0;
+                        double temperature = 0;
+                        double special = 0;
+                        float prediction = device.getAI().predict(time, light, temperature, special);
 
-                    if(Math.round(prediction) != Math.round(device.getState())) device.setValue(prediction);
-                    //TODO: after testing remove Math.round()
+                        if(Math.round(prediction) != Math.round(device.getState())) device.setValue(prediction);
+                        //TODO: after testing remove Math.round()
+                    }catch(AIException e) {
+                        if(data.printStackTraces()) e.printStackTrace();
+                        log.writeError(e);
+                    }
                 }
             }
         }, 0, waitDelay * 60000L);
@@ -135,7 +140,7 @@ public class AIManager {
         long initialDelay = duration.getSeconds();
 
         trainingScheduler.scheduleAtFixedRate(() -> {
-            log.write(Methods.createPrefix() + "Starting AI training", false);
+            log.write("Starting AI training", false, true);
             for(Device device : deviceData.keySet()) device.getAI().train();
         }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
     }
@@ -143,14 +148,7 @@ public class AIManager {
     public void trainAll() {
         final RoomManager roomManager = Main.getRoomManager();
         saveData();
-
-        for(Room room : roomManager.getRooms()) {
-            for(Device device : room.getDevices()) {
-                if(!device.collectData()) continue;
-
-                device.getAI().train();
-            }
-        }
+        for(Device device : deviceData.keySet()) device.getAI().train();
     }
 
     public void saveData() {
@@ -159,22 +157,23 @@ public class AIManager {
 
             for(Room room : roomManager.getRooms()) {
                 for(Device device : room.getDevices()) {
-                    if(deviceData.containsKey(device)) {
-                        final File data = new File(dataDir + "//" + room.getName() + "-" +
-                                device.getName().replaceAll(" ", "-") + ".csv");
-                        final FileWriter writer = new FileWriter(data, true);
-                        final PrintWriter out = new PrintWriter(writer);
+                    if(!deviceData.containsKey(device)) continue;
 
-                        if(!data.exists()) out.println("Time,Light,Temperature,Special,State");
-                        for(String line : deviceData.get(device)) out.println(line);
-                        writer.flush();
-                        writer.close();
-                        out.close();
-                    }
+                    final File data = new File(dataDir + "//" + room.getName().replaceAll(" ", "-") +
+                            "-" + device.getName().replaceAll(" ", "-") + ".csv");
+                    final FileWriter writer = new FileWriter(data, true);
+                    final PrintWriter out = new PrintWriter(writer);
+
+                    if(!data.exists()) out.println("Time,Light,Temperature,Special,State");
+                    for(String line : deviceData.get(device)) out.println(line);
+                    writer.flush();
+                    writer.close();
+                    out.close();
                 }
             }
         }catch(IOException e) {
-            e.printStackTrace();
+            if(data.printStackTraces()) e.printStackTrace();
+            log.writeError(e);
         }
     }
 
@@ -201,5 +200,7 @@ public class AIManager {
 
         return ais;
     }
+
+    public File getModelTemplate() {return modelTemplate;}
 
 }

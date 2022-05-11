@@ -1,9 +1,13 @@
 package net.enumtype.homesystem.utils;
 
+import net.enumtype.homesystem.main.Main;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Log {
 	
@@ -15,7 +19,8 @@ public class Log {
 		try {
 			init();
 		}catch (IOException e) {
-			e.printStackTrace();
+			if(Main.getData().printStackTraces()) e.printStackTrace();
+			writeError(e);
 		}
 	}
 	
@@ -34,8 +39,10 @@ public class Log {
 			}
 		}
 	}
-	
-	public void write(String output, boolean isNextLine) {
+
+	public void write(String output, boolean isNextLine, boolean prefix) {
+		if(prefix) output = "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] " + output;
+
 		if(latest != null && log != null && dataFolder != null) {
 			try {
 				PrintWriter latestOut = new PrintWriter(new FileWriter(latest, true), true);
@@ -48,13 +55,32 @@ public class Log {
 
 				latestOut.close();
 				logout.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+			}catch (IOException e) {
+				if(Main.getData().printStackTraces()) e.printStackTrace();
+				writeError(e);
 			}
 		}else {
-			System.out.println(Methods.createPrefix() + "Can't write to Logfile!");
+			System.out.println(createPrefix() + "Can't write to Logfile!");
 			System.out.println(output);
 		}
+	}
+
+	public void writeError(Exception e) {
+		final String className = e.getStackTrace()[0].getClassName();
+		int line = e.getStackTrace()[0].getLineNumber();
+
+		write("Error in " + className + "(" + line + "): " + e.getMessage(), false, true);
+	}
+
+	public static void writeTestError(Exception e) {
+		final String className = e.getStackTrace()[0].getClassName();
+		int line = e.getStackTrace()[0].getLineNumber();
+
+		System.out.println("Error in " + className + "(" + line + "): " + e.getMessage());
+	}
+
+	public String createPrefix() {
+		return "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] ";
 	}
 	
 }

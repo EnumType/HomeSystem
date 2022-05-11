@@ -13,6 +13,8 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
@@ -25,11 +27,6 @@ import org.json.simple.parser.ParseException;
 import net.sf.image4j.codec.ico.ICOEncoder;
 
 public class Methods {
-
-	public static String createPrefix() {
-		System.out.println();
-		return "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] ";
-	}
 	
 	public static String getDate() {
 		return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
@@ -40,7 +37,7 @@ public class Methods {
 	}
 	
 	public static void extractWebsite() throws IOException {
-		Main.getLog().write(createPrefix() + "Extracting Website-Data...", true);
+		Main.getLog().write("Extracting Website-Data...", true, true);
 		
 		File path = new File("HTTP");
 		File faviconICO = new File(path + "//favicon.ico");
@@ -62,7 +59,7 @@ public class Methods {
 		writeResources(home, "/HTML/home.php", false, "php");
 		writeResources(style, "/HTML/style.css", false, "css");
 
-		Main.getLog().write(createPrefix() + "Extracted Website-Data", true);
+		Main.getLog().write("Extracted Website-Data", true, true);
 	}
 	
 	public static void writeResources(File file, String resource, boolean image, String format) {
@@ -88,50 +85,45 @@ public class Methods {
 				out.close();
 			}
 		}catch(IOException e) {
-			e.printStackTrace();
-			Main.getLog().write(createPrefix() + "Error in Methods(117): " + e.getMessage(), false);
+			if(Main.getData().printStackTraces()) e.printStackTrace();
+			Main.getLog().writeError(e);
 		}
 	}
 	
 	public static void startVersionChecking() {
-		int wait = 2;
-		new Thread(() -> {
+		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
 			try {
-				while (true) {
-					String url = "https://api.github.com/repos/TheJavaException/HomeSystem/releases/latest";
-					JSONParser parser = new JSONParser();
-					URL github = new URL(url);
-					URLConnection con = github.openConnection();
-					HttpsURLConnection https = (HttpsURLConnection) con;
+				String url = "https://api.github.com/repos/EnumType/HomeSystem/releases/latest";
+				JSONParser parser = new JSONParser();
+				URL github = new URL(url);
+				URLConnection con = github.openConnection();
+				HttpsURLConnection https = (HttpsURLConnection) con;
 
-					if (https.getResponseCode() == 200) {
-						BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				if (https.getResponseCode() == 200) {
+					BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
-						String line;
-						while ((line = in.readLine()) != null) {
-							JSONObject object = (JSONObject) parser.parse(line);
-							String tag = object.get("tag_name").toString();
+					String line;
+					while ((line = in.readLine()) != null) {
+						JSONObject object = (JSONObject) parser.parse(line);
+						String tag = object.get("tag_name").toString();
 
-							if (!Main.getData().getVersion().equalsIgnoreCase(tag) && !tag.equalsIgnoreCase("beta")) {
-								Main.getLog().write(Methods.createPrefix() + "Version " + tag + " is now available. Downloading...", true);
+						if (!Main.getData().getVersion().equalsIgnoreCase(tag) && !tag.equalsIgnoreCase("beta")) {
+							Main.getLog().write("Version " + tag + " is now available. Downloading...",
+									true, true);
 
-								String[] cmd = {"git", "clone",
-										"https://github.com/TheJavaException/HomeSystem",
-										"HomeSystem-" + tag};
-								Process p = Runtime.getRuntime().exec(cmd);
-								p.waitFor();
-								Main.getLog().write("Finished downloading of Version " + tag, false);
-							}
+							String[] cmd = {"git", "clone", "https://github.com/EnumType/HomeSystem", "HomeSystem-" + tag};
+							Process p = Runtime.getRuntime().exec(cmd);
+							p.waitFor();
+							Main.getLog().write("Finished downloading of Version " + tag, false, false);
 						}
-						in.close();
 					}
-					Thread.sleep(wait * 60000);
+					in.close();
 				}
 			}catch(IOException | ParseException | InterruptedException e) {
-				e.printStackTrace();
-				Main.getLog().write(createPrefix() + "Error in Methods(159): " + e.getMessage(), false);
+				if(Main.getData().printStackTraces()) e.printStackTrace();
+				Main.getLog().writeError(e);
 			}
-		}).start();
+		}, 0, 2, TimeUnit.MINUTES);
 	}
 	
 }

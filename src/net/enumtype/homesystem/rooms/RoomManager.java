@@ -1,8 +1,7 @@
-package net.enumtype.homesystem.xmlrpc;
+package net.enumtype.homesystem.rooms;
 
 import net.enumtype.homesystem.main.Main;
 import net.enumtype.homesystem.utils.Log;
-import net.enumtype.homesystem.utils.Methods;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -13,7 +12,7 @@ import java.util.Map;
 
 public class RoomManager {
 
-    private List<Room> rooms = new ArrayList();
+    private final List<Room> rooms = new ArrayList<>();
     private final Log log;
 
     public RoomManager() {
@@ -21,15 +20,15 @@ public class RoomManager {
         load();
     }
 
+    @SuppressWarnings("unchecked")
     public void load() {
         try {
-            //File file = new File("Rooms.yml");
-            File file = new File("C:\\Users\\Anfinn\\Desktop\\Coding\\Java\\HomeSystem\\resources\\Rooms.yml");
+            File file = new File("Rooms.yml");
             Map<Object, Map<Object, Map<Object, Map<Object, Object>>>> data;
 
-            if(rooms != null) rooms.clear();
+            rooms.clear();
             if(!file.exists()) {
-                log.write(Methods.createPrefix() + "Creating Rooms.yml...", true);
+                log.write("Creating Rooms.yml...", true, true);
                 InputStream resource = Main.class.getResourceAsStream("/Rooms.yml");
                 Yaml in = new Yaml();
                 data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) in.load(resource);
@@ -43,20 +42,21 @@ public class RoomManager {
                 out.dump(data, writer);
             }
 
-            log.write(Methods.createPrefix() + "Loading Rooms.yml...", true);
+            log.write("Loading Rooms.yml...", true, true);
             FileInputStream in = new FileInputStream(file);
             Yaml yaml = new Yaml();
             data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) yaml.load(in);
             loadRooms(data);
         }catch(IOException e) {
-            e.printStackTrace();
-            log.write(Methods.createPrefix() + "Error in RoomManager(53): " + e.getMessage(), false);
+            if(Main.getData().printStackTraces()) e.printStackTrace();
+            log.writeError(e);
         }
     }
 
     private void loadRooms(Map<Object, Map<Object, Map<Object, Map<Object, Object>>>> data) {
         for(Object name : data.keySet()) {
-            Room r = new Room(name.toString(), ((Object) data.get(name).get("Permission")).toString(), data.get(name).get("Devices"));
+            Room room = new Room(name.toString(), data.get(name).get("Permission").toString(), data.get(name).get("Devices"));
+            rooms.add(room);
         }
     }
 
@@ -67,6 +67,14 @@ public class RoomManager {
     public Room getRoom(String name) {
         for(Room room : rooms) {
             if(room.getName().equalsIgnoreCase(name)) return room;
+        }
+
+        return null;
+    }
+
+    public Room getRoomByDevice(Device device) {
+        for(Room room : getRooms()) {
+            if(room.getDevices().contains(device)) return room;
         }
 
         return null;

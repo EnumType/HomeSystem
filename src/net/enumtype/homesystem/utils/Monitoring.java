@@ -37,8 +37,8 @@ public class Monitoring {
 
 			reader.close();
 		}catch(IOException e) {
-			e.printStackTrace();
-			log.write(Methods.createPrefix() + "Error in Monitoring(42): " + e.getMessage(), false);
+			if(Main.getData().printStackTraces()) e.printStackTrace();
+			log.writeError(e);
 		}
 		
 		return list;
@@ -47,9 +47,9 @@ public class Monitoring {
 	public boolean isXmlRpcReachable(int timeout) {
 		try {
 			return InetAddress.getByName(Main.getData().getXmlRpcAddress()).isReachable(timeout);
-		} catch (IOException e) {
-			e.printStackTrace();
-			log.write(Methods.createPrefix() + "Error in Monitoring(): " + e.getMessage(), false);
+		}catch(IOException e) {
+			if(Main.getData().printStackTraces()) e.printStackTrace();
+			log.writeError(e);
 		}
 		return false;
 	}

@@ -7,10 +7,10 @@ import java.util.List;
 
 import net.enumtype.homesystem.main.Main;
 import net.enumtype.homesystem.utils.Monitoring;
-import net.enumtype.homesystem.utils.Methods;
-import net.enumtype.homesystem.xmlrpc.Device;
-import net.enumtype.homesystem.xmlrpc.Room;
-import net.enumtype.homesystem.xmlrpc.RoomManager;
+import net.enumtype.homesystem.utils.UnknownCommandException;
+import net.enumtype.homesystem.rooms.Device;
+import net.enumtype.homesystem.rooms.Room;
+import net.enumtype.homesystem.rooms.RoomManager;
 import org.eclipse.jetty.websocket.api.Session;
 
 public class Command {
@@ -75,11 +75,13 @@ public class Command {
 			}
 
 		}else {
-			Main.getLog().write(Methods.createPrefix() + "Client with InetAddress: " + address + " tried to execute command: " + command, false);
+			Main.getLog().write("Client with InetAddress: " + address + " tried to execute command: " + command,
+								false, true);
 			try {
 				session.getRemote().sendString("notloggedin");
 			}catch(IOException e) {
-				e.printStackTrace();
+				if(Main.getData().printStackTraces()) e.printStackTrace();
+				Main.getLog().writeError(e);
 			}
 		}
 	}

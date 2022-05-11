@@ -2,7 +2,6 @@ package net.enumtype.homesystem.server;
 
 import net.enumtype.homesystem.main.Main;
 import net.enumtype.homesystem.utils.Log;
-import net.enumtype.homesystem.utils.Methods;
 import org.eclipse.jetty.websocket.api.Session;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -97,12 +96,13 @@ public class ClientManager {
         if(!newData.renameTo(data)) throw new IOException("Cannot rename file!");
     }
 
+    @SuppressWarnings("unchecked")
     public void loadUserPerm() throws IOException {
         File file = new File("Permissions.yml");
 
         if(!userPermissions.isEmpty()) userPermissions.clear();
         if(!file.exists()) {
-            log.write(Methods.createPrefix() + "Creating Permissions.yml...", true);
+            log.write("Creating Permissions.yml...", true, true);
             InputStream resource = Main.class.getResourceAsStream("/Permissions.yml");
             Yaml in = new Yaml();
             Map<String, List<String>> map = (Map<String, List<String>>) in.load(resource);
@@ -116,7 +116,7 @@ public class ClientManager {
             out.dump(map, writer);
         }
 
-        log.write(Methods.createPrefix() + "Loading Permissions.yml...", true);
+        log.write("Loading Permissions.yml...", true, true);
         Yaml yaml = new Yaml();
         FileInputStream io = new FileInputStream(new File("Permissions.yml"));
 
@@ -126,7 +126,7 @@ public class ClientManager {
     }
 
     public void writeUserPerm() throws IOException {
-        log.write(Methods.createPrefix() + "Saving Permissions.yml...", true);
+        log.write("Saving Permissions.yml...", true, true);
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);
@@ -147,7 +147,7 @@ public class ClientManager {
     public void logoutClient(Client client) {
         clients.remove(client);
         client.getSession().close();
-        log.write(Methods.createPrefix() + "User '" + client.getName() + "' logged out", false);
+        log.write("User '" + client.getName() + "' logged out", false, true);
     }
 
     public void addPermission(String username, String permission) {
@@ -185,13 +185,13 @@ public class ClientManager {
 
     public boolean verifyLoginData(InetAddress address, String username, String password) {
         if(userData.containsKey(username) && userData.get(username).equals(password)) {
-            log.write(Methods.createPrefix() + "User '" + username + "' logged in with IP " + address.toString(), false);
+            log.write("User '" + username + "' logged in with IP " + address.toString(), false, true);
             return true;
         }else {
-            log.write(Methods.createPrefix() + "User tried to login:", true);
-            log.write(Methods.createPrefix() + "USERNAME: " + username, true);
-            log.write(Methods.createPrefix() + "IPADDRESS: " + address.toString(), true);
-            log.write("", false);
+            log.write("User tried to login:", true, true);
+            log.write("USERNAME: " + username, true, true);
+            log.write("IPADDRESS: " + address.toString(), true, true);
+            log.write("", false, false);
             return false;
         }
     }

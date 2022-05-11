@@ -1,5 +1,6 @@
 package net.enumtype.homesystem.server;
 
+import net.enumtype.homesystem.main.Main;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
@@ -23,7 +24,8 @@ public class Client {
         try {
             session.getRemote().sendString(message);
         }catch(IOException e) {
-            e.printStackTrace();
+            if(Main.getData().printStackTraces()) e.printStackTrace();
+            Main.getLog().writeError(e);
         }
     }
 
@@ -39,6 +41,10 @@ public class Client {
 
     public void changeConnection(boolean changeConnection) {
         this.changeConnection = changeConnection;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     public String getName() {return name;}

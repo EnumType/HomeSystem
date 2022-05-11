@@ -3,10 +3,11 @@ package net.enumtype.homesystem.main;
 import java.io.IOException;
 import java.util.Scanner;
 
+import net.enumtype.homesystem.rooms.AIManager;
 import net.enumtype.homesystem.utils.*;
 import net.enumtype.homesystem.server.ClientManager;
 import net.enumtype.homesystem.utils.WebSocketServer;
-import net.enumtype.homesystem.xmlrpc.RoomManager;
+import net.enumtype.homesystem.rooms.RoomManager;
 import net.enumtype.homesystem.server.Commands;
 
 // Created by EnumType
@@ -27,8 +28,8 @@ public class Main {
 		try {
 			log = new Log();
 			data = new Data();
-			data.setVersion("v1.0.9-Beta-5");
-			log.write("loading libraries, please wait...", true);
+			data.setVersion("v1.0.9-Beta-6");
+			log.write("loading libraries, please wait...", true, false);
 
 			clientManager = new ClientManager();
 			roomManager = new RoomManager();
@@ -44,9 +45,9 @@ public class Main {
 			Methods.startVersionChecking();
 			wsServer.start();
 			startScanning();
-		} catch (IOException e) {
-			e.printStackTrace();
-			log.write(Methods.createPrefix() + "Error in Main(51): " + e.getMessage(), false);
+		}catch (IOException e) {
+			if(data.printStackTraces()) e.printStackTrace();
+			log.writeError(e);
 		}
 		
 	}
@@ -62,8 +63,9 @@ public class Main {
 
 				try {
 					checkConsoleCommand(command);
-				}catch(Exception ex) {
-					ex.printStackTrace();
+				}catch(Exception e) {
+					if(data.printStackTraces()) e.printStackTrace();
+					log.writeError(e);
 				}
 			}
 		});
@@ -91,7 +93,7 @@ public class Main {
 			
 			if(args.length == 2) {
 				clientManager.addPermission(args[0], args[1]);
-				log.write(Methods.createPrefix() + "Added " + args[1] + " to user " + args[0], false);
+				log.write("Added " + args[1] + " to user " + args[0], false, true);
 			}else System.out.println("Usage: /addperm <Username> <Permission>");
 		}else if(command.startsWith("removeperm")) {
 			command = command.replaceFirst("removeperm ", "");
@@ -99,8 +101,8 @@ public class Main {
 
 			if(args.length == 2) {
 				if(clientManager.removePermission(args[0], args[1])) {
-					log.write(Methods.createPrefix() + "Removed '" + args[1] + "' from user '" + args[0] + "'.", false);
-				}else log.write(Methods.createPrefix() + "Cannot remove '" + args[1] + "' from user '" + args[0] + "'.", false);
+					log.write("Removed '" + args[1] + "' from user '" + args[0] + "'.", false, true);
+				}else log.write("Cannot remove '" + args[1] + "' from user '" + args[0] + "'.", false, true);
 			}else System.out.println("Usage: /removeperm <Username> <Permission>");
 		}else if(command.startsWith("reload")) {
 			try {
@@ -117,8 +119,8 @@ public class Main {
 				aiManager.startAutoTraining();
 				startScanning();
 			}catch(IOException e) {
-				e.printStackTrace();
-				log.write(Methods.createPrefix() + "Error in Main(129): " + e.getMessage(), false);
+				if(data.printStackTraces()) e.printStackTrace();
+				log.writeError(e);
 			}
 		}else if(command.startsWith("extract website")) {
 			Methods.extractWebsite();
@@ -129,6 +131,7 @@ public class Main {
 
 	public static ClientManager getClientManager() {return clientManager;}
 	public static RoomManager getRoomManager() {return roomManager;}
+	public static AIManager getAiManager() {return aiManager;}
 	public static Monitoring getMonitoring() {return monitoring;}
 	public static Log getLog() {return log;}
 	public static Data getData() {return data;}
