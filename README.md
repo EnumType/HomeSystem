@@ -91,7 +91,7 @@ HTTPS is not necessary because the inserted password will be salted and hashed b
 - [WS-Commons-Util](https://mvnrepository.com/artifact/org.apache.ws.commons.util/ws-commons-util/1.0.2)
 
 ## Authors
-- **TheJavaException** - *Idea and Coding*
+- **EnumType** - *Idea and Coding*
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
