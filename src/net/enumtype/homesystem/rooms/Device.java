@@ -122,7 +122,6 @@ public class Device {
     }
 
     public String getName() {return name;}
-    public String getAddress() {return address;}
     public AI getAI() {return ai;}
     public DeviceType getType() {return type;}
     public boolean aiControlled() {return aiControl;}
@@ -133,7 +132,7 @@ public class Device {
 enum DeviceType {
     LAMP("STATE"), ROLL("LEVEL"), BRIGHT("STATE")/*TODO: Check value_key*/, UNKNOWN("");
 
-    private String value_key;
+    private final String value_key;
     DeviceType(String value_key) {
         this.value_key = value_key;
     }

@@ -6,7 +6,6 @@ import java.util.Scanner;
 import net.enumtype.homesystem.rooms.AIManager;
 import net.enumtype.homesystem.utils.*;
 import net.enumtype.homesystem.server.ClientManager;
-import net.enumtype.homesystem.utils.WebSocketServer;
 import net.enumtype.homesystem.rooms.RoomManager;
 import net.enumtype.homesystem.server.Commands;
 

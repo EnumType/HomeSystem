@@ -6,9 +6,9 @@ import java.util.Map;
 
 public class Room {
 
-    private String name;
-    private String permission;
-    private List<Device> devices = new ArrayList<>();
+    private final String name;
+    private final String permission;
+    private final List<Device> devices = new ArrayList<>();
 
     public Room(String name, String permission, Map<Object, Map<Object, Object>> deviceData) {
         this.name = name;

@@ -72,13 +72,6 @@ public class Log {
 		write("Error in " + className + "(" + line + "): " + e.getMessage(), false, true);
 	}
 
-	public static void writeTestError(Exception e) {
-		final String className = e.getStackTrace()[0].getClassName();
-		int line = e.getStackTrace()[0].getLineNumber();
-
-		System.out.println("Error in " + className + "(" + line + "): " + e.getMessage());
-	}
-
 	public String createPrefix() {
 		return "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] ";
 	}

@@ -102,7 +102,6 @@ public class AIManager {
      */
     public void startPredictions(int waitDelay) {
         if(predictionTimer == null) predictionTimer = new Timer();
-        final RoomManager roomManager = Main.getRoomManager();
 
         predictionTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -130,7 +129,6 @@ public class AIManager {
 
     public void startAutoTraining() {
         final ZonedDateTime now = ZonedDateTime.now();
-        final RoomManager roomManager = Main.getRoomManager();
         trainingScheduler = Executors.newScheduledThreadPool(1);
         ZonedDateTime nextRun = now.withHour(0).withMinute(0).withSecond(0);
 
@@ -146,7 +144,6 @@ public class AIManager {
     }
 
     public void trainAll() {
-        final RoomManager roomManager = Main.getRoomManager();
         saveData();
         for(Device device : deviceData.keySet()) device.getAI().train();
     }
@@ -187,18 +184,6 @@ public class AIManager {
 
     public void stopAutoTraining() {
         trainingScheduler.shutdownNow();
-    }
-
-    public List<AI> getAll() {
-        final List<AI> ais = new ArrayList<>();
-
-        for(Room room : Main.getRoomManager().getRooms()) {
-            for(Device device : room.getDevices()) {
-                ais.add(device.getAI());
-            }
-        }
-
-        return ais;
     }
 
     public File getModelTemplate() {return modelTemplate;}
