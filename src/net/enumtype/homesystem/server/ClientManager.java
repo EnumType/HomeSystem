@@ -143,7 +143,7 @@ public class ClientManager {
         final Client client = new Client(session, username, userPermissions.containsKey(username) ? userPermissions.get(username) : new ArrayList<>());
         if(verifyLoginData(session.getRemoteAddress().getAddress(), username, password)) {
             clients.add(client);
-            client.sendMessage("verifylogin");
+            client.sendMessage("verifylogin " + client.getName());
         }else client.sendMessage("wrongdata");
     }
 

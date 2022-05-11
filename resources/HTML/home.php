@@ -7,6 +7,7 @@ var user = '';
 var loadingDeviceState = [];
 
 ws.onopen = function(e) {
+    ws.send('isonline');
 };
 
 ws.onmessage = function(e) {

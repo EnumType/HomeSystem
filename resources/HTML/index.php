@@ -26,7 +26,7 @@
 					ws.send('changeconnection');
 					closeWS(ws);
 					location.replace("/home.php");
-				}else if(data === 'wrong data') {
+				}else if(data === 'wrongdata') {
 					document.getElementById('user').value = '';
 					document.getElementById('pass').value = '';
 					
