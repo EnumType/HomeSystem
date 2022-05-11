@@ -1,6 +1,6 @@
 package net.enumtype.homesystem.server;
 
-import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.Main;
 import net.enumtype.homesystem.utils.Log;
 import org.eclipse.jetty.websocket.api.Session;
 import org.yaml.snakeyaml.DumperOptions;

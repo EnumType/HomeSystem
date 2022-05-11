@@ -62,6 +62,5 @@ public class TestWebSocket {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         System.out.println(message);
-        System.out.println(message.contains(Methods.sha512("hallo", TestMain.SALT)));
     }
 }

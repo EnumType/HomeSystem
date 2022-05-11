@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
 
-import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.Main;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;

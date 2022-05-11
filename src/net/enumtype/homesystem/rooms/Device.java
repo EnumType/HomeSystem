@@ -1,6 +1,6 @@
 package net.enumtype.homesystem.rooms;
 
-import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.Main;
 import net.enumtype.homesystem.utils.Data;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;

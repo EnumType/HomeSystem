@@ -1,4 +1,4 @@
-package net.enumtype.homesystem.main;
+package net.enumtype.homesystem;
 
 import java.io.IOException;
 import java.util.Scanner;

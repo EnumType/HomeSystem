@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.Main;
 import net.enumtype.homesystem.rooms.AIManager;
 import net.enumtype.homesystem.utils.*;
 import net.enumtype.homesystem.rooms.Device;

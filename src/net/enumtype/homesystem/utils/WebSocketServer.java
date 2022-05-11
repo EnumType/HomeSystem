@@ -3,7 +3,7 @@ package net.enumtype.homesystem.utils;
 import java.io.File;
 import java.io.IOException;
 
-import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.Main;
 import net.enumtype.homesystem.server.Client;
 import net.enumtype.homesystem.server.ClientManager;
 import net.enumtype.homesystem.server.Command;

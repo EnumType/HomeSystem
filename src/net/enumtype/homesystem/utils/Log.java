@@ -1,6 +1,6 @@
 package net.enumtype.homesystem.utils;
 
-import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.Main;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -64,19 +64,12 @@ public class Log {
 	}
 
 	public void writeError(Exception e) {
-		final String className = e.getStackTrace()[0].getClassName();
-		int line = e.getStackTrace()[0].getLineNumber();
-
-		write("Error in " + className + "(" + line + "): " + e.getMessage(), false, true);
-		if(Main.getData().printStackTraces()) e.printStackTrace();
-	}
-
-	public static void writeTestError(Exception e) {
 		final int index = e.getStackTrace().length - 1;
 		final String className = e.getStackTrace()[index].getClassName();
 		final int line = e.getStackTrace()[index].getLineNumber();
-
-		System.out.println("Error in " + className + "(" + line + "): " + e.getMessage());
+		write(e.getClass().getSimpleName() + " in " + className.substring(className.lastIndexOf('.') + 1) +
+				"(" + line + "): " + e.getMessage(), false, true);
+		if(Main.getData().printStackTraces()) e.printStackTrace();
 	}
 
 	public String createPrefix() {

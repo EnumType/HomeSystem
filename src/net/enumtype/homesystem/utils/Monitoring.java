@@ -6,22 +6,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.Main;
 
 public class Monitoring {
-	
-	private final Map<String, String> errors;
+
 	private final Log log;
 
 	public Monitoring() {
-		errors = new HashMap<>();
-		this.log = Main.getLog();
+		log = Main.getLog();
 	}
-
-	public Map<String, String> getErrors() {return errors;}
 	
 	public ArrayList<String> getLog() {
 		ArrayList<String> list = new ArrayList<>();

@@ -1,6 +1,6 @@
 package net.enumtype.homesystem.utils;
 
-import net.enumtype.homesystem.main.Main;
+import net.enumtype.homesystem.Main;
 import net.enumtype.homesystem.rooms.Device;
 
 import java.io.*;
