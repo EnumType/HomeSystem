@@ -6,6 +6,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 Before you download the HomeSystem you should install the following sorftware to run this system:
+- Linux System
 - Oracle-JDK `sudo apt install default-jdk`
 - Oracle-JRE `sudo apt install default-jre`
 - Git `sudo apt install git`
