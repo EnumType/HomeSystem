@@ -19,54 +19,6 @@ public class Rooms {
 	
 	public static Map<Object, Map<Object, Map<Object, Map<Object, Object>>>> rooms;
 	
-	@SuppressWarnings("unchecked")
-	public static void loadData() {
-		try {
-			if(rooms != null) {
-				rooms.clear();
-			}
-			
-			//File file = new File("Rooms.yml");
-			File file = new File("C:\\Users\\Anfinn\\Desktop\\Coding\\Java\\HomeSystem\\resources\\Rooms.yml");
-			if(file.exists()) {
-				Log.write(Methods.createPrefix() + "Loading Rooms.yml...", true);
-				FileInputStream in = new FileInputStream(file);
-				Yaml yaml = new Yaml();
-				rooms = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) yaml.load(in);
-			}else {
-				Log.write(Methods.createPrefix() + "Creating Rooms.yml...", true);
-				InputStream resource = Main.class.getResourceAsStream("/Rooms.yml");
-				Yaml in = new Yaml();
-				Map<Object, Map<Object, Map<Object, Map<Object, Object>>>> map = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) in.load(resource);
-				
-				DumperOptions options = new DumperOptions();
-				options.setDefaultFlowStyle(FlowStyle.BLOCK);
-				options.setPrettyFlow(true);
-				
-				Yaml out = new Yaml(options);
-				FileWriter writer = new FileWriter(file);
-				out.dump(map, writer);
-				loadData();
-			}
-		}catch(IOException e) {
-			e.printStackTrace();
-			Log.write(Methods.createPrefix() + "Error in Rooms(53): " + e.getMessage(), false);
-		}
-	}
-	
-	public static boolean roomExists(String room) {
-		return rooms.get(room) != null;
-	}
-	
-	public static boolean deviceExists(String room, String device) {
-		return rooms.get(room).get("Devices").get(device) != null;
-	}
-	
-	public static String getRoomPerm(String room) {
-		Object o = rooms.get(room).get("Permission");
-		return o.toString();
-	}
-	
 	public static String getDeviceType(String room, String device) {
 		return rooms.get(room).get("Devices").get(device).get("Type").toString();
 	}

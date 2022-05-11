@@ -146,7 +146,7 @@ function createRoomDevice(room, device, type) {
 		
 		input.onchange = function() {
 			var state = (parseFloat(input.value) / 100);
-			ws.send('xmlrpc setdevice ' + room + ' ' + device + state);
+			ws.send('xmlrpc setdevice ' + room + ' ' + device + ' ' + state);
 		}
 		
 		document.getElementById('room').appendChild(container);
@@ -173,7 +173,7 @@ function createRoomDevice(room, device, type) {
 		container.appendChild(p);
 		container.appendChild(label);
 		input.onchange = function() {
-			ws.send('xmlrpc setdevice ' + room + ' ' + device + input.checked);
+			ws.send('xmlrpc setdevice ' + room + ' ' + device + ' ' + input.checked);
 		}
 		
 		document.getElementById('room').appendChild(container);

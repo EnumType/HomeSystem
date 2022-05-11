@@ -1,8 +1,17 @@
 package net.enumtype.homesystem.xmlrpc;
 
+import net.enumtype.homesystem.main.Main;
 import net.enumtype.homesystem.utils.AI;
 import net.enumtype.homesystem.server.Client;
+import net.enumtype.homesystem.utils.Data;
+import net.enumtype.homesystem.utils.Methods;
+import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,34 +19,96 @@ import java.util.Map;
 public class Device {
 
     private final String name;
-    private final String address;
-    private final boolean hmip;
-    private final boolean aidata;
-    private final boolean aicontrol;
+    private String address;
+    private boolean hmIp;
+    private final boolean collectData;
+    private final boolean aiControl;
     private final DeviceType type;
     private final AI ai;
+
+    public Device() {
+        this.name = "";
+        this.collectData = false;
+        this.aiControl = false;
+        this.type = DeviceType.BRIGHT;
+        this.ai = null;
+    }
 
     public Device(String name, Map<Object, Object> optionData) {
         this.name = name;
         this.address = optionData.get("Address").toString();
-        this.hmip = Boolean.parseBoolean(optionData.get("HmIP").toString());
-        this.aidata = Boolean.parseBoolean(optionData.get("AIData").toString());
-        this.aicontrol = Boolean.parseBoolean(optionData.get("AIControl").toString());
+        this.hmIp = Boolean.parseBoolean(optionData.get("HmIP").toString());
+        this.collectData = Boolean.parseBoolean(optionData.get("AIData").toString());
+        this.aiControl = Boolean.parseBoolean(optionData.get("AIControl").toString());
         this.type = DeviceType.valueOf(optionData.get("Type"));
 
         this.ai = new AI();
     }
 
-    public void setValue(Object value, Client client) {
-        XmlRpcServer.setValue(address, type.getValueKey(), value, client, hmip);
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public void stop(Client client) {
-        XmlRpcServer.setValue(address, "STOP", true, client, hmip);
+    public void setHmIp(boolean hmIp) {
+        this.hmIp = hmIp;
+    }
+
+    public void stop() {
+        setValue("STOP", true);
+    }
+
+    public void setValue(Object value_key, Object value) {
+        new Thread(() -> {
+            try {
+                final Data data = Main.getData();
+                XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+                XmlRpcClient xmlRpcClient = new XmlRpcClient();
+
+                config.setServerURL(new URL("http://" + data.getXmlRpcAddress()+ ":" +
+                        (hmIp ? data.getHmIpPort() : data.getXmlRpcPort())));
+                xmlRpcClient.setConfig(config);
+
+                if(getValue(type.getValueKey()) != value)
+                    xmlRpcClient.execute("setValue", new Object[]{address, value_key, value});
+            }catch(MalformedURLException | XmlRpcException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    public void setValue(Object value) {
+        setValue(type.getValueKey(), value);
     }
 
     public String getValue(String value_key) {
-        return XmlRpcServer.getValue(address, value_key, hmip).toString();
+        try {
+            final Data data = Main.getData();
+            XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+            XmlRpcClient client = new XmlRpcClient();
+
+            config.setServerURL(new URL("http://" + data.getXmlRpcAddress()+ ":" +
+                    (hmIp ? data.getHmIpPort() : data.getXmlRpcPort())));
+            client.setConfig(config);
+
+            return client.execute("getValue", new Object[]{address, value_key}).toString();
+        }catch(MalformedURLException | XmlRpcException e) {
+            e.printStackTrace();
+            Main.getLog().write(Methods.createPrefix() + "Error in XmlRpcServer(196): " + e.getMessage(), false);
+        }
+
+        return "";
+    }
+
+    public double getState() {
+        final String result = getValue(type.getValueKey());
+        switch (type) {
+            case LAMP:
+                return Boolean.parseBoolean(result) ? 1 : 0;
+            case ROLL:
+                return Math.round(Float.parseFloat(result));
+            default:
+                return 0;
+        }
     }
 
     public List<String> getStates() {
@@ -53,26 +124,17 @@ public class Device {
         return states;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public AI getAI() {
-        return ai;
-    }
-
-    public DeviceType getType() {
-        return type;
-    }
+    public String getName() {return name;}
+    public String getAddress() {return address;}
+    public AI getAI() {return ai;}
+    public DeviceType getType() {return type;}
+    public boolean aiControlled() {return aiControl;}
+    public boolean collectData() {return collectData;}
 
 }
 
 enum DeviceType {
-    LAMP("LEVEL"), ROLL("STATE"), UNKNOWN("");
+    LAMP("STATE"), ROLL("LEVEL"), BRIGHT("STATE")/*TODO: Check value_key*/, UNKNOWN("");
 
     private String value_key;
     DeviceType(String value_key) {
@@ -90,7 +152,5 @@ enum DeviceType {
         }
     }
 
-    public String getValueKey() {
-        return value_key;
-    }
+    public String getValueKey() {return value_key;}
 }

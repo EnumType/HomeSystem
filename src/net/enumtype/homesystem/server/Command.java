@@ -1,29 +1,32 @@
 package net.enumtype.homesystem.server;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.enumtype.homesystem.main.Main;
-import net.enumtype.homesystem.monitoring.MonitoringCommand;
-import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Monitoring;
 import net.enumtype.homesystem.utils.Methods;
-import net.enumtype.homesystem.websocket.WebSocket;
-import net.enumtype.homesystem.xmlrpc.XmlRpcCommand;
+import net.enumtype.homesystem.xmlrpc.Device;
+import net.enumtype.homesystem.xmlrpc.Room;
+import net.enumtype.homesystem.xmlrpc.RoomManager;
 import org.eclipse.jetty.websocket.api.Session;
 
 public class Command {
 	
-	public static void check(String command, Session session) {
+	public static void check(String command, Session session) throws UnknownCommandException {
 		final InetAddress address = session.getRemoteAddress().getAddress();
-		command = command != null ? command.toLowerCase() : "";
-		if(Main.getClientManager().isLoggedIn(address)
+		final ClientManager clientManager = Main.getClientManager();
+		command = command.toLowerCase();
+		if(clientManager.isLoggedIn(address)
 				|| command.startsWith("login") || command.startsWith("isonline")
 				|| command.startsWith("connect")) {
-			final ClientManager clientManager = Main.getClientManager();
 			final Client client = !(command.startsWith("login") || command.startsWith("connect")) ?
 					clientManager.getClient(address) : new Client(session, "", null);
 			String[] args;
 
-			switch (command) {
+			switch (command.split(" ")[0]) {
 				case "login":
 					command = command.replace("login ", "");
 					args = command.split(" ");
@@ -43,6 +46,9 @@ public class Command {
 					if(args.length == 1) {
 						clientManager.logoutClient(client);
 					}
+					break;
+				case "changeconnection":
+					clientManager.getClient(session).changeConnection(true);
 					break;
 				case "xmlrpc":
 					command = command.replaceFirst("xmlrpc ", "");
@@ -65,13 +71,130 @@ public class Command {
 					MonitoringCommand.check(command.replaceFirst("monitoring ", ""), client);
 					break;
 				default:
-					Log.write("Error in Command switch", false);
+					throw new UnknownCommandException(client, command);
 			}
 
 		}else {
-			Log.write(Methods.createPrefix() + "Client with InetAddress: " + address + " tried to execute command: " + command, false);
-			WebSocket.sendCommand("notloggedin", session);
+			Main.getLog().write(Methods.createPrefix() + "Client with InetAddress: " + address + " tried to execute command: " + command, false);
+			try {
+				session.getRemote().sendString("notloggedin");
+			}catch(IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
+}
+
+class XmlRpcCommand {
+	public static void check(Client client, String command) throws UnknownCommandException {
+		final RoomManager roomManager = Main.getRoomManager();
+		String[] args;
+
+		switch (command.split(" ")[0].toLowerCase()) {
+			case "getrooms":
+				final List<String> rooms = new ArrayList<>();
+
+				roomManager.getRooms().forEach(room -> rooms.add(room.getName()));
+
+				client.sendMessage("rooms", rooms);
+				break;
+			case "getdevices":
+				args = command.replaceFirst("getdevices ", "").split(" ");
+				if(args.length == 1) {
+					String roomName = args[0];
+
+					if(roomManager.existsRoom(roomName)) {
+						final Room room = roomManager.getRoom(roomName);
+
+						if(client.hasPermission(room.getPermission())) {
+							client.sendMessage("roomdevices " + roomName, room.getDeviceNames());
+						}else client.sendMessage("noperm " + room);
+					}else client.sendMessage("noroom " + roomName);
+				}else client.sendMessage("failure");
+				break;
+			case "getdevicetype":
+				args = command.replaceFirst("getdevicetype ", "").split(" ");
+
+				if(args.length == 2) {
+					String roomName = args[0];
+					String deviceName = args[1];
+
+					if(roomManager.existsRoom(roomName)) {
+						final Room room = roomManager.getRoom(roomName);
+
+						if(client.hasPermission(room.getPermission())) {
+							if(room.hasDevice(deviceName)) {
+								client.sendMessage("device " + roomName + " " + deviceName + " " +
+										room.getDevice(deviceName).getType());
+							}else client.sendMessage("nodevice " + deviceName);
+						}else client.sendMessage("noperm " + room);
+					}else client.sendMessage("noroom " + roomName);
+				}else client.sendMessage("failure");
+				break;
+			case "getdevicestate":
+				args = command.replaceFirst("getdevicestate ", "").split(" ");
+
+				if(args.length == 2) {
+					final String roomName = args[0];
+					final String deviceName = args[1];
+
+					if(roomManager.existsRoom(roomName)) {
+						final Room room = roomManager.getRoom(roomName);
+
+						if(client.hasPermission(room.getPermission())) {
+							if(room.hasDevice(deviceName)) {
+								client.sendMessage("states " + deviceName, room.getDevice(deviceName).getStates());
+							}else client.sendMessage("nodevice " + deviceName);
+						}else client.sendMessage("noperm " + roomName);
+					}else client.sendMessage("noroom " + roomName);
+				}else client.sendMessage("failure");
+				break;
+			case "setdevice":
+				args = command.replaceFirst("setdevice ", "").split(" ");
+
+				if(args.length == 3) {
+					String roomName = args[0];
+					String deviceName = args[1];
+					Object value = args[2].equalsIgnoreCase("false") || args[2].equalsIgnoreCase("true") ?
+							Boolean.parseBoolean(args[2]) : args[2];
+
+					if(roomManager.existsRoom(roomName)) {
+						final Room room = roomManager.getRoom(roomName);
+
+						if(client.hasPermission(room.getPermission())) {
+							if(room.hasDevice(deviceName)) {
+								final Device device = room.getDevice(deviceName);
+								if(value.toString().equalsIgnoreCase("STOP")) {
+									device.stop();
+								}else device.setValue(value);
+
+							}else client.sendMessage("nodevice " + deviceName);
+						}else client.sendMessage("noperm " + roomName);
+					}else client.sendMessage("noroom " + roomName);
+				}else client.sendMessage("failure");
+				break;
+			default:
+				throw new UnknownCommandException(client, command);
+		}
+	}
+}
+
+class MonitoringCommand {
+
+	public static void check(String command, Client client) {
+		if(client.hasPermission("system.monitoring")) {
+			final Monitoring monitoring = Main.getMonitoring();
+
+			if (command.startsWith("isXmlRpcReachable")) {
+				command = command.replace("isXmlRpcReachable", "");
+				String[] args = command.split(" ");
+				if (args.length == 1) {
+					int timeout = Integer.parseInt(args[0]);
+					client.sendMessage("xmlrpc " + monitoring.isXmlRpcReachable(timeout));
+				}
+			}
+		}else client.sendMessage("noperm");
+	}
+
 }

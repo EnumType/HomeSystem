@@ -11,7 +11,7 @@ public class Commands {
 	
 	public static void executeStopCommand() {
 		try {
-			Log.write("Stopping server...", true);
+			Main.getLog().write("Stopping server...", true);
 			Main.getClientManager().writeUserPerm();
 			System.exit(0);
 		}catch(IOException e) {
@@ -20,18 +20,20 @@ public class Commands {
 	}
 	
 	public static void updateVersion(String version) {
-		Data.version = version;
-		Log.write(Methods.createPrefix() + "Version changed to " + Data.version, false);
+		Main.getData().setVersion(version);
+		Main.getLog().write(Methods.createPrefix() + "Version changed to " + version, false);
 	}
 	
 	public static void executeHelpCommand() {
-		Log.write("Commands:", true);
-		Log.write("Stop -- Stops the Server", true);
-		Log.write("Help -- Shows this page", true);
-		Log.write("Version <version> -- Change the version", true);
-		Log.write("Addperm <User> <Permission> -- Add a permission", true);
-		Log.write("Extract Website -- Extracts the Webinterface", true);
-		Log.write("", true);
+		final Log log = Main.getLog();
+
+		log.write("Commands:", true);
+		log.write("Stop -- Stops the Server", true);
+		log.write("Help -- Shows this page", true);
+		log.write("Version <version> -- Change the version", true);
+		log.write("Addperm <User> <Permission> -- Add a permission", true);
+		log.write("Extract Website -- Extracts the Webinterface", true);
+		log.write("", true);
 	}
 	
 }

@@ -7,11 +7,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 public class TestMain {
 
     public static void main(String[] args) {
-        try {
-            startTestWebSocket();
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
     private static void startTestWebSocket() {

@@ -1,8 +1,8 @@
 package net.enumtype.homesystem.server;
 
-import net.enumtype.homesystem.websocket.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 
@@ -11,6 +11,7 @@ public class Client {
     private final String name;
     private List<String> permissions;
     private Session session;
+    private boolean changeConnection;
 
     public Client(Session session, String name, List<String> permissions) {
         this.session = session;
@@ -19,37 +20,31 @@ public class Client {
     }
 
     public void sendMessage(String message) {
-        WebSocket.sendCommand(message, session);
+        try {
+            session.getRemote().sendString(message);
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendMessage(String type, List<String> message) {
         for (String s : message) {
-            WebSocket.sendCommand("type:" + type + " " + s, session);
+            sendMessage("type:" + type + " " + s);
         }
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
     }
 
     public void updatePermissions(List<String> permissions) {
         this.permissions = permissions;
     }
 
-    public String getName() {
-        return name;
+    public void changeConnection(boolean changeConnection) {
+        this.changeConnection = changeConnection;
     }
 
-    public InetAddress getAddress() {
-        return session.getRemoteAddress().getAddress();
-    }
-
-    public Session getSession() {
-        return session;
-    }
-
-    public boolean hasPermission(String permission) {
-        return permissions.contains(permission);
-    }
+    public String getName() {return name;}
+    public InetAddress getAddress() {return session.getRemoteAddress().getAddress();}
+    public Session getSession() {return session;}
+    public boolean hasPermission(String permission) {return permissions.contains(permission);}
+    public boolean isChangingConnection() {return changeConnection;}
 
 }

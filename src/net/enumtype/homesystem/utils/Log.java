@@ -7,38 +7,46 @@ import java.io.PrintWriter;
 
 public class Log {
 	
-	private static File latest;
-	private static File log;
-	private static File datafolder;
+	private File latest;
+	private File log;
+	private File dataFolder;
+
+	public Log() {
+		try {
+			init();
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
-	public static void initLog() throws IOException{
-		datafolder = new File("logs");
-		if(!datafolder.exists()) if(!datafolder.mkdir()) throw new IOException("Cannot create directory!");
+	public void init() throws IOException{
+		dataFolder = new File("logs");
+		if(!dataFolder.exists()) if(!dataFolder.mkdir()) throw new IOException("Cannot create directory!");
 		
-		latest = new File(datafolder + "//latest.log");
+		latest = new File(dataFolder + "//latest.log");
 
 		if(latest.exists()) if(!latest.delete()) throw new IOException("Cannot delete file!");
 		
-		log = new File(datafolder + "//" + Methods.getDate() + ".log");
+		log = new File(dataFolder + "//" + Methods.getDate() + ".log");
 		if(log.exists()) {
 			for(int i = 0; log.exists(); i++) {
-				log = new File(datafolder + "//" + Methods.getDate() + "." + i + ".log");
+				log = new File(dataFolder + "//" + Methods.getDate() + "." + i + ".log");
 			}
 		}
 	}
 	
-	public static void write(String output, boolean isNextLine) {
-		if(latest != null && log != null && datafolder != null) {
+	public void write(String output, boolean isNextLine) {
+		if(latest != null && log != null && dataFolder != null) {
 			try {
-				PrintWriter latestout = new PrintWriter(new FileWriter(latest, true), true);
+				PrintWriter latestOut = new PrintWriter(new FileWriter(latest, true), true);
 				PrintWriter logout = new PrintWriter(new FileWriter(log, true), true);
-				latestout.write(output + "\r\n");
+				latestOut.write(output + "\r\n");
 				logout.write(output + "\r\n");
 				System.out.println(output);
 				
 				if(!isNextLine) System.out.print(">");
-				
-				latestout.close();
+
+				latestOut.close();
 				logout.close();
 			} catch (IOException e) {
 				e.printStackTrace();

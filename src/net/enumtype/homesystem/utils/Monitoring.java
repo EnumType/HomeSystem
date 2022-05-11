@@ -1,4 +1,4 @@
-package net.enumtype.homesystem.monitoring;
+package net.enumtype.homesystem.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,16 +9,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.enumtype.homesystem.utils.Data;
-import net.enumtype.homesystem.utils.Log;
-import net.enumtype.homesystem.utils.Methods;
+import net.enumtype.homesystem.main.Main;
 
 public class Monitoring {
 	
 	private final Map<String, String> errors;
+	private final Log log;
 
 	public Monitoring() {
 		errors = new HashMap<>();
+		this.log = Main.getLog();
 	}
 
 	public Map<String, String> getErrors() {return errors;}
@@ -38,7 +38,7 @@ public class Monitoring {
 			reader.close();
 		}catch(IOException e) {
 			e.printStackTrace();
-			Log.write(Methods.createPrefix() + "Error in Monitoring(42): " + e.getMessage(), false);
+			log.write(Methods.createPrefix() + "Error in Monitoring(42): " + e.getMessage(), false);
 		}
 		
 		return list;
@@ -46,11 +46,10 @@ public class Monitoring {
 	
 	public boolean isXmlRpcReachable(int timeout) {
 		try {
-			String host = Data.xmlrpcAddress;
-			return InetAddress.getByName(host).isReachable(timeout);
+			return InetAddress.getByName(Main.getData().getXmlRpcAddress()).isReachable(timeout);
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.write(Methods.createPrefix() + "Error in Monitoring(): " + e.getMessage(), false);
+			log.write(Methods.createPrefix() + "Error in Monitoring(): " + e.getMessage(), false);
 		}
 		return false;
 	}

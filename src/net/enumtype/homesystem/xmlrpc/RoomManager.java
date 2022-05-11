@@ -14,6 +14,12 @@ import java.util.Map;
 public class RoomManager {
 
     private List<Room> rooms = new ArrayList();
+    private final Log log;
+
+    public RoomManager() {
+        this.log = Main.getLog();
+        load();
+    }
 
     public void load() {
         try {
@@ -23,7 +29,7 @@ public class RoomManager {
 
             if(rooms != null) rooms.clear();
             if(!file.exists()) {
-                Log.write(Methods.createPrefix() + "Creating Rooms.yml...", true);
+                log.write(Methods.createPrefix() + "Creating Rooms.yml...", true);
                 InputStream resource = Main.class.getResourceAsStream("/Rooms.yml");
                 Yaml in = new Yaml();
                 data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) in.load(resource);
@@ -37,14 +43,14 @@ public class RoomManager {
                 out.dump(data, writer);
             }
 
-            Log.write(Methods.createPrefix() + "Loading Rooms.yml...", true);
+            log.write(Methods.createPrefix() + "Loading Rooms.yml...", true);
             FileInputStream in = new FileInputStream(file);
             Yaml yaml = new Yaml();
             data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) yaml.load(in);
             loadRooms(data);
         }catch(IOException e) {
             e.printStackTrace();
-            Log.write(Methods.createPrefix() + "Error in RoomManager(53): " + e.getMessage(), false);
+            log.write(Methods.createPrefix() + "Error in RoomManager(53): " + e.getMessage(), false);
         }
     }
 
@@ -66,14 +72,8 @@ public class RoomManager {
         return null;
     }
 
-    public List<String> getRooms() {
-        final List<String> list = new ArrayList<>();
-
-        for(Room room : rooms) {
-            list.add(room.getName());
-        }
-
-        return list;
+    public List<Room> getRooms() {
+        return rooms;
     }
 
 }

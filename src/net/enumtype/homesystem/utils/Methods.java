@@ -25,7 +25,7 @@ import org.json.simple.parser.ParseException;
 import net.sf.image4j.codec.ico.ICOEncoder;
 
 public class Methods {
-	
+
 	public static String createPrefix() {
 		System.out.println();
 		return "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] ";
@@ -40,7 +40,7 @@ public class Methods {
 	}
 	
 	public static void extractWebsite() throws IOException {
-		Log.write(createPrefix() + "Extracting Website-Data...", true);
+		Main.getLog().write(createPrefix() + "Extracting Website-Data...", true);
 		
 		File path = new File("HTTP");
 		File faviconICO = new File(path + "//favicon.ico");
@@ -61,8 +61,8 @@ public class Methods {
 		writeResources(index, "/HTML/index.php", false, "php");
 		writeResources(home, "/HTML/home.php", false, "php");
 		writeResources(style, "/HTML/style.css", false, "css");
-		
-		Log.write(createPrefix() + "Extracted Website-Data", true);
+
+		Main.getLog().write(createPrefix() + "Extracted Website-Data", true);
 	}
 	
 	public static void writeResources(File file, String resource, boolean image, String format) {
@@ -89,7 +89,7 @@ public class Methods {
 			}
 		}catch(IOException e) {
 			e.printStackTrace();
-			Log.write(createPrefix() + "Error in Methods(117): " + e.getMessage(), false);
+			Main.getLog().write(createPrefix() + "Error in Methods(117): " + e.getMessage(), false);
 		}
 	}
 	
@@ -97,30 +97,30 @@ public class Methods {
 		int wait = 2;
 		new Thread(() -> {
 			try {
-				while(true) {
+				while (true) {
 					String url = "https://api.github.com/repos/TheJavaException/HomeSystem/releases/latest";
 					JSONParser parser = new JSONParser();
 					URL github = new URL(url);
 					URLConnection con = github.openConnection();
 					HttpsURLConnection https = (HttpsURLConnection) con;
-					
-					if(https.getResponseCode() == 200) {
+
+					if (https.getResponseCode() == 200) {
 						BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-						
+
 						String line;
-						while((line = in.readLine()) != null) {
+						while ((line = in.readLine()) != null) {
 							JSONObject object = (JSONObject) parser.parse(line);
 							String tag = object.get("tag_name").toString();
 
-							if(!Data.version.equalsIgnoreCase(tag) && !tag.equalsIgnoreCase("beta")) {
-								Log.write(Methods.createPrefix() + "Version " + tag + " is now available. Downloading...", true);
-								
+							if (!Main.getData().getVersion().equalsIgnoreCase(tag) && !tag.equalsIgnoreCase("beta")) {
+								Main.getLog().write(Methods.createPrefix() + "Version " + tag + " is now available. Downloading...", true);
+
 								String[] cmd = {"git", "clone",
-												"https://github.com/TheJavaException/HomeSystem",
-												"HomeSystem-" + tag};
+										"https://github.com/TheJavaException/HomeSystem",
+										"HomeSystem-" + tag};
 								Process p = Runtime.getRuntime().exec(cmd);
 								p.waitFor();
-								Log.write("Finished downloading of Version " + tag, false);
+								Main.getLog().write("Finished downloading of Version " + tag, false);
 							}
 						}
 						in.close();
@@ -129,7 +129,7 @@ public class Methods {
 				}
 			}catch(IOException | ParseException | InterruptedException e) {
 				e.printStackTrace();
-				Log.write(createPrefix() + "Error in Methods(159): " + e.getMessage(), false);
+				Main.getLog().write(createPrefix() + "Error in Methods(159): " + e.getMessage(), false);
 			}
 		}).start();
 	}

@@ -1,6 +1,5 @@
 package net.enumtype.homesystem.server;
 
-import net.enumtype.homesystem.websocket.WebSocket;
 import net.enumtype.homesystem.main.Main;
 import net.enumtype.homesystem.utils.Log;
 import net.enumtype.homesystem.utils.Methods;
@@ -20,6 +19,17 @@ public class ClientManager {
     private final Map<String, String> userData = new HashMap<>();
     private final Map<String, List<String>> userPermissions = new HashMap<>();
     private final List<Client> clients = new ArrayList<>();
+    private final Log log;
+
+    public ClientManager() {
+        this.log = Main.getLog();
+
+        try {
+            load();
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void load() throws IOException {
         loadUserData();
@@ -92,7 +102,7 @@ public class ClientManager {
 
         if(!userPermissions.isEmpty()) userPermissions.clear();
         if(!file.exists()) {
-            Log.write(Methods.createPrefix() + "Creating Permissions.yml...", true);
+            log.write(Methods.createPrefix() + "Creating Permissions.yml...", true);
             InputStream resource = Main.class.getResourceAsStream("/Permissions.yml");
             Yaml in = new Yaml();
             Map<String, List<String>> map = (Map<String, List<String>>) in.load(resource);
@@ -106,7 +116,7 @@ public class ClientManager {
             out.dump(map, writer);
         }
 
-        Log.write(Methods.createPrefix() + "Loading Permissions.yml...", true);
+        log.write(Methods.createPrefix() + "Loading Permissions.yml...", true);
         Yaml yaml = new Yaml();
         FileInputStream io = new FileInputStream(new File("Permissions.yml"));
 
@@ -116,7 +126,7 @@ public class ClientManager {
     }
 
     public void writeUserPerm() throws IOException {
-        Log.write(Methods.createPrefix() + "Saving Permissions.yml...", true);
+        log.write(Methods.createPrefix() + "Saving Permissions.yml...", true);
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);
@@ -124,19 +134,6 @@ public class ClientManager {
         Yaml yaml = new Yaml(options);
         FileWriter writer = new FileWriter("Permissions.yml");
         yaml.dump(userPermissions, writer);
-    }
-
-    public boolean verifyLoginData(InetAddress address, String username, String password) {
-        if(userData.containsKey(username) && userData.get(username).equals(password)) {
-            Log.write(Methods.createPrefix() + "User '" + username + "' logged in with IP " + address.toString(), false);
-            return true;
-        }else {
-            Log.write(Methods.createPrefix() + "User tried to login:", true);
-            Log.write(Methods.createPrefix() + "USERNAME: " + username, true);
-            Log.write(Methods.createPrefix() + "IPADDRESS: " + address.toString(), true);
-            Log.write("", false);
-            return false;
-        }
     }
 
     public void loginClient(Session session, String username, String password) {
@@ -149,8 +146,8 @@ public class ClientManager {
 
     public void logoutClient(Client client) {
         clients.remove(client);
-        WebSocket.closeConnection(client.getSession());
-        Log.write(Methods.createPrefix() + "User '" + client.getName() + "' logged out", false);
+        client.getSession().close();
+        log.write(Methods.createPrefix() + "User '" + client.getName() + "' logged out", false);
     }
 
     public void addPermission(String username, String permission) {
@@ -184,6 +181,25 @@ public class ClientManager {
     public boolean isLoggedIn(String username) {
         for(Client client : clients) if(client.getName().equals(username)) return true;
         return false;
+    }
+
+    public boolean verifyLoginData(InetAddress address, String username, String password) {
+        if(userData.containsKey(username) && userData.get(username).equals(password)) {
+            log.write(Methods.createPrefix() + "User '" + username + "' logged in with IP " + address.toString(), false);
+            return true;
+        }else {
+            log.write(Methods.createPrefix() + "User tried to login:", true);
+            log.write(Methods.createPrefix() + "USERNAME: " + username, true);
+            log.write(Methods.createPrefix() + "IPADDRESS: " + address.toString(), true);
+            log.write("", false);
+            return false;
+        }
+    }
+
+    public boolean isChangingConnection(Session session) {
+        if(!isLoggedIn(session)) return false;
+
+        return getClient(session).isChangingConnection();
     }
 
     public Client getClient(Session session) {
