@@ -3,6 +3,7 @@ package net.enumtype.homesystem.server;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.enumtype.homesystem.Main;
@@ -26,13 +27,11 @@ public class Command {
 				|| command.startsWith("connect")) {
 			final Client client = !(command.startsWith("login") || command.startsWith("connect")) ?
 					clientManager.getClient(address) : new Client(session, "", null);
-			String[] args;
+			String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
+			command = command.split(" ")[0];
 
-			switch (command.split(" ")[0]) {
+			switch (command.toLowerCase()) {
 				case "login":
-					command = command.replace("login ", "");
-					args = command.split(" ");
-
 					if(args.length == 2) {
 						String user = args[0];
 						String pass = args[1];
@@ -41,10 +40,6 @@ public class Command {
 					}
 					break;
 				case "logout":
-					command = command.replace("logout ", "");
-
-					args = command.split(" ");
-
 					if(args.length == 1) {
 						clientManager.logoutClient(client);
 					}
@@ -53,13 +48,9 @@ public class Command {
 					clientManager.getClient(session).changeConnection(true);
 					break;
 				case "xmlrpc":
-					command = command.replaceFirst("xmlrpc ", "");
 					XmlRpcCommand.check(client, command);
 					break;
 				case "addperm":
-					command = command.replaceFirst("addperm ", "");
-					args = command.split(" ");
-
 					if(args.length == 2) {
 						String user = args[0];
 						String perm = args[1];
@@ -91,9 +82,10 @@ public class Command {
 class XmlRpcCommand {
 	public static void check(Client client, String command) throws UnknownCommandException {
 		final RoomManager roomManager = Main.getRoomManager();
-		String[] args;
+		String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
+		command = command.split(" ")[0];
 
-		switch (command.split(" ")[0].toLowerCase()) {
+		switch (command.toLowerCase()) {
 			case "getrooms":
 				final List<String> rooms = new ArrayList<>();
 
@@ -102,7 +94,6 @@ class XmlRpcCommand {
 				client.sendMessage("rooms", rooms);
 				break;
 			case "getdevices":
-				args = command.replaceFirst("getdevices ", "").split(" ");
 				if(args.length == 1) {
 					String roomName = args[0];
 
@@ -116,8 +107,6 @@ class XmlRpcCommand {
 				}else client.sendMessage("failure");
 				break;
 			case "getdevicetype":
-				args = command.replaceFirst("getdevicetype ", "").split(" ");
-
 				if(args.length == 2) {
 					String roomName = args[0];
 					String deviceName = args[1];
@@ -135,8 +124,6 @@ class XmlRpcCommand {
 				}else client.sendMessage("failure");
 				break;
 			case "getdevicestate":
-				args = command.replaceFirst("getdevicestate ", "").split(" ");
-
 				if(args.length == 2) {
 					final String roomName = args[0];
 					final String deviceName = args[1];
@@ -153,8 +140,6 @@ class XmlRpcCommand {
 				}else client.sendMessage("failure");
 				break;
 			case "setdevice":
-				args = command.replaceFirst("setdevice ", "").split(" ");
-
 				if(args.length == 3) {
 					String roomName = args[0];
 					String deviceName = args[1];
@@ -201,12 +186,13 @@ class MonitoringCommand {
 
 class ConsoleCommand {
 	public static void check(String command) {
-		final String[] args = command.split(" ");
 		final ClientManager clientManager = Main.getClientManager();
 		final Log log = Main.getLog();
+		final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
+		command = command.split(" ")[0];
 
 		try {
-			switch (args[0]) {
+			switch (command.toLowerCase()) {
 				case "help":
 					printHelp();
 					break;
@@ -217,24 +203,24 @@ class ConsoleCommand {
 					log.write("Current version of Home-System: " + Main.getData().getVersion(), false, true);
 					break;
 				case "addperm":
-					if(args.length != 3) {
+					if(args.length != 2) {
 						System.out.println("Usage: >addperm <Username> <Permission>");
 						break;
 					}
-					clientManager.addPermission(args[1], args[2]);
-					log.write("Added permission '" + args[1] + "' to user '" + args[2] + "'.", false, true);
+					clientManager.addPermission(args[0], args[1]);
+					log.write("Added permission '" + args[1] + "' to user '" + args[0] + "'.", false, true);
 					break;
 				case "removeperm":
-					if(args.length == 3) {
-						if(clientManager.removePermission(args[1], args[2])) {
-							log.write("Removed '" + args[2] + "' from user '" + args[1] + "'.", false, true);
-						}else log.write("Cannot remove '" + args[2] + "' from user '" + args[1] + "'.", false, true);
+					if(args.length == 2) {
+						if(clientManager.removePermission(args[0], args[1])) {
+							log.write("Removed '" + args[1] + "' from user '" + args[0] + "'.", false, true);
+						}else log.write("Cannot remove '" + args[1] + "' from user '" + args[0] + "'.", false, true);
 					}else System.out.println("Usage: >removeperm <Username> <Permission>");
 					break;
 				case "adduser":
-					if(args.length == 3) {
-						clientManager.registerUser(args[1], Methods.sha512(args[2]));
-						log.write("Registered user '" + args[1] + "'.", false, true);
+					if(args.length == 2) {
+						clientManager.registerUser(args[0], Methods.sha512(args[1]));
+						log.write("Registered user '" + args[0] + "'.", false, true);
 					}else System.out.println("Usage: >adduser <Username> <Password>");
 				case "reload":
 					executeReload();
