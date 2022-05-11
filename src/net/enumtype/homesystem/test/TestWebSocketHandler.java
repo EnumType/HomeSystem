@@ -23,12 +23,7 @@ public class TestWebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-        try {
-            System.out.println(message);
-            session.getRemote().sendString("notloggedin");
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println(message);
     }
 
 }
