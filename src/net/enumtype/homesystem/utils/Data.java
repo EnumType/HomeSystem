@@ -45,7 +45,7 @@ public class Data {
 					final String [] args = line.split(" ");
 					if(args.length < 1) continue;
 
-					switch (args[0]) {
+					switch (args[0].replaceAll(":", "")) {
 						case "XmlRpc-Address":
 							xmlRpcAddress = args[1];
 							break;
