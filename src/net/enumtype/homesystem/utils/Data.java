@@ -84,6 +84,7 @@ public class Data {
 							break;
 						case "PrintStackTraces":
 							printStackTraces = Boolean.parseBoolean(args[1]);
+							break;
 						default:
 							log.write("Unknown config parameter '" + line + "'!", false, false);
 					}

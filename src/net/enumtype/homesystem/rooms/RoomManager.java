@@ -54,11 +54,10 @@ public class RoomManager {
 
     private void loadRooms(Map<Object, Map<Object, Map<Object, Map<Object, Object>>>> data) {
         for(Object name : data.keySet()) {
-            System.out.println(data.get(name).get("Permission").toString());
+            System.out.println(data.get(name).get("Permission").entrySet().iterator().next().getKey());
             Room room = new Room(name.toString(),
-                    data.get(name).get("Permission").toString(),
-                    data.get(name)
-                            .get("Devices"));
+                    data.get(name).get("Permission").entrySet().iterator().next().getKey().toString(),
+                    data.get(name).get("Devices"));
             rooms.add(room);
         }
     }

@@ -1,7 +1,6 @@
 XmlRpc-Address: 127.0.0.1
 XmlRpc-Port: 2001
 HmIP-Port: 2010
-Server-Port: 5000
 Resources-Dir: resources
 WebSocket-Http: 8000
 WebSocket-Https: 8001
