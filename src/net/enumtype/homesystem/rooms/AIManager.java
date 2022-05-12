@@ -1,6 +1,7 @@
 package net.enumtype.homesystem.rooms;
 
 import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.utils.AIException;
 import net.enumtype.homesystem.utils.Data;
 import net.enumtype.homesystem.utils.Log;
 import net.enumtype.homesystem.utils.Methods;

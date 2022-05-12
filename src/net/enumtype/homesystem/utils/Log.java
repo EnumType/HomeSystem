@@ -40,7 +40,7 @@ public class Log {
 	}
 
 	public void write(String output, boolean isNextLine, boolean prefix) {
-		if(prefix) output = "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] " + output;
+		if(prefix) output = createPrefix() + output;
 
 		if(latest != null && log != null && dataFolder != null) {
 			try {
@@ -64,12 +64,17 @@ public class Log {
 	}
 
 	public void writeError(Exception e) {
-		final int index = e.getStackTrace().length - 1;
-		final String className = e.getStackTrace()[index].getClassName();
-		final int line = e.getStackTrace()[index].getLineNumber();
+		final StackTraceElement[] trace = e.getStackTrace();
+		final int index = trace.length - 1;
+		final String className = trace[index].getClassName();
+		final int line = trace[index].getLineNumber();
 		write(e.getClass().getSimpleName() + " in " + className.substring(className.lastIndexOf('.') + 1) +
 				"(" + line + "): " + e.getMessage(), false, true);
-		if(Main.getData().printStackTraces()) e.printStackTrace();
+
+		if(Main.getData().printStackTraces()) {
+			write(e.toString(), true, false);
+			for(int i = 0; i < trace.length; i++) write("    " + trace[i].toString(), (i + 1 != trace.length), true);
+		}
 	}
 
 	public String createPrefix() {

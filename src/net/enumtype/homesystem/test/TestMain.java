@@ -1,5 +1,7 @@
 package net.enumtype.homesystem.test;
 
+import net.enumtype.homesystem.utils.Log;
+
 public class TestMain {
 
     public static final String SALT = "hsnRr4UKMuTsfXHuXQ96NBqJpuJNp49h";

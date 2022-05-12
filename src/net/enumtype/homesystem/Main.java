@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import net.enumtype.homesystem.rooms.AIManager;
 import net.enumtype.homesystem.server.Command;
+import net.enumtype.homesystem.server.WebSocketServer;
 import net.enumtype.homesystem.utils.*;
 import net.enumtype.homesystem.server.ClientManager;
 import net.enumtype.homesystem.rooms.RoomManager;
@@ -26,7 +27,7 @@ public class Main {
 		try {
 			log = new Log();
 			data = new Data();
-			data.setVersion("v1.0.9-Beta-7");
+			data.setVersion("v1.0.9-Beta-8");
 			log.write("loading libraries, please wait...", true, false);
 
 			clientManager = new ClientManager();

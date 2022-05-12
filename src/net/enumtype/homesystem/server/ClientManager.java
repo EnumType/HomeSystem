@@ -94,7 +94,7 @@ public class ClientManager {
 
         userData.remove(username);
         userPermissions.remove(username);
-        if(isLoggedIn(username)) logoutClient(getClient(username));
+        if(isLoggedIn(username)) getClient(username).logout();
         writeUserPerm(false);
 
         return true;
@@ -140,20 +140,6 @@ public class ClientManager {
         yaml.dump(userPermissions, writer);
     }
 
-    public void loginClient(Session session, String username, String password) {
-        final Client client = new Client(session, username, userPermissions.containsKey(username) ? userPermissions.get(username) : new ArrayList<>());
-        if(verifyLoginData(session.getRemoteAddress().getAddress(), username, password)) {
-            clients.add(client);
-            client.sendMessage("verifylogin " + client.getName());
-        }else client.sendMessage("wrongdata");
-    }
-
-    public void logoutClient(Client client) {
-        clients.remove(client);
-        client.getSession().close();
-        log.write("User '" + client.getName() + "' logged out", false, true);
-    }
-
     public void addPermission(String username, String permission) {
         if(!userPermissions.containsKey(username)) {
             final List<String> list = new ArrayList<>();
@@ -162,6 +148,18 @@ public class ClientManager {
         }else userPermissions.get(username).add(permission);
 
         if(getClient(username) != null) getClient(username).updatePermissions(userPermissions.get(username));
+    }
+
+    public void addClient(Client client) {
+        clients.add(client);
+    }
+
+    public void removeClient(Client client) {
+        clients.remove(client);
+    }
+
+    public void logoutAll() {
+        for(Client client : clients) client.logout();
     }
 
     public boolean removePermission(String username, String permission) {
@@ -187,23 +185,15 @@ public class ClientManager {
         return false;
     }
 
-    public boolean verifyLoginData(InetAddress address, String username, String password) {
-        if(userData.containsKey(username) && userData.get(username).equals(password)) {
-            log.write("User '" + username + "' logged in with IP " + address.toString(), false, true);
-            return true;
-        }else {
-            log.write("User tried to login:", true, true);
-            log.write("USERNAME: " + username, true, true);
-            log.write("IPADDRESS: " + address.toString(), true, true);
-            log.write("", false, false);
-            return false;
-        }
-    }
-
     public boolean isChangingConnection(Session session) {
         if(!isLoggedIn(session)) return false;
 
         return getClient(session).isChangingConnection();
+    }
+
+    public boolean isDataCorrect(String username, String password) {
+        if(!userData.containsKey(username)) return false;
+        return userData.get(username).equals(password);
     }
 
     public Client getClient(Session session) {

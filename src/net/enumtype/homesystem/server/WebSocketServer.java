@@ -1,12 +1,11 @@
-package net.enumtype.homesystem.utils;
+package net.enumtype.homesystem.server;
 
 import java.io.File;
 import java.io.IOException;
 
 import net.enumtype.homesystem.Main;
-import net.enumtype.homesystem.server.Client;
-import net.enumtype.homesystem.server.ClientManager;
-import net.enumtype.homesystem.server.Command;
+import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.UnknownCommandException;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -104,14 +103,14 @@ public class WebSocketServer {
 		final ClientManager clientManager = Main.getClientManager();
 
 		if(clientManager.isLoggedIn(session) && !clientManager.isChangingConnection(session))
-			clientManager.logoutClient(clientManager.getClient(session));
+			clientManager.getClient(session).logout();
 	}
 
 	@OnWebSocketError
 	public void onError(Session session, Throwable t) {
 		ClientManager clientManager = Main.getClientManager();
 
-		if(clientManager.isLoggedIn(session)) clientManager.logoutClient(clientManager.getClient(session));
+		if(clientManager.isLoggedIn(session)) clientManager.getClient(session).logout();
 	}
 
 	@OnWebSocketConnect

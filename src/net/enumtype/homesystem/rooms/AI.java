@@ -1,6 +1,7 @@
 package net.enumtype.homesystem.rooms;
 
 import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.utils.AIException;
 import net.enumtype.homesystem.utils.Log;
 
 import java.io.File;
@@ -37,7 +38,7 @@ public class AI {
         }).start();
     }
 
-    public float predict(long time, double light, double temperature, double special) throws AIException{
+    public float predict(long time, double light, double temperature, double special) throws AIException {
         if(!modelTemplate.exists()) throw new AIException("No model template found!");
 
         try {

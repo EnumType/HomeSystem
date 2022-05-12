@@ -1,4 +1,4 @@
-package net.enumtype.homesystem.rooms;
+package net.enumtype.homesystem.utils;
 
 public class AIException extends Exception {
 

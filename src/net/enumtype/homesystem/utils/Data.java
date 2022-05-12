@@ -20,6 +20,7 @@ public class Data {
 	private int wsPort;
 	private int wssPort;
 	private int aiInterval;
+	private boolean printStackTraces;
 
 	public Data() {
 		this.aiBrightSensor = new Device();
@@ -81,6 +82,8 @@ public class Data {
 						case "HashSalt":
 							hashSalt = args[1];
 							break;
+						case "PrintStackTraces":
+							printStackTraces = Boolean.parseBoolean(args[1]);
 						default:
 							log.write("Unknown config parameter '" + line + "'!", false, false);
 					}
@@ -123,6 +126,6 @@ public class Data {
 	public int getAiInterval() {return aiInterval;}
 	public int getXmlRpcPort() {return xmlRpcPort;}
 	public int getHmIpPort() {return hmIpPort;}
-	public boolean printStackTraces() {return true;} //for debugging only
+	public boolean printStackTraces() {return printStackTraces;} //for debugging only
 
 }

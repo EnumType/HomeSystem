@@ -1,7 +1,6 @@
 package net.enumtype.homesystem.server;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,30 +18,24 @@ public class Command {
 		if(command.startsWith("console") && session == null) ConsoleCommand.check(command.replace("console", ""));
 		if(session == null) return;
 
-		final InetAddress address = session.getRemoteAddress().getAddress();
 		final ClientManager clientManager = Main.getClientManager();
-		command = command.toLowerCase();
-		if(clientManager.isLoggedIn(address)
-				|| command.startsWith("login") || command.startsWith("isonline")
-				|| command.startsWith("connect")) {
-			final Client client = !(command.startsWith("login") || command.startsWith("connect")) ?
-					clientManager.getClient(address) : new Client(session, "", null);
-			String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
+		if(clientManager.isLoggedIn(session) || command.startsWith("login") || command.startsWith("connect")) {
+			final Client client = !command.toLowerCase().startsWith("login") ?
+					clientManager.getClient(session) : new Client(session, "", "");
+			final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
 			command = command.split(" ")[0];
 
-			switch (command.toLowerCase()) {
+					switch (command.toLowerCase()) {
 				case "login":
 					if(args.length == 2) {
-						String user = args[0];
-						String pass = args[1];
-
-						clientManager.loginClient(session, user, pass);
+						client.setLoginData(args[0], args[1]);
+						if(client.login()) {
+							client.sendMessage("verifylogin " + client.getName());
+						}else client.sendMessage("wrongdata");
 					}
 					break;
 				case "logout":
-					if(args.length == 1) {
-						clientManager.logoutClient(client);
-					}
+					client.logout();
 					break;
 				case "changeconnection":
 					clientManager.getClient(session).changeConnection(true);
@@ -51,16 +44,21 @@ public class Command {
 					XmlRpcCommand.check(client, command);
 					break;
 				case "addperm":
-					if(args.length == 2) {
-						String user = args[0];
-						String perm = args[1];
-						clientManager.addPermission(user, perm);
+					if(!client.hasPermission("system.permission")) {
+						client.sendMessage("noperm");
+						break;
 					}
+					if(args.length == 2) clientManager.addPermission(args[0], args[1]);
 					break;
 				case "getusername":
 					client.sendMessage("user:" + client.getName());
 					break;
 				case "monitoring":
+					if(!client.hasPermission("system.monitoring")) {
+						client.sendMessage("noperm");
+						break;
+					}
+
 					MonitoringCommand.check(command.replaceFirst("monitoring ", ""), client);
 					break;
 				default:
@@ -68,8 +66,8 @@ public class Command {
 			}
 
 		}else {
-			Main.getLog().write("Client with InetAddress: " + address + " tried to execute command: " + command,
-								false, true);
+			Main.getLog().write("Client with InetAddress: " + session.getRemoteAddress().toString() +
+							" tried to execute command: " + command, false, true);
 			try {
 				session.getRemote().sendString("notloggedin");
 			}catch(IOException e) {
@@ -82,7 +80,7 @@ public class Command {
 class XmlRpcCommand {
 	public static void check(Client client, String command) throws UnknownCommandException {
 		final RoomManager roomManager = Main.getRoomManager();
-		String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
+		final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
 		command = command.split(" ")[0];
 
 		switch (command.toLowerCase()) {
@@ -168,19 +166,24 @@ class XmlRpcCommand {
 }
 
 class MonitoringCommand {
-	public static void check(String command, Client client) {
-		if(client.hasPermission("system.monitoring")) {
-			final Monitoring monitoring = Main.getMonitoring();
+	public static void check(String command, Client client) throws UnknownCommandException {
+		final Monitoring monitoring = Main.getMonitoring();
+		final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
+		command = command.split(" ")[0];
 
-			if (command.startsWith("isXmlRpcReachable")) {
-				command = command.replace("isXmlRpcReachable", "");
-				String[] args = command.split(" ");
-				if (args.length == 1) {
-					int timeout = Integer.parseInt(args[0]);
-					client.sendMessage("xmlrpc " + monitoring.isXmlRpcReachable(timeout));
-				}
-			}
-		}else client.sendMessage("noperm");
+		switch (command.toLowerCase()) {
+			case "isxmlrpcreachable":
+				if(args.length == 1) {
+					client.sendMessage("xmlrpcreachable " + monitoring.isXmlRpcReachable(Integer.parseInt(args[0])));
+				}else client.sendMessage("failure");
+
+				break;
+			case "getlog":
+				client.sendMessage("log", monitoring.getLog());
+				break;
+			default:
+				throw new UnknownCommandException(client, command);
+		}
 	}
 }
 
@@ -222,6 +225,12 @@ class ConsoleCommand {
 						clientManager.registerUser(args[0], Methods.sha512(args[1]));
 						log.write("Registered user '" + args[0] + "'.", false, true);
 					}else System.out.println("Usage: >adduser <Username> <Password>");
+				case "removeuser":
+					if(args.length == 1) {
+						if(clientManager.removeUser(args[0])) {
+							log.write("Removed user '" + args[0] + "'!", false, true);
+						}else log.write("User '" + args[0] + "' does not exist!", false, true);
+					}else System.out.println("Usage: >removeuser <Username>");
 				case "reload":
 					executeReload();
 					break;
@@ -231,6 +240,8 @@ class ConsoleCommand {
 				case "train now":
 					Main.getAiManager().trainAll();
 					break;
+				default:
+					throw new UnknownCommandException(command);
 			}
 		}catch(Exception e) {
 			log.writeError(e);
@@ -275,6 +286,7 @@ class ConsoleCommand {
 			aiManager.stopPredictions();
 			aiManager.stopAutoTraining();
 			clientManager.writeUserPerm(true);
+			clientManager.logoutAll();
 
 			clientManager.loadUserData();
 			clientManager.loadUserPerm();
