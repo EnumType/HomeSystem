@@ -15,6 +15,8 @@ public class Room {
         this.permission = permission.toString();
 
         for(Object deviceName : deviceData.keySet()) {
+            System.out.println(deviceName);
+            System.out.println(deviceData.get(deviceName));
             devices.add(new Device(deviceName.toString(), deviceData.get(deviceName)));
         }
     }
