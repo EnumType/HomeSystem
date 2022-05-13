@@ -70,6 +70,8 @@ public class AIManager {
         savingTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                log.write("Collecting AI Data");
+                System.out.print(Main.getCommandPrefix());
                 for(Room room : roomManager.getRooms()) {
                     for(Device device : room.getDevices()) {
                         if(!device.collectData()) continue;

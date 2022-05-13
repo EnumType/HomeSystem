@@ -74,11 +74,11 @@ public class Log {
 
 	public void writeError(Throwable t) {
 		final StackTraceElement[] trace = t.getStackTrace();
-		write(t.getClass().getSimpleName() + ": " + t.getMessage());
+		write("\033[0;31m" + t.getClass().getSimpleName() + ": " + t.getMessage());
 
 		write(t.toString());
 		for(StackTraceElement stackTraceElement : trace) write("    " + stackTraceElement.toString());
-		System.out.print("> ");
+		System.out.print("\033[0m" + "> ");
 	}
 
 	public String createPrefix() {
