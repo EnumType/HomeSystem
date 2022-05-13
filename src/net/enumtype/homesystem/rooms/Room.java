@@ -10,9 +10,9 @@ public class Room {
     private final String permission;
     private final List<Device> devices = new ArrayList<>();
 
-    public Room(String name, String permission, Map<Object, Map<Object, Object>> deviceData) {
-        this.name = name;
-        this.permission = permission;
+    public Room(Object name, Object permission, Map<Object, Map<Object, Object>> deviceData) {
+        this.name = name.toString();
+        this.permission = permission.toString();
 
         for(Object deviceName : deviceData.keySet()) {
             devices.add(new Device(deviceName.toString(), deviceData.get(deviceName)));

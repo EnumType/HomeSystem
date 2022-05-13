@@ -56,8 +56,8 @@ public class RoomManager {
         for(Object name : data.keySet()) {
             Object o = data.get(name).get("Devices");
             System.out.println(o);
-            Room room = new Room(name.toString(),
-                    data.get(name).get("Permission").toString(),
+            Room room = new Room(name,
+                    data.get(name).get("Permission"),
                     data.get(name).get("Devices"));
             rooms.add(room);
         }
