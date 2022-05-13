@@ -168,7 +168,6 @@ public class ClientManager {
     }
 
     public void logoutAll() {
-        //for(int i = 0; i < clients.size(); i++) clients.get(i).logout();
         final List<Client> list = new ArrayList<>(clients);
         list.forEach(Client::logout);
     }

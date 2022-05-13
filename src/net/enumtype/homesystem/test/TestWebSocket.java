@@ -1,6 +1,5 @@
 package net.enumtype.homesystem.test;
 
-import net.enumtype.homesystem.utils.Methods;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
