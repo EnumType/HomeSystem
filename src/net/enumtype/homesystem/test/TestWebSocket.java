@@ -5,6 +5,8 @@ import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.StdErrLog;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
@@ -15,8 +17,9 @@ public class TestWebSocket {
 
     public static void start() {
         try {
-            System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
-            System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
+            final StdErrLog logger = new StdErrLog();
+            logger.setLevel(StdErrLog.LEVEL_OFF);
+            Log.setLog(logger);
 
             Server server = new Server();
             server.setHandler(new WebSocketHandler() {
@@ -56,7 +59,7 @@ public class TestWebSocket {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        System.out.println("connect");
+        System.out.println(session.isSecure());
     }
 
     @OnWebSocketMessage

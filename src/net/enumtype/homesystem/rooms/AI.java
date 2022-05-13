@@ -53,7 +53,7 @@ public class AI {
             if (len > 0) {
                 byte[] buf = new byte[len];
                 final int i = modelProcess.getErrorStream().read(buf);
-                log.write("Command error:\t\""+new String(buf)+"\"; i=" + i, false, true);
+                log.write("Command error:\t\""+new String(buf)+"\"; i=" + i);
             }
 
             return modelProcess.exitValue() / 100F;

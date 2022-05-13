@@ -20,7 +20,6 @@ public class Data {
 	private int wsPort;
 	private int wssPort;
 	private int aiInterval;
-	private boolean printStackTraces;
 
 	public Data() {
 		this.aiBrightSensor = new Device();
@@ -34,66 +33,11 @@ public class Data {
 
 	public void loadXmlRpcData() {
 		try {
-			File config = new File("config.txt");
+			File config = new File("config.cfg");
 
-			if(config.exists()) {
-				log.write("Getting Configs...", true, false);
-				BufferedReader reader = new BufferedReader(new FileReader(config));
-				String line;
-
-				while((line = reader.readLine()) != null) {
-					final String [] args = line.split(" ");
-					if(args.length < 1) continue;
-
-					switch (args[0].replaceAll(":", "")) {
-						case "XmlRpc-Address":
-							xmlRpcAddress = args[1];
-							break;
-						case "XmlRpc-Port":
-							xmlRpcPort = Integer.parseInt(args[1]);
-							break;
-						case "HmIP-Port":
-							hmIpPort = Integer.parseInt(args[1]);
-							break;
-						case "Resources-Dir":
-							resourcesDir = args[1];
-							break;
-						case "WebSocket-Http":
-							wsPort = Integer.parseInt(args[1]);
-							break;
-						case "WebSocket-Https":
-							wssPort = Integer.parseInt(args[1]);
-							break;
-						case "WebSocket-Keystore":
-							wsKeystore = args[1];
-							break;
-						case "WebSocket-KeystorePassword":
-							wsKeystorePassword = args[1];
-							break;
-						case "BrightnessSensor":
-							aiBrightSensor.setAddress(args[1]);
-							break;
-						case "BrightnessSensorHmIP":
-							aiBrightSensor.setHmIp(Boolean.parseBoolean(args[1]));
-							break;
-						case "AI-Interval":
-							aiInterval = Integer.parseInt(args[1]);
-							break;
-						case "HashSalt":
-							hashSalt = args[1];
-							break;
-						case "PrintStackTraces":
-							printStackTraces = Boolean.parseBoolean(args[1]);
-							break;
-						default:
-							log.write("Unknown config parameter '" + line + "'!", false, false);
-					}
-				}
-
-				reader.close();
-			}else {
-				log.write("Creating Configs...", true, false);
-				InputStream stream = Main.class.getResourceAsStream("/config.txt");
+			if(!config.exists()) {
+				log.write("Creating Configs...");
+				InputStream stream = Main.class.getResourceAsStream("/config.cfg");
 				BufferedReader in = new BufferedReader(new InputStreamReader(stream));
 				BufferedWriter out = new BufferedWriter(new FileWriter(config));
 
@@ -106,6 +50,58 @@ public class Data {
 				out.close();
 				loadXmlRpcData();
 			}
+
+			log.write("Loading configs");
+			BufferedReader reader = new BufferedReader(new FileReader(config));
+			String line;
+
+			while((line = reader.readLine()) != null) {
+				final String [] args = line.split(" ");
+				if(args.length < 1) continue;
+
+				switch (args[0].replaceAll(":", "")) {
+					case "XmlRpc-Address":
+						xmlRpcAddress = args[1];
+						break;
+					case "XmlRpc-Port":
+						xmlRpcPort = Integer.parseInt(args[1]);
+						break;
+					case "HmIP-Port":
+						hmIpPort = Integer.parseInt(args[1]);
+						break;
+					case "Resources-Dir":
+						resourcesDir = args[1];
+						break;
+					case "WebSocket-Http":
+						wsPort = Integer.parseInt(args[1]);
+						break;
+					case "WebSocket-Https":
+						wssPort = Integer.parseInt(args[1]);
+						break;
+					case "WebSocket-Keystore":
+						wsKeystore = args[1];
+						break;
+					case "WebSocket-KeystorePassword":
+						wsKeystorePassword = args[1];
+						break;
+					case "BrightnessSensor":
+						aiBrightSensor.setAddress(args[1]);
+						break;
+					case "BrightnessSensorHmIP":
+						aiBrightSensor.setHmIp(Boolean.parseBoolean(args[1]));
+						break;
+					case "AI-Interval":
+						aiInterval = Integer.parseInt(args[1]);
+						break;
+					case "HashSalt":
+						hashSalt = args[1];
+						break;
+					default:
+						log.write("Unknown config parameter '" + line + "'!");
+				}
+			}
+
+			reader.close();
 		}catch(IOException | NumberFormatException e) {
 			log.writeError(e);
 		}
@@ -127,6 +123,5 @@ public class Data {
 	public int getAiInterval() {return aiInterval;}
 	public int getXmlRpcPort() {return xmlRpcPort;}
 	public int getHmIpPort() {return hmIpPort;}
-	public boolean printStackTraces() {return printStackTraces;} //for debugging only
 
 }

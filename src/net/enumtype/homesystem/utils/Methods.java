@@ -39,7 +39,7 @@ public class Methods {
 	}
 	
 	public static void extractWebsite() throws IOException {
-		Main.getLog().write("Extracting Website-Data...", true, true);
+		Main.getLog().write("Extracting Website-Data...");
 		
 		File path = new File("HTTP");
 		File faviconICO = new File(path + "//favicon.ico");
@@ -61,7 +61,8 @@ public class Methods {
 		writeResources(home, "/HTML/home.php", false, "php");
 		writeResources(style, "/HTML/style.css", false, "css");
 
-		Main.getLog().write("Extracted Website-Data", true, true);
+		Main.getLog().write("Extracted Website-Data");
+		System.out.print(Main.getCommandPrefix());
 	}
 	
 	public static void writeResources(File file, String resource, boolean image, String format) {
@@ -111,13 +112,13 @@ public class Methods {
 						if (!Main.getData().getVersion().equalsIgnoreCase(tag) && !tag.equalsIgnoreCase("beta")) {
 							if(new File("HomeSystem-" + tag).exists()) continue;
 
-							Main.getLog().write("Version " + tag + " is now available. Downloading...",
-									true, true);
+							Main.getLog().write("Version " + tag + " is now available. Downloading...");
 
 							String[] cmd = {"git", "clone", "https://github.com/EnumType/HomeSystem", "HomeSystem-" + tag};
 							Process p = Runtime.getRuntime().exec(cmd);
 							p.waitFor();
-							Main.getLog().write("Finished downloading of Version " + tag, false, false);
+							Main.getLog().write("Finished downloading of Version " + tag);
+							System.out.print(Main.getCommandPrefix());
 						}
 					}
 					in.close();

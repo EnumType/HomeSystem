@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.utils.Data;
 import net.enumtype.homesystem.utils.Log;
 import net.enumtype.homesystem.utils.UnknownCommandException;
 import org.eclipse.jetty.http.HttpVersion;
@@ -13,6 +14,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.log.StdErrLog;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -30,12 +32,13 @@ public class WebSocketServer {
 	private final Log log;
 	private Server server;
 
-	public WebSocketServer(int httpPort, int httpsPort, String keystoreDir, String keystore, String keystorePassword) {
-		this.httpPort = httpPort;
-		this.httpsPort = httpsPort;
-		this.keystoreDir = keystoreDir;
-		this.keystore = keystore;
-		this.keystorePassword = keystorePassword;
+	public WebSocketServer() {
+		final Data data = Main.getData();
+		this.httpPort = data.getWsPort();
+		this.httpsPort = data.getWssPort();
+		this.keystoreDir = data.getResourcesDir();
+		this.keystore = data.getResourcesDir() + "//" + data.getWsKeystore();
+		this.keystorePassword = data.getWsKeystorePassword();
 		this.log = Main.getLog();
 	}
 
@@ -46,9 +49,11 @@ public class WebSocketServer {
 		if(file.exists() && keystoreFile.exists()) {
 			Thread thread = new Thread(() -> {
 				try {
-					System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
-					System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
-					log.write("Starting WebSocket: Http:" + httpPort + " Https:" + httpsPort, true, true);
+					final StdErrLog logger = new StdErrLog();
+					logger.setLevel(StdErrLog.LEVEL_OFF);
+					org.eclipse.jetty.util.log.Log.setLog(logger);
+
+					log.write("Starting WebSocket: Http:" + httpPort + " Https:" + httpsPort);
 
 					server = new Server();
 					server.setHandler(new WebSocketHandler() {
@@ -79,6 +84,7 @@ public class WebSocketServer {
 					wssConnector.setPort(httpsPort);
 					server.addConnector(wssConnector);
 
+					System.out.print(Main.getCommandPrefix());
 					server.start();
 					server.join();
 				}catch(Exception e) {
@@ -89,7 +95,7 @@ public class WebSocketServer {
 			thread.start();
 		}else {
 			if(!file.exists()) if(!file.mkdir()) throw new IOException("Cannot create directory!");
-			log.write("No Keystore Found! Don't start WebSocket!", false, true);
+			log.write("No Keystore Found! Don't start WebSocket!");
 		}
 	}
 
@@ -108,6 +114,7 @@ public class WebSocketServer {
 
 	@OnWebSocketError
 	public void onError(Session session, Throwable t) {
+		log.writeError(t);
 		ClientManager clientManager = Main.getClientManager();
 
 		if(clientManager.isLoggedIn(session)) clientManager.getClient(session).logout();
@@ -126,12 +133,14 @@ public class WebSocketServer {
 				client.sendMessage("user:" + client.getName());
 			}
 		}catch(IOException e) {
-			Main.getLog().writeError(e);
+			log.writeError(e);
 		}
 	}
 
 	@OnWebSocketMessage
 	public void onMessage(Session session, String message) {
+		if(message.equalsIgnoreCase("isonline")) return;
+
 		try {
 			Command.check(message, session);
 		}catch(UnknownCommandException e) {

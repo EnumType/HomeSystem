@@ -2,6 +2,7 @@ package net.enumtype.homesystem.server;
 
 import net.enumtype.homesystem.Main;
 import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.utils.Methods;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
@@ -57,23 +58,25 @@ public class Client {
 
     public void logout() {
         session.close();
-        Main.getClientManager().removeClient(this);
-        Main.getLog().write("User '" + name + "' logged out", false, true);
+        clientManager.removeClient(this);
+        Main.getLog().write("User '" + name + "' logged out");
+        System.out.print(Main.getCommandPrefix());
     }
 
     public boolean login() {
         final Log log = Main.getLog();
 
+        if(!session.isSecure()) password = Methods.sha512(password);
         if(clientManager.isDataCorrect(name, password)) {
-            log.write("User '" + name + "' logged in with IP " + session.getRemoteAddress().toString(),
-                    false, true);
+            log.write("User '" + name + "' logged in with IP " + session.getRemoteAddress().toString());
+            System.out.print(Main.getCommandPrefix());
             clientManager.addClient(this);
             return true;
         }else {
-            log.write("User tried to login:", true, true);
-            log.write("USERNAME: " + name, true, true);
-            log.write("IPADDRESS: " + session.getRemoteAddress().toString(), true, true);
-            log.write("", false, false);
+            log.write("User tried to login:");
+            log.write("USERNAME: " + name);
+            log.write("IPADDRESS: " + session.getRemoteAddress().toString());
+            System.out.print(Main.getCommandPrefix());
             return false;
         }
     }

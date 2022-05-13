@@ -2,7 +2,6 @@ package net.enumtype.homesystem.rooms;
 
 import net.enumtype.homesystem.Main;
 import net.enumtype.homesystem.utils.AIException;
-import net.enumtype.homesystem.utils.Data;
 import net.enumtype.homesystem.utils.Log;
 import net.enumtype.homesystem.utils.Methods;
 
@@ -21,7 +20,6 @@ public class AIManager {
     private Timer predictionTimer;
     private ScheduledExecutorService trainingScheduler;
     private final Log log;
-    private final Data data;
     private final File aiDir;
     private final File dataDir;
     private final File modelTemplate;
@@ -30,7 +28,6 @@ public class AIManager {
 
     public AIManager() {
         this.log = Main.getLog();
-        this.data = Main.getData();
         this.aiDir = new File("AI");
         this.dataDir = new File(aiDir + "//data");
         this.modelTemplate = new File(aiDir + "//Home-System.py");
@@ -57,7 +54,6 @@ public class AIManager {
             in.close();
             out.close();
         }catch(IOException e) {
-            if(data.printStackTraces()) e.printStackTrace();
             log.writeError(e);
         }
     }
@@ -129,7 +125,7 @@ public class AIManager {
 
     public void startAutoTraining() {
         final ZonedDateTime now = ZonedDateTime.now();
-        trainingScheduler = Executors.newScheduledThreadPool(1);
+        if(trainingScheduler == null) trainingScheduler = Executors.newScheduledThreadPool(1);
         ZonedDateTime nextRun = now.withHour(0).withMinute(0).withSecond(0);
 
         if(now.compareTo(nextRun) > 0) nextRun = nextRun.plusDays(1);
@@ -138,9 +134,24 @@ public class AIManager {
         long initialDelay = duration.getSeconds();
 
         trainingScheduler.scheduleAtFixedRate(() -> {
-            log.write("Starting AI training", false, true);
+            log.write("Starting AI training");
             for(Device device : deviceData.keySet()) device.getAI().train();
         }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+    }
+
+    public void stopDataSaving() {
+        savingTimer.cancel();
+        savingTimer = null;
+    }
+
+    public void stopPredictions() {
+        predictionTimer.cancel();
+        predictionTimer = null;
+    }
+
+    public void stopAutoTraining() {
+        trainingScheduler.shutdown();
+        trainingScheduler = null;
     }
 
     public void trainAll() {
@@ -149,7 +160,7 @@ public class AIManager {
     }
 
     public void saveData() {
-        log.write("Saving AI training data...", true, true);
+        log.write("Saving AI training data...");
         try {
             final RoomManager roomManager = Main.getRoomManager();
 
@@ -169,22 +180,10 @@ public class AIManager {
                     out.close();
                 }
             }
-        log.write("Finished saving", false, true);
+        log.write("Finished saving");
         }catch(IOException e) {
             log.writeError(e);
         }
-    }
-
-    public void stopDataSaving() {
-        savingTimer.cancel();
-    }
-
-    public void stopPredictions() {
-        predictionTimer.cancel();
-    }
-
-    public void stopAutoTraining() {
-        trainingScheduler.shutdownNow();
     }
 
     public File getModelTemplate() {return modelTemplate;}

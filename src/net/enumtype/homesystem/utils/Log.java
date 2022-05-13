@@ -1,7 +1,5 @@
 package net.enumtype.homesystem.utils;
 
-import net.enumtype.homesystem.Main;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -39,8 +37,12 @@ public class Log {
 		}
 	}
 
-	public void write(String output, boolean isNextLine, boolean prefix) {
-		if(prefix) output = createPrefix() + output;
+	public void write(String output) {
+		write(output, true);
+	}
+
+	public void write(String output, boolean printToConsole) {
+		output = createPrefix() + output;
 
 		if(latest != null && log != null && dataFolder != null) {
 			try {
@@ -48,9 +50,7 @@ public class Log {
 				PrintWriter logout = new PrintWriter(new FileWriter(log, true), true);
 				latestOut.write(output + "\r\n");
 				logout.write(output + "\r\n");
-				System.out.println(output);
-				
-				if(!isNextLine) System.out.print(">");
+				if (printToConsole) System.out.println(output);
 
 				latestOut.close();
 				logout.close();
@@ -65,16 +65,20 @@ public class Log {
 
 	public void writeError(Exception e) {
 		final StackTraceElement[] trace = e.getStackTrace();
-		final int index = trace.length - 1;
-		final String className = trace[index].getClassName();
-		final int line = trace[index].getLineNumber();
-		write(e.getClass().getSimpleName() + " in " + className.substring(className.lastIndexOf('.') + 1) +
-				"(" + line + "): " + e.getMessage(), false, true);
+		write(e.getClass().getSimpleName() + ": " + e.getMessage());
 
-		if(Main.getData().printStackTraces()) {
-			write(e.toString(), true, false);
-			for(int i = 0; i < trace.length; i++) write("    " + trace[i].toString(), (i + 1 != trace.length), true);
-		}
+		write(e.toString());
+		for(StackTraceElement stackTraceElement : trace) write("    " + stackTraceElement.toString());
+		System.out.print("> ");
+	}
+
+	public void writeError(Throwable t) {
+		final StackTraceElement[] trace = t.getStackTrace();
+		write(t.getClass().getSimpleName() + ": " + t.getMessage());
+
+		write(t.toString());
+		for(StackTraceElement stackTraceElement : trace) write("    " + stackTraceElement.toString());
+		System.out.print("> ");
 	}
 
 	public String createPrefix() {

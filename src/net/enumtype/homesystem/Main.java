@@ -14,6 +14,7 @@ import net.enumtype.homesystem.rooms.RoomManager;
 
 public class Main {
 
+	private static final String commandPrefix = "> ";
 	private static Thread scanningThread;
 	private static ClientManager clientManager;
 	private static RoomManager roomManager;
@@ -27,15 +28,13 @@ public class Main {
 		try {
 			log = new Log();
 			data = new Data();
-			data.setVersion("v1.0.9-Beta-9");
-			log.write("loading libraries, please wait...", true, false);
+			data.setVersion("v1.0.9-Beta-10");
 
 			aiManager = new AIManager();
 			clientManager = new ClientManager();
 			roomManager = new RoomManager();
 			monitoring = new Monitoring();
-			wsServer = new WebSocketServer(data.getWsPort(), data.getWssPort(), data.getResourcesDir(),
-									data.getResourcesDir() + "//" + data.getWsKeystore(), data.getWsKeystorePassword());
+			wsServer = new WebSocketServer();
 
 			aiManager.startDataSaving(data.getAiInterval());
 			aiManager.startPredictions(data.getAiInterval());
@@ -49,9 +48,11 @@ public class Main {
 				try {
 					scanningThread.interrupt();
 					clientManager.writeUserPerm(true);
+					aiManager.stopDataSaving();
+					aiManager.stopPredictions();
+					aiManager.stopAutoTraining();
 					aiManager.saveData();
 					wsServer.stop();
-					System.out.println();
 				}catch(Exception e) {
 					log.writeError(e);
 				}
@@ -66,13 +67,15 @@ public class Main {
 		scanningThread = new Thread(() -> {
 			while(true) {
 				final Scanner scanner = new Scanner(System.in);
-				final String command = scanner.nextLine().replaceAll(">", "");
+				final String command = scanner.nextLine().replaceAll(commandPrefix, "").toLowerCase();
+				if(!command.startsWith("adduser")) log.write(commandPrefix + command, false);
 				try {
-					Command.check("console" + command.toLowerCase(), null);
+					if(!command.isEmpty()) {
+						Command.check("console" + command, null);
+					}else System.out.print(commandPrefix);
 				}catch(Exception e) {
 					log.writeError(e);
 				}
-				System.out.print(">");
 			}
 		});
 
@@ -86,5 +89,6 @@ public class Main {
 	public static Log getLog() {return log;}
 	public static Data getData() {return data;}
 	public static Thread getScanningThread() {return scanningThread;}
+	public static String getCommandPrefix() {return commandPrefix;}
 	
 }

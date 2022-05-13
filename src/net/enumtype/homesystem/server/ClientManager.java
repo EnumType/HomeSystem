@@ -8,10 +8,8 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 
 public class ClientManager {
 
@@ -62,7 +60,9 @@ public class ClientManager {
         reader.close();
     }
 
-    public void registerUser(String username, String password) throws IOException {
+    public boolean registerUser(String username, String password) throws IOException {
+        if(userData.containsKey(username)) return false;
+
         final PrintWriter out = new PrintWriter(new FileWriter("User-Data//data.txt", true), true);
         out.write("Name: " + username + "\r\n");
         out.write("Password: " + password + "\r\n");
@@ -71,6 +71,7 @@ public class ClientManager {
         userData.put(username, password);
         userPermissions.put(username, new ArrayList<>());
         writeUserPerm(false);
+        return true;
     }
 
     public boolean removeUser(String username) throws IOException {
@@ -102,11 +103,11 @@ public class ClientManager {
 
     @SuppressWarnings("unchecked")
     public void loadUserPerm() throws IOException {
-        File file = new File("Permissions.yml");
+        File file = new File("User-Data//Permissions.yml");
 
         if(!userPermissions.isEmpty()) userPermissions.clear();
         if(!file.exists()) {
-            log.write("Creating Permissions.yml...", true, true);
+            log.write("Creating Permissions.yml...");
             InputStream resource = Main.class.getResourceAsStream("/Permissions.yml");
             Yaml in = new Yaml();
             Map<String, List<String>> map = (Map<String, List<String>>) in.load(resource);
@@ -120,9 +121,9 @@ public class ClientManager {
             out.dump(map, writer);
         }
 
-        log.write("Loading Permissions.yml...", true, true);
+        log.write("Loading Permissions.yml...");
         Yaml yaml = new Yaml();
-        FileInputStream io = new FileInputStream(new File("Permissions.yml"));
+        FileInputStream io = new FileInputStream(new File("User-Data//Permissions.yml"));
 
         Map<Object, List<String>> list = (Map<Object, List<String>>) yaml.load(io);
 
@@ -130,13 +131,15 @@ public class ClientManager {
     }
 
     public void writeUserPerm(boolean logging) throws IOException {
-        if(logging) log.write("Saving Permissions.yml...", true, true);
+        if(logging) log.write("Saving Permissions.yml...");
+        for(String user : userPermissions.keySet()) if(!userData.containsKey(user)) userPermissions.remove(user);
+
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);
 
         Yaml yaml = new Yaml(options);
-        FileWriter writer = new FileWriter("Permissions.yml");
+        FileWriter writer = new FileWriter("User-Data//Permissions.yml");
         yaml.dump(userPermissions, writer);
     }
 
@@ -152,6 +155,8 @@ public class ClientManager {
 
     public void addClient(Client client) {
         clients.add(client);
+        client.updatePermissions(userPermissions.containsKey(client.getName()) ?
+                userPermissions.get(client.getName()) : new ArrayList<>());
     }
 
     public void removeClient(Client client) {
@@ -159,7 +164,9 @@ public class ClientManager {
     }
 
     public void logoutAll() {
-        for(Client client : clients) client.logout();
+        //for(int i = 0; i < clients.size(); i++) clients.get(i).logout();
+        final List<Client> list = new ArrayList<>(clients);
+        list.forEach(Client::logout);
     }
 
     public boolean removePermission(String username, String permission) {

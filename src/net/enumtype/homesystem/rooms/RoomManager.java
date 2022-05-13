@@ -28,7 +28,7 @@ public class RoomManager {
 
             rooms.clear();
             if(!file.exists()) {
-                log.write("Creating Rooms.yml...", true, true);
+                log.write("Creating Rooms.yml...");
                 InputStream resource = Main.class.getResourceAsStream("/Rooms.yml");
                 Yaml in = new Yaml();
                 data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) in.load(resource);
@@ -42,7 +42,7 @@ public class RoomManager {
                 out.dump(data, writer);
             }
 
-            log.write("Loading Rooms.yml...", true, true);
+            log.write("Loading Rooms.yml...");
             FileInputStream in = new FileInputStream(file);
             Yaml yaml = new Yaml();
             data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) yaml.load(in);

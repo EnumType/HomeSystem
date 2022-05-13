@@ -12,11 +12,13 @@ ws.onopen = function(e) {
 
 ws.onmessage = function(e) {
 	var data = e.data;
+	console.log(data);
 	
 	if(data === 'notloggedin') {
 		loggedIn = false;
 		alert('Please login first!');
-		location.replace("/index.php");
+		var windowLocation = window.location.pathname;
+		location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.php");
 	}else if(data === 'loggedin') {
 		ws.send('getusername');
 		ws.send('xmlrpc getrooms');
@@ -60,14 +62,16 @@ ws.onclose = function(e) {
 		loggedIn = false;
 		alert('You have been logged out!');
 	}
-	location.replace("/index.php");
+	var windowLocation = window.location.pathname;
+	location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.php");
 };
 
 ws.onerror = function(e) {
 	ws.close();
 	loggedIn = false;
 	alert('An error has occurred!');
-	location.replace("/index.php");
+	var windowLocation = window.location.pathname;
+	location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.php");
 };
 
 function createRoomElement(room) {
@@ -108,6 +112,8 @@ function createRoomElement(room) {
 			}
 		}else {
 			document.getElementById('room').setAttribute('class', 'detail hide');
+			const index = loadingDeviceState.indexOf(room);
+            if(index > -1) loadingDeviceState.splice(index, 1);
 		}
 	};
 	
@@ -215,10 +221,10 @@ function setState(device, stateString) {
 
 <meta content="width=device-width, initial-scale=1" name="viewport" />
 <head>
-	<title>Home-System � Home</title>
+	<title>Home-System >> Home</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
-	<link rel="shortcut icon" href="/favicon.ico">
-	<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+	<link rel="shortcut icon" href="./favicon.ico">
+	<link rel="apple-touch-icon" sizes="180x180" href="./favicon.png">
 </head>
 
 <body>
