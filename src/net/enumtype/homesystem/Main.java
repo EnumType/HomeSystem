@@ -27,12 +27,12 @@ public class Main {
 		try {
 			log = new Log();
 			data = new Data();
-			data.setVersion("v1.0.9-Beta-8");
+			data.setVersion("v1.0.9-Beta-9");
 			log.write("loading libraries, please wait...", true, false);
 
+			aiManager = new AIManager();
 			clientManager = new ClientManager();
 			roomManager = new RoomManager();
-			aiManager = new AIManager();
 			monitoring = new Monitoring();
 			wsServer = new WebSocketServer(data.getWsPort(), data.getWssPort(), data.getResourcesDir(),
 									data.getResourcesDir() + "//" + data.getWsKeystore(), data.getWsKeystorePassword());
@@ -41,15 +41,17 @@ public class Main {
 			aiManager.startPredictions(data.getAiInterval());
 			aiManager.startAutoTraining();
 
-			Methods.startVersionChecking();
+			//Methods.startVersionChecking(); TODO: turn back on
 			wsServer.start();
 			startScanning();
 
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				try {
-					clientManager.writeUserPerm(true);
 					scanningThread.interrupt();
+					clientManager.writeUserPerm(true);
+					aiManager.saveData();
 					wsServer.stop();
+					System.out.println();
 				}catch(Exception e) {
 					log.writeError(e);
 				}
@@ -63,14 +65,14 @@ public class Main {
 	public static void startScanning() {
 		scanningThread = new Thread(() -> {
 			while(true) {
-				System.out.print(">");
 				final Scanner scanner = new Scanner(System.in);
 				final String command = scanner.nextLine().replaceAll(">", "");
 				try {
-					Command.check(command.toLowerCase(), null);
+					Command.check("console" + command.toLowerCase(), null);
 				}catch(Exception e) {
 					log.writeError(e);
 				}
+				System.out.print(">");
 			}
 		});
 
@@ -83,7 +85,6 @@ public class Main {
 	public static Monitoring getMonitoring() {return monitoring;}
 	public static Log getLog() {return log;}
 	public static Data getData() {return data;}
-	public static WebSocketServer getWsServer() {return wsServer;}
 	public static Thread getScanningThread() {return scanningThread;}
 	
 }

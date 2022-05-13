@@ -251,9 +251,6 @@ class ConsoleCommand {
 	public static void stopSystem() {
 		try {
 			Main.getLog().write("Stopping server...", true, true);
-			Main.getClientManager().writeUserPerm(true);
-			Main.getScanningThread().interrupt();
-			Main.getWsServer().stop();
 			System.exit(0);
 		}catch(Exception e) {
 			Main.getLog().writeError(e);

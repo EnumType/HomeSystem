@@ -94,7 +94,7 @@ public class WebSocketServer {
 	}
 
 	public void stop() throws Exception {
-		server.stop();
+		if(server != null) server.stop();
 	}
 
 	//WebSocketHandler

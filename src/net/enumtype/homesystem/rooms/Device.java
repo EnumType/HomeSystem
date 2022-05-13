@@ -30,7 +30,7 @@ public class Device {
         this.ai = null;
     }
 
-    public Device(String name, Map<Object, Object> optionData) {
+    public Device(String name, String roomName, Map<Object, Object> optionData) {
         this.name = name;
         this.address = optionData.get("Address").toString();
         this.hmIp = Boolean.parseBoolean(optionData.get("HmIP").toString());
@@ -38,7 +38,7 @@ public class Device {
         this.aiControl = Boolean.parseBoolean(optionData.get("AIControl").toString());
         this.type = DeviceType.valueOf(optionData.get("Type"));
 
-        this.ai = new AI(Main.getRoomManager().getRoomByDevice(this).getName(), name);
+        this.ai = new AI(roomName, name);
     }
 
     public void setAddress(String address) {

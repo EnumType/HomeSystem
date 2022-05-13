@@ -149,6 +149,7 @@ public class AIManager {
     }
 
     public void saveData() {
+        log.write("Saving AI training data...", true, true);
         try {
             final RoomManager roomManager = Main.getRoomManager();
 
@@ -168,6 +169,7 @@ public class AIManager {
                     out.close();
                 }
             }
+        log.write("Finished saving", false, true);
         }catch(IOException e) {
             log.writeError(e);
         }

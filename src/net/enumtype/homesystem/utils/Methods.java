@@ -125,7 +125,7 @@ public class Methods {
 			}catch(IOException | ParseException | InterruptedException e) {
 				Main.getLog().writeError(e);
 			}
-		}, 0, 2, TimeUnit.MINUTES);
+		}, 0, 5, TimeUnit.MINUTES);
 	}
 
 	public static String sha512(String input, String salt) {

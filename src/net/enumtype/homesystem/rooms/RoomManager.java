@@ -71,14 +71,6 @@ public class RoomManager {
         return null;
     }
 
-    public Room getRoomByDevice(Device device) {
-        for(Room room : getRooms()) {
-            if(room.getDevices().contains(device)) return room;
-        }
-
-        return null;
-    }
-
     public List<Room> getRooms() {
         return rooms;
     }
