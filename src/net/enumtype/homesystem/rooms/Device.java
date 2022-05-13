@@ -31,7 +31,7 @@ public class Device {
     }
 
     public Device(String name, String roomName, Map<Object, Object> optionData) {
-        this.name = name;
+        this.name = name.replaceAll(" ", "-");
         this.address = optionData.get("Address").toString();
         this.hmIp = Boolean.parseBoolean(optionData.get("HmIP").toString());
         this.collectData = Boolean.parseBoolean(optionData.get("AIData").toString());

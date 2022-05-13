@@ -11,7 +11,7 @@ public class Room {
     private final List<Device> devices = new ArrayList<>();
 
     public Room(Object name, Object permission, Map<Object, Map<Object, Object>> deviceData) {
-        this.name = name.toString();
+        this.name = name.toString().replaceAll(" ", "-");
         this.permission = permission.toString();
 
         for(Object deviceName : deviceData.keySet()) {

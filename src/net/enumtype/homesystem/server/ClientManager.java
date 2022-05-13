@@ -9,7 +9,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.net.InetAddress;
 import java.util.*;
-import java.util.function.Function;
 
 public class ClientManager {
 
@@ -37,14 +36,14 @@ public class ClientManager {
         if(!userData.isEmpty()) userData.clear();
 
         File file = new File("User-Data");
-        File dataFile = new File(file + "//data.txt");
+        File dataFile = new File(file + "//user.data");
         if(!file.exists()) if(!file.mkdirs()) throw new IOException("Cannot create directories");
         if(!dataFile.exists()) {
             registerUser("a", "a");
             removeUser("a");
         }
 
-        BufferedReader reader = new BufferedReader(new FileReader(file + "//data.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader(file + "//user.data"));
         boolean end = false;
         while(!end) {
             String user = reader.readLine();
@@ -63,7 +62,7 @@ public class ClientManager {
     public boolean registerUser(String username, String password) throws IOException {
         if(userData.containsKey(username)) return false;
 
-        final PrintWriter out = new PrintWriter(new FileWriter("User-Data//data.txt", true), true);
+        final PrintWriter out = new PrintWriter(new FileWriter("User-Data//user.data", true), true);
         out.write("Name: " + username + "\r\n");
         out.write("Password: " + password + "\r\n");
         out.close();
@@ -77,8 +76,8 @@ public class ClientManager {
     public boolean removeUser(String username) throws IOException {
         if(!userData.containsKey(username)) return false;
 
-        File data = new File("User-Data//data.txt");
-        File newData = new File("User-Data//data2.txt");
+        File data = new File("User-Data//user.data");
+        File newData = new File("User-Data//user.data.2");
         BufferedReader reader = new BufferedReader(new FileReader(data));
         BufferedWriter writer = new BufferedWriter(new FileWriter(newData));
         String line;
@@ -144,13 +143,18 @@ public class ClientManager {
     }
 
     public void addPermission(String username, String permission) {
-        if(!userPermissions.containsKey(username)) {
-            final List<String> list = new ArrayList<>();
-            list.add(permission);
-            userPermissions.put(username, list);
-        }else userPermissions.get(username).add(permission);
+        try {
+            if(!userPermissions.containsKey(username)) {
+                final List<String> list = new ArrayList<>();
+                list.add(permission);
+                userPermissions.put(username, list);
+            }else userPermissions.get(username).add(permission);
 
-        if(getClient(username) != null) getClient(username).updatePermissions(userPermissions.get(username));
+            if(getClient(username) != null) getClient(username).updatePermissions(userPermissions.get(username));
+            writeUserPerm(false);
+        }catch(IOException e) {
+            log.writeError(e);
+        }
     }
 
     public void addClient(Client client) {

@@ -43,13 +43,6 @@ public class Command {
 				case "xmlrpc":
 					XmlRpcCommand.check(client, String.join(" ", args));
 					break;
-				case "addperm":
-					if(!client.hasPermission("system.permission")) {
-						client.sendMessage("noperm");
-						break;
-					}
-					if(args.length == 2) clientManager.addPermission(args[0], args[1]);
-					break;
 				case "getusername":
 					client.sendMessage("user:" + client.getName());
 					break;
@@ -302,7 +295,7 @@ class ConsoleCommand {
 			aiManager.stopDataSaving();
 			aiManager.stopPredictions();
 			aiManager.stopAutoTraining();
-			aiManager.saveData();
+			// aiManager.saveData(); TODO: Check if really necessary
 
 			data.load();
 			clientManager.loadUserData();

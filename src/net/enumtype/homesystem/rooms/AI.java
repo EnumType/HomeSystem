@@ -15,7 +15,7 @@ public class AI {
     private Process modelProcess;
 
     public AI(String roomName, String deviceName) {
-        this.modelName = roomName + deviceName;
+        this.modelName = (roomName + deviceName).replaceAll(" ", "-");
         this.modelTemplate = Main.getAiManager().getModelTemplate();
         this.log = Main.getLog();
     }

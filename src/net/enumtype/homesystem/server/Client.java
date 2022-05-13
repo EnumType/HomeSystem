@@ -27,7 +27,7 @@ public class Client {
 
     public void sendMessage(String message) {
         try {
-            session.getRemote().sendString(message);
+            if(session.isOpen()) session.getRemote().sendString(message);
         }catch(IOException e) {
             Main.getLog().writeError(e);
         }
