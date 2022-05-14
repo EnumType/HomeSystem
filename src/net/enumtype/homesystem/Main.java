@@ -28,7 +28,7 @@ public class Main {
 		try {
 			log = new Log();
 			data = new Data();
-			data.setVersion("v1.0.9-Beta-10");
+			data.setVersion("v1.0.9-Beta-11");
 
 			aiManager = new AIManager();
 			clientManager = new ClientManager();
@@ -36,6 +36,7 @@ public class Main {
 			monitoring = new Monitoring();
 			wsServer = new WebSocketServer();
 
+			aiManager.trainAll();
 			aiManager.startDataSaving(data.getAiInterval());
 			aiManager.startPredictions(data.getAiInterval());
 			aiManager.startAutoTraining();
@@ -51,6 +52,7 @@ public class Main {
 					aiManager.stopDataSaving();
 					aiManager.stopPredictions();
 					aiManager.stopAutoTraining();
+					aiManager.interruptAll();
 					aiManager.saveData();
 					wsServer.stop();
 				}catch(Exception e) {

@@ -70,7 +70,6 @@ public class AIManager {
         savingTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                log.write("Collecting AI Data");
                 System.out.print(Main.getCommandPrefix());
                 for(Room room : roomManager.getRooms()) {
                     for(Device device : room.getDevices()) {
@@ -105,20 +104,22 @@ public class AIManager {
         predictionTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                for(Device device : deviceData.keySet()) {
-                    try {
-                        if(!device.aiControlled()) continue;
+                for(Room room : Main.getRoomManager().getRooms()) {
+                    for(Device device : room.getDevices()) {
+                        try {
+                            if(!device.aiControlled()) continue;
 
-                        long time = Methods.getUnixTime();
-                        double light = 0;
-                        double temperature = 0;
-                        double special = 0;
-                        float prediction = device.getAI().predict(time, light, temperature, special);
+                            long time = Methods.getUnixTime();
+                            double light = 0;
+                            double temperature = 0;
+                            double special = 0;
+                            float prediction = device.getAI().predict(time, light, temperature, special);
 
-                        if(Math.round(prediction) != Math.round(device.getState())) device.setValue(prediction);
-                        //TODO: after testing remove Math.round()
-                    }catch(AIException e) {
-                        log.writeError(e);
+                            if(Math.round(prediction) != Math.round(device.getState())) device.setValue(prediction);
+                            //TODO: after testing remove Math.round()
+                        }catch(AIException e) {
+                            log.writeError(e);
+                        }
                     }
                 }
             }
@@ -137,7 +138,7 @@ public class AIManager {
 
         trainingScheduler.scheduleAtFixedRate(() -> {
             log.write("Starting AI training");
-            for(Device device : deviceData.keySet()) device.getAI().train();
+            trainAll();
         }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
     }
 
@@ -156,9 +157,17 @@ public class AIManager {
         trainingScheduler = null;
     }
 
+    public void interruptAll() {
+        for(Room room : Main.getRoomManager().getRooms()) {
+            for(Device device : room.getDevices()) if(device.collectData()) device.getAI().interrupt();
+        }
+    }
+
     public void trainAll() {
         saveData();
-        for(Device device : deviceData.keySet()) device.getAI().train();
+        for(Room room : Main.getRoomManager().getRooms()) {
+            for(Device device : room.getDevices()) if(device.collectData()) device.getAI().train();
+        }
     }
 
     public void saveData() {

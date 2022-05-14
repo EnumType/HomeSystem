@@ -295,12 +295,14 @@ class ConsoleCommand {
 			aiManager.stopDataSaving();
 			aiManager.stopPredictions();
 			aiManager.stopAutoTraining();
-			// aiManager.saveData(); TODO: Check if really necessary
+			aiManager.interruptAll();
+			aiManager.saveData();
 
 			data.load();
 			clientManager.loadUserData();
 			clientManager.loadUserPerm();
 			roomManager.load();
+			aiManager.trainAll();
 			aiManager.startDataSaving(data.getAiInterval());
 			aiManager.startPredictions(data.getAiInterval());
 			aiManager.startAutoTraining();

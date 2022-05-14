@@ -109,6 +109,7 @@ public class Data {
 
 	public void setVersion(String version) {
 		this.version = version;
+		log.write("Current version of Home-System: " + version);
 	}
 
 	public String getVersion() {return version;}
