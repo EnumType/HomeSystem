@@ -26,10 +26,6 @@ public class Data {
 	}
 
 	public void load() {
-		loadXmlRpcData();
-	}
-
-	public void loadXmlRpcData() {
 		try {
 			File config = new File("config.cfg");
 
@@ -46,7 +42,6 @@ public class Data {
 
 				in.close();
 				out.close();
-				loadXmlRpcData();
 			}
 
 			System.out.println("Loading configs");
