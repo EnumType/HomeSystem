@@ -1,7 +1,6 @@
 package net.enumtype.homesystem.server;
 
-import net.enumtype.homesystem.Main;
-import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.HomeSystem;
 import net.enumtype.homesystem.utils.Methods;
 import org.eclipse.jetty.websocket.api.Session;
 
@@ -22,14 +21,14 @@ public class Client {
         this.session = session;
         this.name = name;
         this.password = password;
-        clientManager = Main.getClientManager();
+        clientManager = HomeSystem.getClientManager();
     }
 
     public void sendMessage(String message) {
         try {
             if(session.isOpen()) session.getRemote().sendString(message);
         }catch(IOException e) {
-            Main.getLog().writeError(e);
+            e.printStackTrace();
         }
     }
 
@@ -59,24 +58,19 @@ public class Client {
     public void logout() {
         session.close();
         clientManager.removeClient(this);
-        Main.getLog().write("User '" + name + "' logged out");
-        System.out.print(Main.getCommandPrefix());
+        System.out.println("User '" + name + "' logged out");
     }
 
     public boolean login() {
-        final Log log = Main.getLog();
-
         if(!session.isSecure()) password = Methods.sha512(password);
         if(clientManager.isDataCorrect(name, password)) {
-            log.write("User '" + name + "' logged in with IP " + session.getRemoteAddress().toString());
-            System.out.print(Main.getCommandPrefix());
+            System.out.println("User '" + name + "' logged in with IP " + session.getRemoteAddress().toString());
             clientManager.addClient(this);
             return true;
         }else {
-            log.write("User tried to login:");
-            log.write("USERNAME: " + name);
-            log.write("IPADDRESS: " + session.getRemoteAddress().toString());
-            System.out.print(Main.getCommandPrefix());
+            System.out.println("User tried to login:");
+            System.out.println("USERNAME: " + name);
+            System.out.println("IPADDRESS: " + session.getRemoteAddress().toString());
             return false;
         }
     }

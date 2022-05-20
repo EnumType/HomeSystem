@@ -1,7 +1,6 @@
 package net.enumtype.homesystem.rooms;
 
-import net.enumtype.homesystem.Main;
-import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.HomeSystem;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -13,10 +12,8 @@ import java.util.Map;
 public class RoomManager {
 
     private final List<Room> rooms = new ArrayList<>();
-    private final Log log;
 
     public RoomManager() {
-        this.log = Main.getLog();
         load();
     }
 
@@ -28,8 +25,8 @@ public class RoomManager {
 
             rooms.clear();
             if(!file.exists()) {
-                log.write("Creating Rooms.yml...");
-                InputStream resource = Main.class.getResourceAsStream("/Rooms.yml");
+                System.out.println("Creating Rooms.yml...");
+                InputStream resource = HomeSystem.class.getResourceAsStream("/Rooms.yml");
                 Yaml in = new Yaml();
                 data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) in.load(resource);
 
@@ -42,13 +39,13 @@ public class RoomManager {
                 out.dump(data, writer);
             }
 
-            log.write("Loading Rooms.yml...");
+            System.out.println("Loading Rooms.yml...");
             FileInputStream in = new FileInputStream(file);
             Yaml yaml = new Yaml();
             data = (Map<Object, Map<Object, Map<Object, Map<Object, Object>>>>) yaml.load(in);
             loadRooms(data);
         }catch(IOException e) {
-            log.writeError(e);
+            e.printStackTrace();
         }
     }
 

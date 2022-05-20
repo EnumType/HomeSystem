@@ -1,6 +1,6 @@
 package net.enumtype.homesystem.rooms;
 
-import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.HomeSystem;
 import net.enumtype.homesystem.utils.Data;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -56,7 +56,7 @@ public class Device {
     public void setValue(Object value_key, Object value) {
         new Thread(() -> {
             try {
-                final Data data = Main.getData();
+                final Data data = HomeSystem.getData();
                 XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
                 XmlRpcClient xmlRpcClient = new XmlRpcClient();
 
@@ -67,7 +67,7 @@ public class Device {
                 if(getValue(type.getValueKey()) != value)
                     xmlRpcClient.execute("setValue", new Object[]{address, value_key, value});
             }catch(MalformedURLException | XmlRpcException e) {
-                Main.getLog().writeError(e);
+                e.printStackTrace();
             }
         }).start();
     }
@@ -78,7 +78,7 @@ public class Device {
 
     public String getValue(String value_key) {
         try {
-            final Data data = Main.getData();
+            final Data data = HomeSystem.getData();
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             XmlRpcClient client = new XmlRpcClient();
 
@@ -88,7 +88,7 @@ public class Device {
 
             return client.execute("getValue", new Object[]{address, value_key}).toString();
         }catch(MalformedURLException | XmlRpcException e) {
-            Main.getLog().writeError(e);
+            e.printStackTrace();
         }
 
         return "";

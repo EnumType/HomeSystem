@@ -1,7 +1,6 @@
 package net.enumtype.homesystem.server;
 
-import net.enumtype.homesystem.Main;
-import net.enumtype.homesystem.utils.Log;
+import net.enumtype.homesystem.HomeSystem;
 import org.eclipse.jetty.websocket.api.Session;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -15,15 +14,12 @@ public class ClientManager {
     private final Map<String, String> userData = new HashMap<>();
     private final Map<String, List<String>> userPermissions = new HashMap<>();
     private final List<Client> clients = new ArrayList<>();
-    private final Log log;
 
     public ClientManager() {
-        this.log = Main.getLog();
-
         try {
             load();
         }catch(IOException e) {
-            log.writeError(e);
+            e.printStackTrace();
         }
     }
 
@@ -106,8 +102,8 @@ public class ClientManager {
 
         if(!userPermissions.isEmpty()) userPermissions.clear();
         if(!file.exists()) {
-            log.write("Creating Permissions.yml...");
-            InputStream resource = Main.class.getResourceAsStream("/Permissions.yml");
+            System.out.println("Creating Permissions.yml...");
+            InputStream resource = HomeSystem.class.getResourceAsStream("/Permissions.yml");
             Yaml in = new Yaml();
             Map<String, List<String>> map = (Map<String, List<String>>) in.load(resource);
 
@@ -120,7 +116,7 @@ public class ClientManager {
             out.dump(map, writer);
         }
 
-        log.write("Loading Permissions.yml...");
+        System.out.println("Loading Permissions.yml...");
         Yaml yaml = new Yaml();
         FileInputStream io = new FileInputStream(new File("User-Data//Permissions.yml"));
 
@@ -130,7 +126,7 @@ public class ClientManager {
     }
 
     public void writeUserPerm(boolean logging) throws IOException {
-        if(logging) log.write("Saving Permissions.yml...");
+        if(logging) System.out.println("Saving Permissions.yml...");
         for(String user : userPermissions.keySet()) if(!userData.containsKey(user)) userPermissions.remove(user);
 
         DumperOptions options = new DumperOptions();
@@ -153,7 +149,7 @@ public class ClientManager {
             if(getClient(username) != null) getClient(username).updatePermissions(userPermissions.get(username));
             writeUserPerm(false);
         }catch(IOException e) {
-            log.writeError(e);
+            e.printStackTrace();
         }
     }
 

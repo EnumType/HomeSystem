@@ -7,15 +7,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.HomeSystem;
 
 public class Monitoring {
-
-	private final Log log;
-
-	public Monitoring() {
-		log = Main.getLog();
-	}
 	
 	public ArrayList<String> getLog() {
 		ArrayList<String> list = new ArrayList<>();
@@ -31,7 +25,7 @@ public class Monitoring {
 
 			reader.close();
 		}catch(IOException e) {
-			log.writeError(e);
+			e.printStackTrace();
 		}
 		
 		return list;
@@ -39,9 +33,9 @@ public class Monitoring {
 	
 	public boolean isXmlRpcReachable(int timeout) {
 		try {
-			return InetAddress.getByName(Main.getData().getXmlRpcAddress()).isReachable(timeout);
+			return InetAddress.getByName(HomeSystem.getData().getXmlRpcAddress()).isReachable(timeout);
 		}catch(IOException e) {
-			log.writeError(e);
+			e.printStackTrace();
 		}
 		return false;
 	}

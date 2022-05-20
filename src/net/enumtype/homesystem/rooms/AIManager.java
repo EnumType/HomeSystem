@@ -1,8 +1,7 @@
 package net.enumtype.homesystem.rooms;
 
-import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.HomeSystem;
 import net.enumtype.homesystem.utils.AIException;
-import net.enumtype.homesystem.utils.Log;
 import net.enumtype.homesystem.utils.Methods;
 
 import java.io.*;
@@ -19,7 +18,6 @@ public class AIManager {
     private Timer savingTimer;
     private Timer predictionTimer;
     private ScheduledExecutorService trainingScheduler;
-    private final Log log;
     private final File aiDir;
     private final File dataDir;
     private final File modelTemplate;
@@ -27,7 +25,6 @@ public class AIManager {
     private final Map<Device, List<String>> deviceData; //Syntax -> Time,Light,Temperature,Special,State
 
     public AIManager() {
-        this.log = Main.getLog();
         this.aiDir = new File("AI");
         this.dataDir = new File(aiDir + "//data");
         this.modelTemplate = new File(aiDir + "//Home-System.py");
@@ -44,7 +41,7 @@ public class AIManager {
 
             if(modelTemplate.exists() && !modelTemplate.delete()) throw new IOException("Cannot renew file!");
 
-            InputStream stream = Main.class.getResourceAsStream("/Home-System.py");
+            InputStream stream = HomeSystem.class.getResourceAsStream("/Home-System.py");
             BufferedReader in = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             BufferedWriter out = new BufferedWriter(new FileWriter(modelTemplate));
 
@@ -54,7 +51,7 @@ public class AIManager {
             in.close();
             out.close();
         }catch(IOException e) {
-            log.writeError(e);
+            e.printStackTrace();
         }
     }
 
@@ -64,13 +61,12 @@ public class AIManager {
      */
     public void startDataSaving(int waitDelay) {
         if(savingTimer == null) savingTimer = new Timer();
-        final RoomManager roomManager = Main.getRoomManager();
+        final RoomManager roomManager = HomeSystem.getRoomManager();
         final StringBuilder builder = new StringBuilder();
 
         savingTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                System.out.print(Main.getCommandPrefix());
                 for(Room room : roomManager.getRooms()) {
                     for(Device device : room.getDevices()) {
                         if(!device.collectData()) continue;
@@ -104,7 +100,7 @@ public class AIManager {
         predictionTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                for(Room room : Main.getRoomManager().getRooms()) {
+                for(Room room : HomeSystem.getRoomManager().getRooms()) {
                     for(Device device : room.getDevices()) {
                         try {
                             if(!device.aiControlled()) continue;
@@ -118,7 +114,7 @@ public class AIManager {
                             if(Math.round(prediction) != Math.round(device.getState())) device.setValue(prediction);
                             //TODO: after testing remove Math.round()
                         }catch(AIException e) {
-                            log.writeError(e);
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -136,10 +132,8 @@ public class AIManager {
         final Duration duration = Duration.between(now, nextRun);
         long initialDelay = duration.getSeconds();
 
-        trainingScheduler.scheduleAtFixedRate(() -> {
-            log.write("Starting AI training");
-            trainAll();
-        }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+        trainingScheduler.scheduleAtFixedRate(this::trainAll,
+                initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
     }
 
     public void stopDataSaving() {
@@ -158,22 +152,23 @@ public class AIManager {
     }
 
     public void interruptAll() {
-        for(Room room : Main.getRoomManager().getRooms()) {
+        for(Room room : HomeSystem.getRoomManager().getRooms()) {
             for(Device device : room.getDevices()) if(device.collectData()) device.getAI().interrupt();
         }
     }
 
     public void trainAll() {
         saveData();
-        for(Room room : Main.getRoomManager().getRooms()) {
+        System.out.println("Starting AI training");
+        for(Room room : HomeSystem.getRoomManager().getRooms()) {
             for(Device device : room.getDevices()) if(device.collectData()) device.getAI().train();
         }
     }
 
     public void saveData() {
-        log.write("Saving AI training data...");
+        System.out.println("Saving AI training data...");
         try {
-            final RoomManager roomManager = Main.getRoomManager();
+            final RoomManager roomManager = HomeSystem.getRoomManager();
 
             for(Room room : roomManager.getRooms()) {
                 for(Device device : room.getDevices()) {
@@ -191,9 +186,9 @@ public class AIManager {
                     out.close();
                 }
             }
-        log.write("Finished saving");
+            System.out.println("Finished saving");
         }catch(IOException e) {
-            log.writeError(e);
+            e.printStackTrace();
         }
     }
 

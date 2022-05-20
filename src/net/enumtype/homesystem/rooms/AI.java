@@ -1,8 +1,7 @@
 package net.enumtype.homesystem.rooms;
 
-import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.HomeSystem;
 import net.enumtype.homesystem.utils.AIException;
-import net.enumtype.homesystem.utils.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,14 +10,12 @@ public class AI {
 
     private final String modelName;
     private final File modelTemplate;
-    private final Log log;
     private Process predictionProcess;
     private Process trainingProcess;
 
     public AI(String roomName, String deviceName) {
         this.modelName = (roomName + deviceName).replaceAll(" ", "-");
-        this.modelTemplate = Main.getAiManager().getModelTemplate();
-        this.log = Main.getLog();
+        this.modelTemplate = HomeSystem.getAiManager().getModelTemplate();
     }
 
     public void train() {
@@ -36,7 +33,7 @@ public class AI {
                 trainingProcess.waitFor();
                 trainingProcess.destroy();
             }catch(InterruptedException | IOException e) {
-                log.writeError(e);
+                e.printStackTrace();
             }
         }).start();
     }
@@ -61,14 +58,14 @@ public class AI {
             if (len > 0) {
                 byte[] buf = new byte[len];
                 final int i = predictionProcess.getErrorStream().read(buf);
-                log.write("Command error:\t\""+new String(buf)+"\"; i=" + i);
+                System.out.print("Command error:\t\""+new String(buf)+"\"; i=" + i);
             }
 
             predictionProcess.destroy();
             return predictionProcess.exitValue() / 100F;
         }catch(InterruptedException | IOException e) {
             predictionProcess.destroy();
-            log.writeError(e);
+            e.printStackTrace();
         }
 
         return 0F;

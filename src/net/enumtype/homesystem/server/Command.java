@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.HomeSystem;
 import net.enumtype.homesystem.rooms.AIManager;
 import net.enumtype.homesystem.utils.*;
 import net.enumtype.homesystem.rooms.Device;
@@ -18,7 +18,7 @@ public class Command {
 		if(command.startsWith("console") && session == null) ConsoleCommand.check(command.replace("console", ""));
 		if(session == null) return;
 
-		final ClientManager clientManager = Main.getClientManager();
+		final ClientManager clientManager = HomeSystem.getClientManager();
 		if(clientManager.isLoggedIn(session) || command.startsWith("login") || command.startsWith("connect")) {
 			final Client client = !command.toLowerCase().startsWith("login") ?
 					clientManager.getClient(session) : new Client(session, "", "");
@@ -59,12 +59,12 @@ public class Command {
 			}
 
 		}else {
-			Main.getLog().write("Client with InetAddress: " + session.getRemoteAddress().toString() +
+			System.out.println("Client with InetAddress: " + session.getRemoteAddress().toString() +
 							" tried to execute command: " + command);
 			try {
 				session.getRemote().sendString("notloggedin");
 			}catch(IOException e) {
-				Main.getLog().writeError(e);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -72,7 +72,7 @@ public class Command {
 
 class XmlRpcCommand {
 	public static void check(Client client, String command) throws UnknownCommandException {
-		final RoomManager roomManager = Main.getRoomManager();
+		final RoomManager roomManager = HomeSystem.getRoomManager();
 		final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
 		command = command.split(" ")[0];
 
@@ -160,7 +160,7 @@ class XmlRpcCommand {
 
 class MonitoringCommand {
 	public static void check(String command, Client client) throws UnknownCommandException {
-		final Monitoring monitoring = Main.getMonitoring();
+		final Monitoring monitoring = HomeSystem.getMonitoring();
 		final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
 		command = command.split(" ")[0];
 
@@ -182,8 +182,7 @@ class MonitoringCommand {
 
 class ConsoleCommand {
 	public static void check(String command) {
-		final ClientManager clientManager = Main.getClientManager();
-		final Log log = Main.getLog();
+		final ClientManager clientManager = HomeSystem.getClientManager();
 		final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
 		command = command.split(" ")[0];
 
@@ -196,45 +195,36 @@ class ConsoleCommand {
 					stopSystem();
 					break;
 				case "version":
-					log.write("Current version of Home-System: " + Main.getData().getVersion());
-					System.out.print(Main.getCommandPrefix());
+					System.out.println("Current version of Home-System: " + HomeSystem.getData().getVersion());
 					break;
 				case "addperm":
 					if(args.length != 2) {
-						log.write("Usage: addperm <Username> <Permission>");
-						System.out.print(Main.getCommandPrefix());
+						System.out.println("Usage: addperm <Username> <Permission>");
 						break;
 					}
 					clientManager.addPermission(args[0], args[1]);
-					log.write("Added permission '" + args[1] + "' to user '" + args[0] + "'.");
-					System.out.print(Main.getCommandPrefix());
+					System.out.println("Added permission '" + args[1] + "' to user '" + args[0] + "'.");
 					break;
 				case "removeperm":
 					if(args.length == 2) {
 						if(clientManager.removePermission(args[0], args[1])) {
-							log.write("Removed '" + args[1] + "' from user '" + args[0] + "'.");
-						}else log.write("Cannot remove '" + args[1] + "' from user '" + args[0] + "'.");
-					}else log.write("Usage: removeperm <Username> <Permission>");
-					System.out.print(Main.getCommandPrefix());
+							System.out.println("Removed '" + args[1] + "' from user '" + args[0] + "'.");
+						}else System.out.println("Cannot remove '" + args[1] + "' from user '" + args[0] + "'.");
+					}else System.out.println("Usage: removeperm <Username> <Permission>");
 					break;
 				case "adduser":
-					log.write(Main.getCommandPrefix() + command + " " +
-							(args.length > 0 ? args[0] + " ****" : ""), false);
-
 					if(args.length == 2) {
 						if(clientManager.registerUser(args[0], Methods.sha512(args[1]))) {
-							log.write("Registered user '" + args[0] + "'.");
-						}else log.write("Username '" + args[0] + "' already exists!");
-					}else log.write("Usage: adduser <Username> <Password>");
-					System.out.print(Main.getCommandPrefix());
+							System.out.println("Registered user '" + args[0] + "'.");
+						}else System.out.println("Username '" + args[0] + "' already exists!");
+					}else System.out.println("Usage: adduser <Username> <Password>");
 					break;
 				case "removeuser":
 					if(args.length == 1) {
 						if(clientManager.removeUser(args[0])) {
-							log.write("Removed user '" + args[0] + "'!");
-						}else log.write("User '" + args[0] + "' does not exist!");
-					}else log.write("Usage: removeuser <Username>");
-					System.out.print(Main.getCommandPrefix());
+							System.out.println("Removed user '" + args[0] + "'!");
+						}else System.out.println("User '" + args[0] + "' does not exist!");
+					}else System.out.println("Usage: removeuser <Username>");
 					break;
 				case "reload":
 					executeReload();
@@ -243,53 +233,48 @@ class ConsoleCommand {
 					Methods.extractWebsite();
 					break;
 				case "trainnow":
-					Main.getAiManager().trainAll();
-					System.out.print(Main.getCommandPrefix());
+					HomeSystem.getAiManager().trainAll();
 					break;
 				default:
 					throw new UnknownCommandException(command);
 			}
 		}catch(Exception e) {
-			log.writeError(e);
+			e.printStackTrace();
 		}
 	}
 
 	public static void stopSystem() {
 		try {
-			Main.getLog().write("Stopping server...");
+			System.out.println("Stopping server...");
 			System.exit(0);
 		}catch(Exception e) {
-			Main.getLog().writeError(e);
+			e.printStackTrace();
 		}
 	}
 
 	public static void printHelp() {
-		final Log log = Main.getLog();
-
-		log.write("Commands:");
-		log.write("Stop -- Stops the Server");
-		log.write("Help -- Shows this page");
-		log.write("Version -- See the current version");
-		log.write("Reload -- Reloads the server");
-		log.write("ExtractWebsite -- Extracts the website files");
-		log.write("Trainnow -- Train the AIs now");
-		log.write("Adduser <Username> <Password> -- Add a user");
-		log.write("Adduser <Username> -- Remove a user");
-		log.write("Addperm <User> <Permission> -- Add a permission");
-		log.write("Removeperm <User> <Permission> -- Remove a permission");
-		System.out.print(Main.getCommandPrefix());
+		System.out.println("Commands:");
+		System.out.println("Stop -- Stops the Server");
+		System.out.println("Help -- Shows this page");
+		System.out.println("Version -- See the current version");
+		System.out.println("Reload -- Reloads the server");
+		System.out.println("ExtractWebsite -- Extracts the website files");
+		System.out.println("Trainnow -- Train the AIs now");
+		System.out.println("Adduser <Username> <Password> -- Add a user");
+		System.out.println("Adduser <Username> -- Remove a user");
+		System.out.println("Addperm <User> <Permission> -- Add a permission");
+		System.out.println("Removeperm <User> <Permission> -- Remove a permission");
 	}
 
 	public static void executeReload() {
-		final ClientManager clientManager = Main.getClientManager();
-		final AIManager aiManager = Main.getAiManager();
-		final RoomManager roomManager = Main.getRoomManager();
-		final Data data = Main.getData();
-		final Log log = Main.getLog();
+		final ClientManager clientManager = HomeSystem.getClientManager();
+		final AIManager aiManager = HomeSystem.getAiManager();
+		final RoomManager roomManager = HomeSystem.getRoomManager();
+		final Data data = HomeSystem.getData();
 
 		try {
-			log.write("Reloading system...");
-			Main.getScanningThread().interrupt();
+			System.out.println("Reloading system...");
+			HomeSystem.getScanningThread().interrupt();
 			clientManager.logoutAll();
 			clientManager.writeUserPerm(true);
 			aiManager.stopDataSaving();
@@ -307,11 +292,10 @@ class ConsoleCommand {
 			aiManager.startPredictions(data.getAiInterval());
 			aiManager.startAutoTraining();
 
-			log.write("Reload complete!");
-			Main.startScanning();
-			System.out.print(Main.getCommandPrefix());
+			System.out.println("Reload complete!");
+			HomeSystem.startScanning();
 		}catch(Exception e) {
-			log.writeError(e);
+			e.printStackTrace();
 		}
 	}
 }

@@ -1,13 +1,12 @@
 package net.enumtype.homesystem.utils;
 
-import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.HomeSystem;
 import net.enumtype.homesystem.rooms.Device;
 
 import java.io.*;
 
 public class Data {
 
-	private final Log log;
 	private final Device aiBrightSensor;
 	private String xmlRpcAddress;
 	private String wsKeystore;
@@ -23,7 +22,6 @@ public class Data {
 
 	public Data() {
 		this.aiBrightSensor = new Device();
-		this.log = Main.getLog();
 		load();
 	}
 
@@ -36,8 +34,8 @@ public class Data {
 			File config = new File("config.cfg");
 
 			if(!config.exists()) {
-				log.write("Creating Configs...");
-				InputStream stream = Main.class.getResourceAsStream("/config.cfg");
+				System.out.println("Creating Configs...");
+				InputStream stream = HomeSystem.class.getResourceAsStream("/config.cfg");
 				BufferedReader in = new BufferedReader(new InputStreamReader(stream));
 				BufferedWriter out = new BufferedWriter(new FileWriter(config));
 
@@ -51,7 +49,7 @@ public class Data {
 				loadXmlRpcData();
 			}
 
-			log.write("Loading configs");
+			System.out.println("Loading configs");
 			BufferedReader reader = new BufferedReader(new FileReader(config));
 			String line;
 
@@ -97,19 +95,19 @@ public class Data {
 						hashSalt = args[1];
 						break;
 					default:
-						log.write("Unknown config parameter '" + line + "'!");
+						System.out.println("Unknown config parameter '" + line + "'!");
 				}
 			}
 
 			reader.close();
 		}catch(IOException | NumberFormatException e) {
-			log.writeError(e);
+			e.printStackTrace();
 		}
 	}
 
 	public void setVersion(String version) {
 		this.version = version;
-		log.write("Current version of Home-System: " + version);
+		System.out.println("Current version of Home-System: " + version);
 	}
 
 	public String getVersion() {return version;}

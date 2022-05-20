@@ -3,9 +3,8 @@ package net.enumtype.homesystem.server;
 import java.io.File;
 import java.io.IOException;
 
-import net.enumtype.homesystem.Main;
+import net.enumtype.homesystem.HomeSystem;
 import net.enumtype.homesystem.utils.Data;
-import net.enumtype.homesystem.utils.Log;
 import net.enumtype.homesystem.utils.UnknownCommandException;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -29,17 +28,15 @@ public class WebSocketServer {
 	private final String keystoreDir;
 	private final String keystore;
 	private final String keystorePassword;
-	private final Log log;
 	private Server server;
 
 	public WebSocketServer() {
-		final Data data = Main.getData();
+		final Data data = HomeSystem.getData();
 		this.httpPort = data.getWsPort();
 		this.httpsPort = data.getWssPort();
 		this.keystoreDir = data.getResourcesDir();
 		this.keystore = data.getResourcesDir() + "//" + data.getWsKeystore();
 		this.keystorePassword = data.getWsKeystorePassword();
-		this.log = Main.getLog();
 	}
 
 	public void start() throws IOException {
@@ -53,7 +50,7 @@ public class WebSocketServer {
 					logger.setLevel(StdErrLog.LEVEL_OFF);
 					org.eclipse.jetty.util.log.Log.setLog(logger);
 
-					log.write("Starting WebSocket: Http:" + httpPort + " Https:" + httpsPort);
+					System.out.println("Starting WebSocket: Http:" + httpPort + " Https:" + httpsPort);
 
 					server = new Server();
 					server.setHandler(new WebSocketHandler() {
@@ -84,18 +81,17 @@ public class WebSocketServer {
 					wssConnector.setPort(httpsPort);
 					server.addConnector(wssConnector);
 
-					System.out.print(Main.getCommandPrefix());
 					server.start();
 					server.join();
 				}catch(Exception e) {
-					log.writeError(e);
+					e.printStackTrace();
 				}
 			});
 			
 			thread.start();
 		}else {
 			if(!file.exists()) if(!file.mkdir()) throw new IOException("Cannot create directory!");
-			log.write("No Keystore Found! Don't start WebSocket!");
+			System.out.println("No Keystore Found! Don't start WebSocket!");
 		}
 	}
 
@@ -106,7 +102,7 @@ public class WebSocketServer {
 	//WebSocketHandler
 	@OnWebSocketClose
 	public void onClose(Session session, int statusCode, String reason) {
-		final ClientManager clientManager = Main.getClientManager();
+		final ClientManager clientManager = HomeSystem.getClientManager();
 
 		if(clientManager.isLoggedIn(session) && !clientManager.isChangingConnection(session))
 			clientManager.getClient(session).logout();
@@ -114,8 +110,8 @@ public class WebSocketServer {
 
 	@OnWebSocketError
 	public void onError(Session session, Throwable t) {
-		log.writeError(t);
-		ClientManager clientManager = Main.getClientManager();
+		t.printStackTrace();
+		ClientManager clientManager = HomeSystem.getClientManager();
 
 		if(clientManager.isLoggedIn(session)) clientManager.getClient(session).logout();
 	}
@@ -123,7 +119,7 @@ public class WebSocketServer {
 	@OnWebSocketConnect
 	public void onConnect(Session session) {
 		try {
-			final ClientManager clientManager = Main.getClientManager();
+			final ClientManager clientManager = HomeSystem.getClientManager();
 			if(!clientManager.isLoggedIn(session)) {
 				session.getRemote().sendString("notloggedin");
 			}else {
@@ -133,7 +129,7 @@ public class WebSocketServer {
 				client.sendMessage("user:" + client.getName());
 			}
 		}catch(IOException e) {
-			log.writeError(e);
+			e.printStackTrace();
 		}
 	}
 
@@ -144,7 +140,7 @@ public class WebSocketServer {
 		try {
 			Command.check(message, session);
 		}catch(UnknownCommandException e) {
-			Main.getLog().writeError(e);
+			e.printStackTrace();
 		}
 	}
 	
