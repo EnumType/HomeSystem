@@ -88,7 +88,8 @@ public class PluginManager {
 
         Class<?> clazz = loader.loadClass(main);
 
-        if(!clazz.getSuperclass().getName().equals(Plugin.class.getName())) return; //TODO: throw exception
+        if(!clazz.getSuperclass().getName().equals(Plugin.class.getName()))
+            throw new PluginException(clazz.getName() + " is not a subclass of " + Plugin.class.getName());
         final Plugin plugin = (Plugin) clazz.getDeclaredConstructor().newInstance();
         plugin.setName(name);
         plugin.setVersion(version);
