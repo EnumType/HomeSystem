@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <script>
 var ip = location.host;
-var ws = new WebSocket("ws://" + ip + ":8000/");
+var ws = location.protocol === 'https:' ? new WebSocket("wss://" + ip + ":8001/") :
+                                        new WebSocket("ws://" + ip + ":8000/");
 var loggedIn = true;
 var user = '';
 var loadingDeviceState = [];
@@ -21,12 +22,12 @@ ws.onmessage = function(e) {
         document.getElementById('user').blur();
         document.getElementById('pass').blur();
         alert('Websocket does not accept http connection!');
-        location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.php");
+        location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.html");
     }else if(data === 'notloggedin') {
 		loggedIn = false;
 		alert('Please login first!');
 		var windowLocation = window.location.pathname;
-		location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.php");
+		location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.html");
 	}else if(data === 'loggedin') {
 		ws.send('getusername');
 		ws.send('xmlrpc getrooms');
@@ -71,7 +72,7 @@ ws.onclose = function(e) {
 		alert('You have been logged out!');
 	}
 	var windowLocation = window.location.pathname;
-	location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.php");
+	location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.html");
 };
 
 ws.onerror = function(e) {
@@ -79,7 +80,7 @@ ws.onerror = function(e) {
 	loggedIn = false;
 	alert('An error has occurred!');
 	var windowLocation = window.location.pathname;
-	location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.php");
+	location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.html");
 };
 
 function createRoomElement(room) {
@@ -133,7 +134,7 @@ function logout() {
 		loggedIn = false;
 		ws.send('logout ' + user);
 		ws.close();
-		location.replace("/index.php");
+		location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.html");
 	}
 }
 

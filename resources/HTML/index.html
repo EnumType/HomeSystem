@@ -12,9 +12,9 @@
     function login() {
         var user = document.getElementById('user').value;
         var pass = document.getElementById('pass').value;
-        //var ip = location.host;
-        var ip = "192.168.2.3";
-        var ws = new WebSocket("ws://" + ip + ":8000/");
+        var ip = location.host;
+        var ws = location.protocol === 'https:' ? new WebSocket("wss://" + ip + ":8001/") :
+                                        new WebSocket("ws://" + ip + ":8000/");
 
         if(location.protocol === 'https:') {
             sha512(pass).then(x => {
@@ -34,7 +34,7 @@
                 ws.send('changeconnection');
                 closeWS(ws);
                 var windowLocation = window.location.pathname;
-                location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/home.php");
+                location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/home.html");
             }else if(data === 'wrongdata') {
                 document.getElementById('user').value = '';
                 document.getElementById('pass').value = '';
@@ -71,7 +71,7 @@
 <body>
 <div class="container">
 <h1> Home-System >> Login </h1>
-<form id="login"method="post" autocomplete="on" onsubmit="return login();">
+<form id="login" method="post" autocomplete="on" onsubmit="return login();">
 <p>Username:</p>
 <input type="text" placeholder="Username" id="user" autocomplete="on" required><br>
 

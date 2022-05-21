@@ -44,8 +44,8 @@ public class Methods {
 		File path = new File("HTTP");
 		File faviconICO = new File(path + "//favicon.ico");
 		File faviconPNG = new File(path + "//favicon.png");
-		File index = new File(path + "//index.php");
-		File home = new File(path + "//home.php");
+		File index = new File(path + "//index.html");
+		File home = new File(path + "//home.html");
 		File style = new File(path + "//style.css");
 		
 		if(!path.exists()) if(!path.mkdir()) throw new IOException("Cannot create directory!");
@@ -57,8 +57,8 @@ public class Methods {
 		
 		writeResources(faviconICO, "/HTML/favicon.png", true, "ico");
 		writeResources(faviconPNG, "/HTML/favicon.png", true, "png");
-		writeResources(index, "/HTML/index.php", false, "php");
-		writeResources(home, "/HTML/home.php", false, "php");
+		writeResources(index, "/HTML/index.html", false, "html");
+		writeResources(home, "/HTML/home.html", false, "html");
 		writeResources(style, "/HTML/style.css", false, "css");
 
 		System.out.println("Extracted Website-Data");

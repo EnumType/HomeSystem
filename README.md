@@ -1,27 +1,16 @@
-# HomeSystem
-The HomeSystem is a Java based system which allows you to control your HomeMatic(IP) devices over the implemented WebSocket server.
-
 ## Getting Started
 These instructions will get you a copy of the project up and running on your local machine to deploy the HomeSystem server.
 
 ### Prerequisites
-Before you download the HomeSystem you should install the following software to run this system:
-- Oracle-JDK `sudo apt install default-jdk`
-- Oracle-JRE `sudo apt install default-jre`
-- Git `sudo apt install git`
-- Python3 `sudo apt install python3`
-- Pip3 `sudo apt install python3-pip`
-- Pytorch `sudo pip3 install torch==1.3.1+cpu torchvision==0.4.2+cpu -f https://download.pytorch.org/whl/torch_stable.html` (Details on https://pytorch.org)
-- Pandas `sudo pip3 install pandas`
-- Apache2 `sudo apt install apache2`
-- Screen `sudo apt install screen`
+Before you download the HomeSystem you should check if you have the following things running on your machine:
+- Any linux 64bit system
+- Latest version of git: `sudo apt install git`
 
 ### Installing
-Create a new directory and move in it. Then execute `git clone https://github.com/TheJavaException/HomeSystem` and move into *HomeSystem/*. Copy the *Server.jar*, and the *start.sh* to your created directory and execute `chmod +x start.sh`. Finally, you just have to execute `./start.sh` and a screen with the HomeSystem-Server should be running. You can enter this screen with `screen -r HomeSystem`.
+Create a new directory and move into it. Then execute `git clone https://github.com/TheJavaException/HomeSystem` and move into *HomeSystem/*. Copy or move the *Server.jar*, *start.sh* and *setup.sh* to your created directory and execute `chmod +x setup.sh`. After that you need to run `chmod +x ./setup.sh` and `./setup.sh` to install all required packages. Now, you just have to execute `./start.sh` and a screen with the HomeSystem-Server should be running. You can enter this screen with `screen -r HomeSystem`.  
+Now you are free to remove the cloned directory *HomeSystem/* to save some disk space.
 
 ## Configuration
-After the installing you should change a few parameters in the *config.txt* to keep the system running.
-
 ### Config.cfg
 - `XmlRpc-Address` The address of your HomeMatic CCU
 - `XmlRpc-Port` The port of the XmlRpc server of your CCU (default port is 2001)
@@ -70,28 +59,26 @@ Supported devices:
 - LAMP -> can be predicted and controlled in state *on* or *off*
 
 ### Website
-The website files can be extracted with the command `extract website`. They will be written into the directory *HTTP*. After that you can move them into your webserver (Apache2) directory and can run them in your browser. (In the latest version 1.0.8 the connection will be over http by default!).
+The website files can be extracted with the command `extract website`. They will be written into the directory *HTTP*. After that you can move them into your webserver (Apache2) directory and can run them in your browser.   
+HTTPS is necessary because the inserted password will be sent without any end-to-end encryption.
 
-If you want to connect over HTTPS change `var ws = new WebSocket("ws://" + ip + ":8000/")` in *index.php* and *home.php* to `var ws = new WebSocket("wss://" + ip + ":8001/")` where the *8001* is the Https port of your WebSocket server in the System. (See [Config](#Config.cfg))  
-HTTPS is still necessary because the inserted password will be sent without any end-to-end encryption.
-
-## Built With
-- [Java](https://www.oracle.com/de/java/) - Language used for the main system
-- [Python](https://www.python.org/) - Language used for the AI
-- [Pytorch](https://www.pytorch.org/) - Library for Machine learning used for the AI
-- [Pandas](https://pandas.pydata.org/) - Library for Data Analysis used to extract saved data to the AI
-- [JavaScript](https://en.wikipedia.org/wiki/JavaScript) - Language used for the WebSocket WebBrowser communication
-- [HTML](https://en.wikipedia.org/wiki/HTML) - Language used for the Website files
-- [CSS](https://en.wikipedia.org/wiki/Cascading_Style_Sheets) - Style Language used for the Style of the Website
-- [Apache XML-RPC](https://ws.apache.org/xmlrpc/) - Apache XML-RPC API to communicate with the HomeMatic XML-RPC Server
-- [Image4j](http://image4j.sourceforge.net/)
-- [Jetty-All](http://image4j.sourceforge.net/)
-- [JSON-Simple](https://code.google.com/archive/p/json-simple/)
-- [Snake YAML](https://bitbucket.org/asomov/snakeyaml/src/master/)
-- [WS-Commons-Util](https://mvnrepository.com/artifact/org.apache.ws.commons.util/ws-commons-util/1.0.2)
+## Libraries and Languages
+- [Java](https://www.oracle.com/de/java/) - Main system
+- [Python](https://www.python.org/) - AI language
+- [Pytorch](https://www.pytorch.org/) - Library for AI stuff
+- [Pandas](https://pandas.pydata.org/) - Library to fetch data to the AI stuff
+- [JavaScript](https://en.wikipedia.org/wiki/JavaScript) - Website stuff
+- [HTML](https://en.wikipedia.org/wiki/HTML) - More website stuff
+- [CSS](https://en.wikipedia.org/wiki/Cascading_Style_Sheets) - Style for the website stuff
+- [Apache XML-RPC](https://ws.apache.org/xmlrpc/) - Communication to the HomeMatic CCU
+- [Image4j](http://image4j.sourceforge.net/) - Image stuff
+- [Jetty-All](https://www.eclipse.org/jetty/) - WebSocket stuff
+- [JSON-Simple](https://code.google.com/archive/p/json-simple/) - JSON stuff
+- [Snake YAML](https://bitbucket.org/asomov/snakeyaml/src/master/) - YAML configuration stuff
 
 ## Authors
-- **EnumType** - *Idea and Coding*
+- **[EnumType](https://github.com/EnumType)** - *Idea and Coding*
+- **[Letsmoe](https://github.com/Letsmoe)** - *Pretty good help with these AI things*
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
