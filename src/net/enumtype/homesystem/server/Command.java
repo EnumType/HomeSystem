@@ -1,16 +1,13 @@
 package net.enumtype.homesystem.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.enumtype.homesystem.HomeSystem;
-import net.enumtype.homesystem.rooms.AIManager;
-import net.enumtype.homesystem.utils.*;
-import net.enumtype.homesystem.rooms.Device;
-import net.enumtype.homesystem.rooms.Room;
-import net.enumtype.homesystem.rooms.RoomManager;
+import net.enumtype.homesystem.server.exceptions.UnknownCommandException;
+import net.enumtype.homesystem.server.utils.*;
 import org.eclipse.jetty.websocket.api.Session;
 
 public class Command {
@@ -24,6 +21,7 @@ public class Command {
 					clientManager.getClient(session) : new Client(session, "", "");
 			final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
 			command = command.split(" ")[0];
+			HomeSystem.getPluginManager().triggerCommand(command, args);
 
 			switch (command.toLowerCase()) {
 				case "login":
@@ -274,6 +272,7 @@ class ConsoleCommand {
 
 		try {
 			System.out.println("Reloading system...");
+			HomeSystem.getPluginManager().unloadPlugins();
 			HomeSystem.getScanningThread().interrupt();
 			clientManager.logoutAll();
 			clientManager.writeUserPerm(true);
@@ -287,6 +286,7 @@ class ConsoleCommand {
 			clientManager.loadUserData();
 			clientManager.loadUserPerm();
 			roomManager.load();
+			HomeSystem.getPluginManager().loadPlugins(new File("plugins"));
 			aiManager.trainAll();
 			aiManager.startDataSaving(data.getAiInterval());
 			aiManager.startPredictions(data.getAiInterval());

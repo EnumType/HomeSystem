@@ -1,6 +1,5 @@
 package net.enumtype.homesystem.server;
 
-import net.enumtype.homesystem.HomeSystem;
 import org.eclipse.jetty.websocket.api.Session;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -118,7 +117,7 @@ public class ClientManager {
 
         System.out.println("Loading Permissions.yml...");
         Yaml yaml = new Yaml();
-        FileInputStream io = new FileInputStream(new File("User-Data//Permissions.yml"));
+        FileInputStream io = new FileInputStream("User-Data//Permissions.yml");
 
         Map<Object, List<String>> list = (Map<Object, List<String>>) yaml.load(io);
 

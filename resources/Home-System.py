@@ -16,14 +16,14 @@ do_prediction = True
 save_plots = True
 time_in_week = 604800
 subtract_value = 0
-max_epochs = 5000
+max_epochs = 10000
 data_min = 0
 data_max = 1
 train_data_list = []
 time_list = []
 target_data_list = []
 
-time_input = 1579204389  # result was about 0.6894 ; should be 1
+time_input = 0
 light_input = 0
 temperature_input = 0
 special_input = 0
@@ -132,6 +132,12 @@ def train(epoch):
 
     losses.append(loss.detach().numpy())
 
+    if epoch == max_epochs and save_plots:
+        if not os.path.exists("plots/"):
+            os.makedirs("plots/")
+        create_loss_plot(losses, device + "_loss.png")
+        create_model_plot(time_list, prediction.detach().numpy(), device + "_curve.png")
+
 
 def start_training():
     if os.path.isfile(model_path + '.back'):
@@ -142,9 +148,6 @@ def start_training():
     for i in range(1, max_epochs+1):
         train(i)
 
-    if save_plots:
-        create_loss_plot(losses, show_plot=True)
-        create_model_plot(time_list, device + "_curve.png", show_plot=True)
     if os.path.isfile(model_path + '.back'):
         os.remove(model_path + '.back')
 
@@ -170,7 +173,7 @@ def create_gif(x_list, target_list, y_list, filename, **kwargs):
     plt.plot(x_list, target_list, ".b")
     ani = animation.ArtistAnimation(fig, ims, interval=kwargs.get('interval', 100))
     if kwargs.get('save_plot', save_plots):
-        ani.save(filename, dpi=1000)
+        ani.save('plots/' + filename, dpi=1000)
     if kwargs.get('show_plot', False):
         plt.get_current_fig_manager().window.state('zoomed')
         plt.show()
@@ -178,15 +181,12 @@ def create_gif(x_list, target_list, y_list, filename, **kwargs):
         plt.clf()
 
 
-def create_model_plot(x_list, filename, **kwargs):
-    input_data = torch.stack(train_data_list).float()
-    input_data = (input_data - data_min)/(data_max - data_min) * 2 - 1
-    res = model(input_data).detach().numpy()
+def create_model_plot(x_list, result, filename, **kwargs):
     plt.plot(x_list, convert_to_array(target_data_list), ".b")
-    plt.plot(x_list, res, ".r")
+    plt.plot(x_list, result, ".r")
     if kwargs.get('save_plot', save_plots):
         plt.gcf().set_size_inches(19.2, 10.8)
-        plt.savefig(filename, dpi=1000)
+        plt.savefig('plots/' + filename, dpi=1000)
     if kwargs.get('show_plot', False):
         plt.get_current_fig_manager().window.state('zoomed')
         plt.show()
@@ -194,13 +194,13 @@ def create_model_plot(x_list, filename, **kwargs):
         plt.clf()
 
 
-def create_loss_plot(loss_list, **kwargs):
+def create_loss_plot(loss_list, filename, **kwargs):
     plt.plot(np.arange(1, max_epochs+1, 1), loss_list, "-b")
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     if kwargs.get('save_plot', save_plots):
         plt.gcf().set_size_inches(19.2, 10.8)
-        plt.savefig(device + '_loss.png', dpi=1000)
+        plt.savefig('plots/' + filename, dpi=1000)
     if kwargs.get('show_plot', False):
         plt.get_current_fig_manager().window.state('zoomed')
         plt.show()
@@ -216,8 +216,9 @@ elif os.path.isfile(model_path + '.back'):
 if __name__ == "__main__":
     if len(sys.argv) >= 4:
         device = str(sys.argv[1])
-        if(not device): quit(-4)
-        train_data_path = 'AI/data/' + device + ''.csv'
+        if not device:
+            quit(-4)
+        train_data_path = 'AI/data/' + device + '.csv'
         model_path = 'AI/models/' + device + '.pt'
         do_training = sys.argv[2].lower() == 'true'
         do_prediction = sys.argv[3].lower() == 'true'

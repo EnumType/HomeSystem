@@ -42,6 +42,13 @@
                 document.getElementById('user').blur();
                 document.getElementById('pass').blur();
                 alert('Username or password wrong!');
+            }else if(data == 'nohttp') {
+                document.getElementById('user').value = '';
+                document.getElementById('pass').value = '';
+
+                document.getElementById('user').blur();
+                document.getElementById('pass').blur();
+                alert('Websocket does not accept http connection!');
             }
         };
 

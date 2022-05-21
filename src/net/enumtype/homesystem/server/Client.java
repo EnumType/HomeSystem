@@ -1,7 +1,8 @@
 package net.enumtype.homesystem.server;
 
-import net.enumtype.homesystem.HomeSystem;
-import net.enumtype.homesystem.utils.Methods;
+import net.enumtype.homesystem.plugin.events.ClientLoginEvent;
+import net.enumtype.homesystem.plugin.events.ClientLogoutEvent;
+import net.enumtype.homesystem.server.utils.Methods;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class Client {
         session.close();
         clientManager.removeClient(this);
         System.out.println("User '" + name + "' logged out");
+        HomeSystem.getPluginManager().triggerEvent(new ClientLogoutEvent(this));
     }
 
     public boolean login() {
@@ -66,6 +68,7 @@ public class Client {
         if(clientManager.isDataCorrect(name, password)) {
             System.out.println("User '" + name + "' logged in with IP " + session.getRemoteAddress().toString());
             clientManager.addClient(this);
+            HomeSystem.getPluginManager().triggerEvent(new ClientLoginEvent(this));
             return true;
         }else {
             System.out.println("User tried to login:");
@@ -76,6 +79,7 @@ public class Client {
     }
 
     public String getName() {return name;}
+    public Session getSession() {return session;}
     public InetAddress getAddress() {return session.getRemoteAddress().getAddress();}
     public boolean hasPermission(String permission) {return permissions.contains(permission);}
     public boolean isChangingConnection() {return changeConnection;}

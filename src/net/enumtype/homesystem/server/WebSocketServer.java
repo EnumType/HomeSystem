@@ -3,9 +3,10 @@ package net.enumtype.homesystem.server;
 import java.io.File;
 import java.io.IOException;
 
-import net.enumtype.homesystem.HomeSystem;
-import net.enumtype.homesystem.utils.Data;
-import net.enumtype.homesystem.utils.UnknownCommandException;
+import net.enumtype.homesystem.plugin.events.ClientConnectEvent;
+import net.enumtype.homesystem.plugin.events.ClientMessageEvent;
+import net.enumtype.homesystem.server.utils.Data;
+import net.enumtype.homesystem.server.exceptions.UnknownCommandException;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -25,6 +26,7 @@ public class WebSocketServer {
 
 	private final int httpPort;
 	private final int httpsPort;
+	private final boolean acceptHttp;
 	private final String keystoreDir;
 	private final String keystore;
 	private final String keystorePassword;
@@ -37,6 +39,7 @@ public class WebSocketServer {
 		this.keystoreDir = data.getResourcesDir();
 		this.keystore = data.getResourcesDir() + "//" + data.getWsKeystore();
 		this.keystorePassword = data.getWsKeystorePassword();
+		this.acceptHttp = data.getAcceptHttp();
 	}
 
 	public void start() throws IOException {
@@ -119,6 +122,12 @@ public class WebSocketServer {
 	@OnWebSocketConnect
 	public void onConnect(Session session) {
 		try {
+			HomeSystem.getPluginManager().triggerEvent(new ClientConnectEvent(session));
+
+			if(!session.isSecure() && !acceptHttp) {
+				session.getRemote().sendString("nohttp");
+				session.close();
+			}
 			final ClientManager clientManager = HomeSystem.getClientManager();
 			if(!clientManager.isLoggedIn(session)) {
 				session.getRemote().sendString("notloggedin");
@@ -136,6 +145,7 @@ public class WebSocketServer {
 	@OnWebSocketMessage
 	public void onMessage(Session session, String message) {
 		if(message.equalsIgnoreCase("isonline")) return;
+		HomeSystem.getPluginManager().triggerEvent(new ClientMessageEvent(session, message));
 
 		try {
 			Command.check(message, session);

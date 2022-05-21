@@ -13,8 +13,16 @@ ws.onopen = function(e) {
 ws.onmessage = function(e) {
 	var data = e.data;
 	console.log(data);
-	
-	if(data === 'notloggedin') {
+
+	if(data == 'nohttp') {
+        document.getElementById('user').value = '';
+        document.getElementById('pass').value = '';
+
+        document.getElementById('user').blur();
+        document.getElementById('pass').blur();
+        alert('Websocket does not accept http connection!');
+        location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/index.php");
+    }else if(data === 'notloggedin') {
 		loggedIn = false;
 		alert('Please login first!');
 		var windowLocation = window.location.pathname;
