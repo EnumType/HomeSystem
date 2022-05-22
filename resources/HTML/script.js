@@ -10,6 +10,8 @@ var loggedIn = false;
 function login() {
     var user = document.getElementById('user').value;
     var pass = document.getElementById('pass').value;
+    if(ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING)
+            ws = location.protocol === 'https:' ? new WebSocket("wss://" + ip + ":8001/") : new WebSocket("ws://" + ip + ":8000/");
     ws.send('login ' + user + ' ' + pass);
 
     return false;
