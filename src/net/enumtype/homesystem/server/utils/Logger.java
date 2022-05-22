@@ -53,7 +53,7 @@ public class Logger extends PrintStream {
     public void println(String s) {
         clearLine();
         s = createPrefix() + s;
-        out.print(s);
+        out.println(s);
         saveToFile(s);
         print(HomeSystem.getCommandPrefix());
     }
@@ -64,6 +64,8 @@ public class Logger extends PrintStream {
         for(int i = 0; i < currentLine.length(); i++) {
             out.print("\b");
         }
+
+        currentLine = "";
     }
 
     public void saveToFile(String line) {

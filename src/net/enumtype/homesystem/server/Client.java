@@ -64,7 +64,7 @@ public class Client {
     }
 
     public boolean login() {
-        if(!session.isSecure()) password = Methods.sha512(password);
+        password = Methods.sha512(password);
         if(clientManager.isDataCorrect(name, password)) {
             System.out.println("User '" + name + "' logged in with IP " + session.getRemoteAddress().toString());
             clientManager.addClient(this);

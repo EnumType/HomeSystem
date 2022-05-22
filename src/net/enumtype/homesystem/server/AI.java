@@ -38,8 +38,8 @@ public class AI {
     }
 
     public void interrupt() {
-        if(trainingProcess.isAlive()) trainingProcess.destroy();
-        if(predictionProcess.isAlive()) predictionProcess.destroy();
+        if(trainingProcess != null && trainingProcess.isAlive()) trainingProcess.destroy();
+        if(predictionProcess != null && predictionProcess.isAlive()) predictionProcess.destroy();
     }
 
     public float predict(long time, double light, double temperature, double special) throws AIException {

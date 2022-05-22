@@ -1,14 +1,5 @@
 <!DOCTYPE html>
 <script>
-	var salt = "hsnRr4UKMuTsfXHuXQ96NBqJpuJNp49h";
-    if(location.protocol !== 'https:') alert("The site is not on https! Your password will be sent unencrypted!");
-
-    function sha512(str) {
-        return crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(salt + str)).then(buf => {
-            return Array.prototype.map.call(new Uint8Array(buf), x=>(('00'+x.toString(16)).slice(-2))).join('');
-        });
-    }
-
     function login() {
         var user = document.getElementById('user').value;
         var pass = document.getElementById('pass').value;
@@ -16,23 +7,15 @@
         var ws = location.protocol === 'https:' ? new WebSocket("wss://" + ip + ":8001/") :
                                         new WebSocket("ws://" + ip + ":8000/");
 
-        if(location.protocol === 'https:') {
-            sha512(pass).then(x => {
-                ws.onopen = function(evt) {
-                    ws.send('login ' + user + ' ' + x);
-                };
-            });
-        }else {
-            ws.onopen = function(evt) {
-                ws.send('login ' + user + ' ' + pass);
-            };
-        }
+        ws.onopen = function(evt) {
+            ws.send('login ' + user + ' ' + pass);
+        };
 
         ws.onmessage = function(evt) {
             var data = evt.data;
             if(data === 'verifylogin ' + user) {
                 ws.send('changeconnection');
-                closeWS(ws);
+                ws.close();
                 var windowLocation = window.location.pathname;
                 location.replace(windowLocation.substring(0, windowLocation.lastIndexOf("/")) + "/home.html");
             }else if(data === 'wrongdata') {
@@ -53,10 +36,6 @@
         };
 
         return false;
-    }
-
-    function closeWS(ws) {
-        ws.close();
     }
 </script>
 <html>
