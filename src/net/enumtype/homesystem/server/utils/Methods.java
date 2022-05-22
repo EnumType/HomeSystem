@@ -1,13 +1,6 @@
 package net.enumtype.homesystem.server.utils;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
@@ -18,15 +11,12 @@ import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
 
 import net.enumtype.homesystem.server.HomeSystem;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import net.sf.image4j.codec.ico.ICOEncoder;
 
 public class Methods {
 	
@@ -41,12 +31,13 @@ public class Methods {
 	public static void extractWebsite() throws IOException {
 		System.out.println("Extracting Website-Data...");
 		
-		File path = new File("HTTP");
-		File faviconICO = new File(path + "//favicon.ico");
-		File faviconPNG = new File(path + "//favicon.png");
-		File index = new File(path + "//index.html");
-		File home = new File(path + "//home.html");
-		File style = new File(path + "//style.css");
+		final File path = new File("HTTP");
+		final File faviconICO = new File(path + "//favicon.ico");
+		final File faviconPNG = new File(path + "//favicon.png");
+		final File index = new File(path + "//index.html");
+		final File home = new File(path + "//home.html");
+		final File style = new File(path + "//style.css");
+		final File script = new File(path + "//script.js");
 		
 		if(!path.exists()) if(!path.mkdir()) throw new IOException("Cannot create directory!");
 		if(faviconICO.exists()) if(!faviconICO.delete()) throw new IOException("Cannot delete file!");
@@ -54,12 +45,14 @@ public class Methods {
 		if(index.exists()) if(!index.delete()) throw new IOException("Cannot delete file!");
 		if(home.exists()) if(!home.delete()) throw new IOException("Cannot delete file!");
 		if(style.exists()) if(!style.delete()) throw new IOException("Cannot delete file!");
+		if(script.exists()) if(!script.delete()) throw new IOException("Cannot delete file!");
 		
-		writeResources(faviconICO, "/HTML/favicon.png", true, "ico");
-		writeResources(faviconPNG, "/HTML/favicon.png", true, "png");
-		writeResources(index, "/HTML/index.html", false, "html");
-		writeResources(home, "/HTML/home.html", false, "html");
-		writeResources(style, "/HTML/style.css", false, "css");
+		writeResources(faviconICO, "/HTML/" + faviconICO.getName(), true, "ico");
+		writeResources(faviconPNG, "/HTML/" + faviconPNG.getName(), true, "png");
+		writeResources(index, "/HTML/" + index.getName(), false, "html");
+		writeResources(home, "/HTML/" + home.getName(), false, "html");
+		writeResources(style, "/HTML/" + style.getName(), false, "css");
+		writeResources(script, "/HTML/" + script.getName(), false, "css");
 
 		System.out.println("Extracted Website-Data");
 	}
@@ -70,12 +63,10 @@ public class Methods {
 			if(stream == null) throw new IOException(resource + " not found!");
 
 			if(image) {
-				final BufferedImage bImage = ImageIO.read(stream);
-				if(format.equals("ico")) {
-					ICOEncoder.write(bImage, file);
-				}else {
-					ImageIO.write(bImage, format, file);
-				}
+				final byte[] data = stream.readAllBytes();
+				final DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+				out.write(data);
+				out.close();
 			}else {
 				BufferedReader in = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
 				BufferedWriter out = new BufferedWriter(new FileWriter(file));

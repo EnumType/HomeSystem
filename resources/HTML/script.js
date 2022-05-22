@@ -215,7 +215,7 @@ ws.addEventListener('message', function(evt) {
     }
 
     switch(fileName) {
-        case 'index.html':
+        case 'index.html': case '':
             checkLoginCommand(command, args);
             break;
         case 'home.html':
