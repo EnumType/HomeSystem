@@ -127,6 +127,7 @@ public class WebSocketServer {
 			if(!session.isSecure() && !acceptHttp) {
 				session.getRemote().sendString("nohttp");
 				session.close();
+				return;
 			}
 			final ClientManager clientManager = HomeSystem.getClientManager();
 			if(!clientManager.isLoggedIn(session)) {
@@ -134,8 +135,7 @@ public class WebSocketServer {
 			}else {
 				final Client client = clientManager.getClient(session.getRemoteAddress().getAddress());
 				client.setSession(session);
-				client.sendMessage("loggedin");
-				client.sendMessage("user:" + client.getName());
+				client.sendMessage("username " + client.getName());
 			}
 		}catch(IOException e) {
 			e.printStackTrace();
@@ -144,7 +144,7 @@ public class WebSocketServer {
 
 	@OnWebSocketMessage
 	public void onMessage(Session session, String message) {
-		if(message.equalsIgnoreCase("isonline")) return;
+		if(message.equalsIgnoreCase("isonline") || message.equalsIgnoreCase("ping")) return;
 		HomeSystem.getPluginManager().triggerEvent(new ClientMessageEvent(session, message));
 
 		try {

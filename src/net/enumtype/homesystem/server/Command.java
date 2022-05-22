@@ -16,14 +16,14 @@ public class Command {
 		if(session == null) return;
 
 		final ClientManager clientManager = HomeSystem.getClientManager();
-		if(clientManager.isLoggedIn(session) || command.startsWith("login") || command.startsWith("connect")) {
+		if(clientManager.isLoggedIn(session) || command.startsWith("login")) {
 			final Client client = !command.toLowerCase().startsWith("login") ?
 					clientManager.getClient(session) : new Client(session, "", "");
 			final String[] args = Arrays.copyOfRange(command.split(" "), 1, command.split(" ").length);
-			command = command.split(" ")[0];
+			command = command.split(" ")[0].toLowerCase();
 			HomeSystem.getPluginManager().triggerCommand(command, args);
 
-			switch (command.toLowerCase()) {
+			switch (command) {
 				case "login":
 					if(args.length == 2) {
 						client.setLoginData(args[0], args[1]);

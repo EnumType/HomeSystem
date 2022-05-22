@@ -4,12 +4,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import net.enumtype.homesystem.plugin.PluginManager;
-import net.enumtype.homesystem.server.AIManager;
-import net.enumtype.homesystem.server.Command;
-import net.enumtype.homesystem.server.WebSocketServer;
 import net.enumtype.homesystem.server.utils.*;
-import net.enumtype.homesystem.server.ClientManager;
-import net.enumtype.homesystem.server.RoomManager;
 
 // Created by EnumType
 
@@ -24,12 +19,13 @@ public class HomeSystem {
 	private static Monitoring monitoring;
 	private static WebSocketServer wsServer;
 	private static Data data;
+	private static Logger logger;
 	
 	public static void main(String[] args) {
 		try {
-			new Logger(System.out);
+			logger = new Logger(System.out);
 			data = new Data();
-			data.setVersion("v1.0.9-Beta-13");
+			data.setVersion("v1.0.9-Beta-14");
 
 			aiManager = new AIManager();
 			clientManager = new ClientManager();
@@ -73,6 +69,7 @@ public class HomeSystem {
 			while(true) {
 				final Scanner scanner = new Scanner(System.in);
 				final String command = scanner.nextLine().replaceAll(commandPrefix, "").toLowerCase();
+				logger.setCurrentLine("");
 				try {
 					if(!command.isEmpty()) {
 						Command.check("console" + command, null);

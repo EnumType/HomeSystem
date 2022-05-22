@@ -75,7 +75,7 @@ public class Data {
 						wssPort = Integer.parseInt(args[1]);
 						break;
 					case "Accept-Http":
-						acceptHttp = Boolean.parseBoolean(args[1]);
+						acceptHttp = Boolean.parseBoolean(args[1].toLowerCase());
 						break;
 					case "WebSocket-Keystore":
 						wsKeystore = args[1];
@@ -87,7 +87,7 @@ public class Data {
 						aiBrightSensor.setAddress(args[1]);
 						break;
 					case "BrightnessSensorHmIP":
-						aiBrightSensor.setHmIp(Boolean.parseBoolean(args[1]));
+						aiBrightSensor.setHmIp(Boolean.parseBoolean(args[1].toLowerCase()));
 						break;
 					case "AI-Interval":
 						aiInterval = Integer.parseInt(args[1]);

@@ -84,6 +84,10 @@ public class Logger extends PrintStream {
         }
     }
 
+    public void setCurrentLine(String currentLine) {
+        this.currentLine = currentLine;
+    }
+
     public String createPrefix() {
         return "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] ";
     }
@@ -94,12 +98,13 @@ class ErrorLogger extends PrintStream {
     private final Logger logger;
 
     public ErrorLogger(Logger logger) {
-        super(System.out);
+        super(System.err);
         this.logger = logger;
     }
 
     @Override
     public void print(String s) {
+        logger.clearLine();
         s = logger.createPrefix() + s;
         logger.saveToFile(s);
         super.print(s);

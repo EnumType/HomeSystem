@@ -102,17 +102,13 @@ public class ClientManager {
         if(!userPermissions.isEmpty()) userPermissions.clear();
         if(!file.exists()) {
             System.out.println("Creating Permissions.yml...");
-            InputStream resource = HomeSystem.class.getResourceAsStream("/Permissions.yml");
-            Yaml in = new Yaml();
-            Map<String, List<String>> map = (Map<String, List<String>>) in.load(resource);
-
             DumperOptions options = new DumperOptions();
             options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
             options.setPrettyFlow(true);
 
-            Yaml out = new Yaml(options);
-            FileWriter writer = new FileWriter(file);
-            out.dump(map, writer);
+            final Yaml out = new Yaml(options);
+            final FileWriter writer = new FileWriter(file);
+            out.dump(null, writer);
         }
 
         System.out.println("Loading Permissions.yml...");
@@ -120,7 +116,7 @@ public class ClientManager {
         FileInputStream io = new FileInputStream("User-Data//Permissions.yml");
 
         Map<Object, List<String>> list = (Map<Object, List<String>>) yaml.load(io);
-
+        if(list == null) return;
         list.keySet().forEach(user -> userPermissions.put(user.toString(), list.get(user)));
     }
 
