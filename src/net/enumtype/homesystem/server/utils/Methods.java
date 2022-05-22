@@ -47,22 +47,22 @@ public class Methods {
 		if(style.exists()) if(!style.delete()) throw new IOException("Cannot delete file!");
 		if(script.exists()) if(!script.delete()) throw new IOException("Cannot delete file!");
 		
-		writeResources(faviconICO, "/HTML/" + faviconICO.getName(), true, "ico");
-		writeResources(faviconPNG, "/HTML/" + faviconPNG.getName(), true, "png");
-		writeResources(index, "/HTML/" + index.getName(), false, "html");
-		writeResources(home, "/HTML/" + home.getName(), false, "html");
-		writeResources(style, "/HTML/" + style.getName(), false, "css");
-		writeResources(script, "/HTML/" + script.getName(), false, "css");
+		writeResources(faviconICO, "/HTML/" + faviconICO.getName());
+		writeResources(faviconPNG, "/HTML/" + faviconPNG.getName());
+		writeResources(index, "/HTML/" + index.getName());
+		writeResources(home, "/HTML/" + home.getName());
+		writeResources(style, "/HTML/" + style.getName());
+		writeResources(script, "/HTML/" + script.getName());
 
 		System.out.println("Extracted Website-Data");
 	}
 	
-	public static void writeResources(File file, String resource, boolean image, String format) {
+	public static void writeResources(File file, String resource) {
 		try {
 			final InputStream stream = HomeSystem.class.getResourceAsStream(resource);
 			if(stream == null) throw new IOException(resource + " not found!");
 
-			if(image) {
+			if(resource.endsWith(".ico") || resource.endsWith(".png")) {
 				final byte[] data = stream.readAllBytes();
 				final DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 				out.write(data);

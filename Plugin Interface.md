@@ -38,7 +38,7 @@ folder and reload/restart the system.
 ## Listeners
 
 The plugin system also includes an event handling system. Your listener needs to implement the
-`net.enumtype.homesystem.plugin.events.Listener`. When you want to have a method called the method
+`net.enumtype.homesystem.plugin.events.Listener`. When you want to have a method called, the method
 needs an `@EventHandler` annotation. The name of the method does not matter but the parameter of
 this method should be the event you want to handle (See [Events](#Events:)):
 

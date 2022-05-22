@@ -14,12 +14,12 @@ import java.util.Map;
 public class Device {
 
     private final String name;
-    private String address;
-    private boolean hmIp;
     private final boolean collectData;
     private final boolean aiControl;
     private final DeviceType type;
     private final AI ai;
+    private String address;
+    private boolean hmIp;
 
     public Device() {
         this.name = "";
