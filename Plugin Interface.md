@@ -8,7 +8,7 @@ your own features to the system.
 1. You have to create a new JavaProject which contains an `plugin.cfg` with the following parameters including:  
    ```yaml
    name: PluginName
-   version: Pluginversion (e.g. 1.0)
+   version: PluginVersion (e.g. 1.0)
    main: path to main (e.g. net.test.Main)
    author: Name of the author (optional)
    ```
@@ -53,7 +53,7 @@ public class MyListener implements Listener {
 }
 ```
 
-The listener needs to be registered:
+The listener needs to be registered:[^1]
 ```java
 package net.test;
 
@@ -100,7 +100,7 @@ public class MyCommand implements Command {
 - `String command` is the name of the command
 - `String[] args` are the arguments of the command split by a space
 
-The command needs to be registered as well where the first[^1] argument of `registerCommand` is the command name:
+The command needs to be registered as well where the first argument of `registerCommand` is the command name:[^1]
 ```java
 package net.test;
 
@@ -120,4 +120,4 @@ public class Main extends Plugin {
 }
 ```
 
-[^1]:Command and Listener do not necessary have to be registered in the `start()` method
+[^1]: Command and Listener do not necessary have to be registered in the `start()` method
