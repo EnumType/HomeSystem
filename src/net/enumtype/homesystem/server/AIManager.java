@@ -63,6 +63,7 @@ public class AIManager {
         if(savingTimer == null) savingTimer = new Timer();
         final RoomManager roomManager = HomeSystem.getRoomManager();
         final StringBuilder builder = new StringBuilder();
+        final Device brightSensor = HomeSystem.getData().getAiBrightSensor();
 
         savingTimer.scheduleAtFixedRate(new TimerTask() {
             @Override

@@ -95,14 +95,11 @@ public class Device {
 
     public double getState() {
         final String result = getValue(type.getValueKey());
-        switch (type) {
-            case LAMP:
-                return Boolean.parseBoolean(result) ? 1 : 0;
-            case ROLL:
-                return Math.round(Float.parseFloat(result));
-            default:
-                return 0;
-        }
+        return switch (type) {
+            case LAMP -> Boolean.parseBoolean(result) ? 1 : 0;
+            case ROLL -> Math.round(Float.parseFloat(result));
+            default -> 0;
+        };
     }
 
     public List<String> getStates() {
@@ -135,14 +132,11 @@ enum DeviceType {
     }
 
     public static DeviceType valueOf(Object object) {
-        switch (object.toString().toLowerCase()) {
-            case "lamp":
-                return LAMP;
-            case "roll":
-                return ROLL;
-            default:
-                return UNKNOWN;
-        }
+        return switch (object.toString().toLowerCase()) {
+            case "lamp" -> LAMP;
+            case "roll" -> ROLL;
+            default -> UNKNOWN;
+        };
     }
 
     public String getValueKey() {return value_key;}
