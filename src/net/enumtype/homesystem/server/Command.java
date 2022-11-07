@@ -1,14 +1,16 @@
 package net.enumtype.homesystem.server;
 
+import net.enumtype.homesystem.server.exceptions.UnknownCommandException;
+import net.enumtype.homesystem.server.utils.Data;
+import net.enumtype.homesystem.server.utils.Methods;
+import net.enumtype.homesystem.server.utils.Monitoring;
+import org.eclipse.jetty.websocket.api.Session;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import net.enumtype.homesystem.server.exceptions.UnknownCommandException;
-import net.enumtype.homesystem.server.utils.*;
-import org.eclipse.jetty.websocket.api.Session;
 
 public class Command {
 	public static void check(String command, Session session) throws UnknownCommandException {
